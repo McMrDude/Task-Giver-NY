@@ -28,6 +28,7 @@ export default function Hjemmeside() {
             <p className="text-lg"><strong>Melding:</strong> {data?.tittel}</p>
             <p><strong>Status:</strong> <span className="text-green-400">{data?.status}</span></p>
             <p className="text-xs text-gray-500 mt-4">Generert av serveren kl: {data?.tidspunkt}</p>
+            <p>Database connection: {data?.db_connected}</p>
           </div>
         )}
       </div>
