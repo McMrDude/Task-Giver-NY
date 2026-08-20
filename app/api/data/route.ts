@@ -1,4 +1,11 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// This client handles the connection to your PostgreSQL database
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const dbConnectionString = process.env.DATABASE_URL; 
 
