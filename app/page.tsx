@@ -8,7 +8,7 @@ export default function TicketingSystem() {
   // States for our simplified table parameters
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('PC problemer'); 
-  const [priority, setPriority] = useState('lav'); 
+  const [priority, setPriority] = useState('low'); 
   const [dueDate, setDueDate] = useState('');
 
   // Pull active ticket list from tasks table
