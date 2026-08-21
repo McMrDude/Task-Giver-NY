@@ -91,9 +91,9 @@ export default function TicketingSystem() {
                 onChange={(e) => setPriority(e.target.value)}
                 className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:border-blue-500 outline-none text-sm text-white bg-gray-900"
               >
-                <option value="low">Lav</option>
+                <option value="lav">Lav</option>
                 <option value="medium">Medium</option>
-                <option value="high">Høy</option>
+                <option value="høy">Høy</option>
               </select>
             </div>
 
