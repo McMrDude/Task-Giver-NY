@@ -321,9 +321,10 @@ export default function TicketingSystem() {
 
         {/* SIDEBAR */}
 
-        <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200 bg-white">
+        <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white">
 
-          <div className="flex h-20 items-center gap-3 border-b border-slate-200 px-6">
+          {/* LOGO / HEADER */}
+          <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6">
 
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
               IT
@@ -342,7 +343,8 @@ export default function TicketingSystem() {
           </div>
 
 
-          <nav className="flex-1 space-y-1 p-4">
+          {/* NAVIGATION */}
+          <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
             <button className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700">
               <span>⌂</span>
@@ -362,16 +364,16 @@ export default function TicketingSystem() {
           </nav>
 
 
-          <div className="border-t border-slate-200 p-4">
+          {/* ACCOUNT */}
+          <div className="shrink-0 border-t border-slate-200 bg-white p-4">
 
             <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
 
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold">
                 G
               </div>
 
               <div className="min-w-0">
-
                 <p className="truncate text-sm font-semibold">
                   Gjestebruker
                 </p>
@@ -379,7 +381,6 @@ export default function TicketingSystem() {
                 <p className="text-xs text-slate-500">
                   Ikke innlogget
                 </p>
-
               </div>
 
             </div>
@@ -391,7 +392,7 @@ export default function TicketingSystem() {
 
         {/* MAIN */}
 
-        <main className="flex-1">
+        <main className="ml-64 flex-1">
 
           {/* DESKTOP TOP BAR */}
 
