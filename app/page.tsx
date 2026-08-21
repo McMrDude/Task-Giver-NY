@@ -36,7 +36,7 @@ export default function Hjemmeside() {
         method: 'POST',
         body: JSON.stringify({
           table: 'messages',
-          insertData: { text: setNameInput, }
+          insertData: { text: nameInput, }
         })
       })
 
