@@ -10,7 +10,7 @@ export default function Hjemmeside() {
   // 1. Trigger the GET request to read database rows
   const fetchDatabaseData = async () => {
     try {
-      const res = await fetch('/api/data?table=messages'); // Set your table name parameter here
+      const res = await fetch('/api/data?table=messages&select=text'); // Set your table name parameter here
       const result = await res.json();
       if (result.success) {
         setItems(result.data || []);
