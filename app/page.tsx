@@ -87,8 +87,7 @@ export default function Hjemmeside() {
               {items.map((item, index) => (
                 <li key={item.id || index} className="flex justify-between bg-gray-800 p-2 rounded text-sm">
                   {/* Note: Make sure 'name' and 'price' match your database column names */}
-                  <span>{item.name}</span>
-                  <span className="text-green-400">${item.price}</span>
+                  <span>{item.text}</span>
                 </li>
               ))}
             </ul>
