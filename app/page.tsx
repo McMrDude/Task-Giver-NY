@@ -41,7 +41,7 @@ export default function TicketingSystem() {
             category: category,
             priority: priority,
             due_date: dueDate || null, 
-            status: 'new' // Defaulting fresh database entries to open status
+            status: 'not_started' // Defaulting fresh database entries to open status
           }
         })
       });
