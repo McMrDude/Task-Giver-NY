@@ -3,16 +3,20 @@ import { NextResponse } from 'next/server';
 import { supabase } from '../supabaseClient';
 
 // Handles GET requests for ANY table (e.g., /api/data?table=users&select=id,email)
+// Inside src/app/api/data/route.ts
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const table = searchParams.get('table') || 'messages';
-  const columns = searchParams.get('select') || '*'; // Default to fetching all columns
+  const columns = searchParams.get('select') || '*';
 
   const { data, error } = await supabase.from(table).select(columns);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   
-  return NextResponse.json({ succes: true, data: data });
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+  
+  // ADDED 'success: true' HERE
+  return NextResponse.json({ success: true, data: data }); 
 }
+
 
 // Handles POST requests for ANY table with ANY columns
 export async function POST(request: Request) {
