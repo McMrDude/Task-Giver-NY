@@ -19,26 +19,31 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+        const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email,
+                password,
+            }),
+        });
 
       const result = await response.json();
 
-      if (!result.success) {
+    if (!result.success) {
         setError(result.error);
         return;
-      }
+    }
 
-      router.push("/");
-      router.refresh();
+    if (result.user.role === "admin") {
+        router.push("/admin");
+    } else {
+        router.push("/");
+    }
+
+    router.refresh();
 
     } catch {
       setError("Kunne ikke kontakte serveren.");
