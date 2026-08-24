@@ -28,13 +28,10 @@ async function getCurrentUser() {
   }
 }
 
-
 export async function GET() {
   try {
-
     const user = await getCurrentUser();
 
-    // Not logged in
     if (!user) {
       return NextResponse.json(
         {
@@ -45,12 +42,11 @@ export async function GET() {
       );
     }
 
-    // Only admins can see all tasks
     if (user.role !== "admin") {
       return NextResponse.json(
         {
           success: false,
-          error: "Du har ikke tilgang til denne siden.",
+          error: "Du har ikke tilgang til adminpanelet.",
         },
         { status: 403 }
       );
@@ -72,8 +68,7 @@ export async function GET() {
     });
 
   } catch (error) {
-
-    console.error("TASK GET ERROR:", error);
+    console.error("ADMIN TASK ERROR:", error);
 
     return NextResponse.json(
       {
