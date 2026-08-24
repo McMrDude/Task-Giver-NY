@@ -450,10 +450,14 @@ export default function TicketingSystem() {
             </div>
 
             { user ? (
-              <button 
-                onClick={() => {
-                    window.location.href = "/api/auth/logout";
-                  }}
+              <button
+                onClick={async () => {
+                  await fetch("/api/auth/logout", {
+                    method: "POST",
+                  });
+
+                  window.location.href = "/login";
+                }}
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
               >
                 Logg ut
