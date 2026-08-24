@@ -449,9 +449,25 @@ export default function TicketingSystem() {
               </p>
             </div>
 
-            <button className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-              Logg inn
-            </button>
+            { user ? (
+              <button 
+                onClick={() => {
+                    window.location.href = "/login";
+                  }}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+              >
+                Logg inn
+              </button>
+            ) : (
+              <button 
+                onClick={() => {
+                    window.location.href = "/logout";
+                  }}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+              >
+                Logg ut
+              </button>
+            )}
 
           </div>
 
