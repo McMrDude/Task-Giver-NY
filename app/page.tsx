@@ -92,31 +92,6 @@ const categories: Category[] = [
   },
 ];
 
-const [user, setUser] = useState<{
-  name: string;
-  email: string;
-} | null>(null);
-
-useEffect(() => {
-  fetch("/api/auth/me")
-    .then(async (res) => {
-      if (!res.ok) {
-        setUser(null);
-        return;
-      }
-
-      const result = await res.json();
-
-      if (result.success) {
-        setUser(result.user);
-      }
-    })
-    .catch(() => {
-      setUser(null);
-    });
-}, []);
-
-
 function getStatusLabel(status: string) {
   switch (status) {
     case "not_started":
@@ -168,6 +143,11 @@ function getPriorityStyle(priority: string) {
 }
 
 export default function TicketingSystem() {
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+  } | null>(null);
+
   const [tickets, setTickets] = useState<any[]>([]);
 
   const [selectedCategory, setSelectedCategory] =
@@ -200,6 +180,25 @@ export default function TicketingSystem() {
 
   useEffect(() => {
     fetchTickets();
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then(async (res) => {
+        if (!res.ok) {
+          setUser(null);
+          return;
+        }
+
+        const result = await res.json();
+
+        if (result.success) {
+          setUser(result.user);
+        }
+      })
+      .catch(() => {
+        setUser(null);
+      });
   }, []);
 
   const openCategory = (category: Category) => {
