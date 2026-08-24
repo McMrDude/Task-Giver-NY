@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     // Find user
     const { data: user, error } = await supabase
       .from("users")
-      .select("name, email, password_hash")
+      .select("name, email, password_hash, role")
       .eq("email", email)
       .maybeSingle();
 
@@ -74,6 +74,7 @@ export async function POST(request: Request) {
     const token = await new SignJWT({
       email: user.email,
       name: user.name,
+      role: user.role,
     })
       .setProtectedHeader({
         alg: "HS256",
