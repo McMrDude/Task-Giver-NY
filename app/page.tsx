@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ThemeToggle from "./components/ThemeToggle";
 
 type Category = {
   id: string;
@@ -14,7 +15,8 @@ const categories: Category[] = [
   {
     id: "pc",
     name: "PC-problemer",
-    description: "Problemer med PC, skjerm, mus, tastatur og annet utstyr.",
+    description:
+      "Problemer med PC, skjerm, mus, tastatur og annet utstyr.",
     icon: "🖥️",
     subcategories: [
       "PC starter ikke",
@@ -28,7 +30,8 @@ const categories: Category[] = [
   {
     id: "network",
     name: "Nettverk",
-    description: "Problemer med Wi-Fi, internett eller nettverkstilgang.",
+    description:
+      "Problemer med Wi-Fi, internett eller nettverkstilgang.",
     icon: "🌐",
     subcategories: [
       "Wi-Fi fungerer ikke",
@@ -41,7 +44,8 @@ const categories: Category[] = [
   {
     id: "printer",
     name: "Printer",
-    description: "Problemer med printere, utskrift og skanning.",
+    description:
+      "Problemer med printere, utskrift og skanning.",
     icon: "🖨️",
     subcategories: [
       "Printer fungerer ikke",
@@ -54,7 +58,8 @@ const categories: Category[] = [
   {
     id: "account",
     name: "Konto og passord",
-    description: "Innlogging, passord, kontoer og tilgang.",
+    description:
+      "Innlogging, passord, kontoer og tilgang.",
     icon: "🔑",
     subcategories: [
       "Glemt passord",
@@ -67,7 +72,8 @@ const categories: Category[] = [
   {
     id: "software",
     name: "Programvare",
-    description: "Programmer, installasjoner, lisenser og oppdateringer.",
+    description:
+      "Programmer, installasjoner, lisenser og oppdateringer.",
     icon: "📦",
     subcategories: [
       "Program fungerer ikke",
@@ -81,7 +87,8 @@ const categories: Category[] = [
   {
     id: "other",
     name: "Annet",
-    description: "Har du et annet IT-relatert problem?",
+    description:
+      "Har du et annet IT-relatert problem?",
     icon: "❓",
     subcategories: [
       "Annet IT-problem",
@@ -92,56 +99,6 @@ const categories: Category[] = [
   },
 ];
 
-function getStatusLabel(status: string) {
-  switch (status) {
-    case "not_started":
-      return "Ny";
-    case "in_progress":
-      return "Pågår";
-    case "completed":
-      return "Ferdig";
-    case "cancelled":
-      return "Avbrutt";
-    default:
-      return status;
-  }
-}
-
-function getStatusStyle(status: string) {
-  switch (status) {
-    case "not_started":
-      return "bg-blue-50 text-blue-700 border-blue-200";
-
-    case "in_progress":
-      return "bg-amber-50 text-amber-700 border-amber-200";
-
-    case "completed":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-
-    case "cancelled":
-      return "bg-gray-100 text-gray-600 border-gray-200";
-
-    default:
-      return "bg-gray-100 text-gray-600 border-gray-200";
-  }
-}
-
-function getPriorityStyle(priority: string) {
-  switch (priority) {
-    case "høy":
-      return "bg-red-50 text-red-700 border-red-200";
-
-    case "medium":
-      return "bg-orange-50 text-orange-700 border-orange-200";
-
-    case "lav":
-      return "bg-gray-100 text-gray-600 border-gray-200";
-
-    default:
-      return "bg-gray-100 text-gray-600 border-gray-200";
-  }
-}
-
 export default function TicketingSystem() {
   const [user, setUser] = useState<{
     name: string;
@@ -149,39 +106,24 @@ export default function TicketingSystem() {
     role: string;
   } | null>(null);
 
-  const [tickets, setTickets] = useState<any[]>([]);
-
   const [selectedCategory, setSelectedCategory] =
     useState<Category | null>(null);
 
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState("");
 
-  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [showTicketForm, setShowTicketForm] =
+    useState(false);
 
   const [content, setContent] = useState("");
   const [priority, setPriority] = useState("lav");
   const [dueDate, setDueDate] = useState("");
 
-  const [statusMessage, setStatusMessage] = useState("");
+  const [statusMessage, setStatusMessage] =
+    useState("");
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const fetchTickets = async () => {
-    try {
-      const res = await fetch("/api/data?table=tasks");
-      const result = await res.json();
-
-      if (result.success) {
-        setTickets(result.data || []);
-      }
-    } catch (err) {
-      console.error("Feil ved henting av saker:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchTickets();
-  }, []);
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -214,14 +156,18 @@ export default function TicketingSystem() {
   };
 
   const startTicket = () => {
-    if (!selectedCategory || !selectedSubcategory) return;
+    if (!selectedCategory || !selectedSubcategory) {
+      return;
+    }
 
     setShowTicketForm(true);
 
     setTimeout(() => {
       document
         .getElementById("ticket-form")
-        ?.scrollIntoView({ behavior: "smooth" });
+        ?.scrollIntoView({
+          behavior: "smooth",
+        });
     }, 50);
   };
 
@@ -241,14 +187,21 @@ export default function TicketingSystem() {
     setDueDate("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
 
-    if (!selectedCategory || !selectedSubcategory) {
+    if (
+      !selectedCategory ||
+      !selectedSubcategory
+    ) {
       return;
     }
 
-    setStatusMessage("Oppretter støttesak...");
+    setStatusMessage(
+      "Oppretter støttesak..."
+    );
 
     try {
       const res = await fetch("/api/data", {
@@ -273,13 +226,15 @@ export default function TicketingSystem() {
       const result = await res.json();
 
       if (!result.success) {
-        setStatusMessage(`Databasefeil: ${result.error}`);
+        setStatusMessage(
+          `Databasefeil: ${result.error}`
+        );
         return;
       }
 
-      setStatusMessage("Støttesaken ble opprettet!");
-
-      await fetchTickets();
+      setStatusMessage(
+        "Støttesaken ble opprettet!"
+      );
 
       setTimeout(() => {
         resetForm();
@@ -287,30 +242,42 @@ export default function TicketingSystem() {
       }, 1500);
     } catch (err) {
       console.error(err);
-      setStatusMessage("En nettverksfeil oppstod.");
+
+      setStatusMessage(
+        "En nettverksfeil oppstod."
+      );
     }
   };
 
+  async function logout() {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    window.location.href = "/login";
+  }
+
   return (
-    <div className="min-h-screen bg-[#f5f7fb] text-slate-900">
+    <div className="min-h-screen bg-[#f5f7fb] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
       {/* MOBILE HEADER */}
 
-      <header className="lg:hidden sticky top-0 z-50 border-b border-slate-200 bg-white">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+
         <div className="flex items-center justify-between px-5 py-4">
 
           <div className="flex items-center gap-3">
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-bold">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
               IT
             </div>
 
             <div>
-              <p className="font-bold text-sm">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">
                 IT Support
               </p>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Støttesystem
               </p>
             </div>
@@ -318,77 +285,123 @@ export default function TicketingSystem() {
           </div>
 
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="cursor-pointer rounded-lg border border-slate-200 p-2"
+            onClick={() =>
+              setMobileMenuOpen(
+                !mobileMenuOpen
+              )
+            }
+            className="cursor-pointer rounded-lg border border-slate-200 p-2 dark:border-slate-700"
           >
             ☰
           </button>
 
         </div>
 
-        {mobileMenuOpen && (
-          <div className="border-t border-slate-200 bg-white px-5 py-4 space-y-2">
 
-            <button className="cursor-pointer w-full rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700">
+        {mobileMenuOpen && (
+
+          <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+
+            <button
+              onClick={() =>
+                setMobileMenuOpen(false)
+              }
+              className="w-full cursor-pointer rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+            >
               Oversikt
             </button>
 
-            <button className="cursor-pointer w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50">
+            <button
+              onClick={() =>
+                (window.location.href =
+                  "/my-tickets")
+              }
+              className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
               Mine saker
             </button>
 
+            <button
+              onClick={() =>
+                (window.location.href =
+                  "/help")
+              }
+              className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              Hjelp
+            </button>
+
+            <ThemeToggle />
+
           </div>
+
         )}
+
       </header>
 
 
       <div className="flex min-h-screen">
 
+
         {/* SIDEBAR */}
 
-        <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white">
+        <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
 
-          {/* LOGO / HEADER */}
-          <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6">
+
+          {/* LOGO */}
+
+          <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
 
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
               IT
             </div>
 
             <div>
-              <p className="font-bold text-slate-900">
+
+              <p className="font-bold text-slate-900 dark:text-white">
                 IT Support
               </p>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Støttesystem
               </p>
+
             </div>
 
           </div>
 
 
           {/* NAVIGATION */}
+
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
-            <button className="cursor-pointer flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700">
+            <button
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+            >
               <span>⌂</span>
               Oversikt
             </button>
 
-            {user?.role === "admin" && (
-              <button
-                onClick={() => {
-                  window.location.href = "/admin";
-                }}
-                className="cursor-pointer flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50"
-              >
-                <span>📋</span>
-                Admin dashboard
-              </button>
-            )}
 
-            <button className="cursor-pointer flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50">
+            <button
+              onClick={() =>
+                (window.location.href =
+                  "/my-tickets")
+              }
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              <span>📋</span>
+              Mine saker
+            </button>
+
+
+            <button
+              onClick={() =>
+                (window.location.href =
+                  "/help")
+              }
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
               <span>❓</span>
               Hjelp
             </button>
@@ -396,38 +409,59 @@ export default function TicketingSystem() {
           </nav>
 
 
-          {/* ACCOUNT */}
-          <div className="border-t border-slate-200 bg-white p-4">
+          {/* BOTTOM AREA */}
+
+          <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+
+            <div className="mb-3">
+              <ThemeToggle />
+            </div>
+
 
             {user ? (
 
-              <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+              <div>
 
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
-                  {user.name.charAt(0).toUpperCase()}
+                <div className="mb-3 flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
+
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                    {user.name
+                      .charAt(0)
+                      .toUpperCase()}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+
+                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                      {user.name}
+                    </p>
+
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {user.email}
+                    </p>
+
+                  </div>
+
                 </div>
 
-                <div className="min-w-0 flex-1">
 
-                  <p className="truncate text-sm font-semibold">
-                    {user.name}
-                  </p>
-
-                  <p className="truncate text-xs text-slate-500">
-                    {user.email}
-                  </p>
-
-                </div>
+                <button
+                  onClick={logout}
+                  className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Logg ut
+                </button>
 
               </div>
 
             ) : (
 
               <button
-                onClick={() => {
-                  window.location.href = "/login";
-                }}
-                className="cursor-pointer w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                onClick={() =>
+                  (window.location.href =
+                    "/login")
+                }
+                className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
                 Logg inn
               </button>
@@ -441,50 +475,32 @@ export default function TicketingSystem() {
 
         {/* MAIN */}
 
-        <main className="ml-64 flex-1">
+        <main className="min-w-0 flex-1 lg:ml-64">
 
-          {/* DESKTOP TOP BAR */}
 
-          <div className="hidden lg:flex h-20 items-center justify-between border-b border-slate-200 bg-white px-8">
+          {/* DESKTOP HEADER */}
+
+          <header className="hidden h-20 items-center border-b border-slate-200 bg-white px-8 dark:border-slate-800 dark:bg-slate-900 lg:flex">
 
             <div>
-              <p className="text-sm text-slate-500">
+
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 IT Support
               </p>
 
-              <p className="font-semibold">
+              <p className="font-semibold text-slate-900 dark:text-white">
                 Oversikt
               </p>
+
             </div>
 
-            { user ? (
-              <button
-                onClick={async () => {
-                  await fetch("/api/auth/logout", {
-                    method: "POST",
-                  });
+          </header>
 
-                  window.location.href = "/login";
-                }}
-                className="cursor-pointer rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
-              >
-                Logg ut
-              </button>
-            ) : (
-              <button 
-                onClick={() => {
-                    window.location.href = "/login";
-                  }}
-                className="cursor-pointer rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
-              >
-                Logg inn
-              </button>
-            )}
 
-          </div>
-
+          {/* CONTENT */}
 
           <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
+
 
             {/* HERO */}
 
@@ -496,13 +512,14 @@ export default function TicketingSystem() {
                   IT-SUPPORT
                 </p>
 
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
                   Hva trenger du hjelp med?
                 </h1>
 
-                <p className="mt-3 text-base leading-7 text-slate-500">
-                  Velg området som passer best til problemet ditt.
-                  Vi hjelper deg med å finne riktig løsning.
+                <p className="mt-3 text-base leading-7 text-slate-500 dark:text-slate-400">
+                  Velg området som passer best
+                  til problemet ditt. Vi hjelper
+                  deg med å finne riktig løsning.
                 </p>
 
               </div>
@@ -518,7 +535,7 @@ export default function TicketingSystem() {
 
                 <div className="mb-4 flex items-center justify-between">
 
-                  <h2 className="text-lg font-semibold">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     Velg kategori
                   </h2>
 
@@ -531,36 +548,42 @@ export default function TicketingSystem() {
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 
-                  {categories.map((category) => (
+                  {categories.map(
+                    (category) => (
 
-                    <button
-                      key={category.id}
-                      onClick={() => openCategory(category)}
-                      className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
-                    >
+                      <button
+                        key={category.id}
+                        onClick={() =>
+                          openCategory(
+                            category
+                          )
+                        }
+                        className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700"
+                      >
 
-                      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl transition group-hover:bg-blue-100">
-                        {category.icon}
-                      </div>
+                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl transition group-hover:bg-blue-100 dark:bg-blue-950/50 dark:group-hover:bg-blue-900/50">
+                          {category.icon}
+                        </div>
 
-                      <h3 className="text-base font-semibold text-slate-900">
-                        {category.name}
-                      </h3>
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                          {category.name}
+                        </h3>
 
-                      <p className="mt-2 min-h-[48px] text-sm leading-6 text-slate-500">
-                        {category.description}
-                      </p>
+                        <p className="mt-2 min-h-[48px] text-sm leading-6 text-slate-500 dark:text-slate-400">
+                          {category.description}
+                        </p>
 
-                      <div className="mt-5 flex items-center text-sm font-semibold text-blue-600">
-                        Velg kategori
-                        <span className="ml-2 transition group-hover:translate-x-1">
-                          →
-                        </span>
-                      </div>
+                        <div className="mt-5 flex items-center text-sm font-semibold text-blue-600">
+                          Velg kategori
+                          <span className="ml-2 transition group-hover:translate-x-1">
+                            →
+                          </span>
+                        </div>
 
-                    </button>
+                      </button>
 
-                  ))}
+                    )
+                  )}
 
                 </div>
 
@@ -571,358 +594,426 @@ export default function TicketingSystem() {
 
             {/* SUBCATEGORY */}
 
-            {selectedCategory && !showTicketForm && (
+            {selectedCategory &&
+              !showTicketForm && (
 
-              <section>
+                <section>
 
-                <button
-                  onClick={goBackToCategories}
-                  className="mb-6 cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-900"
-                >
-                  ← Tilbake til kategorier
-                </button>
+                  <button
+                    onClick={
+                      goBackToCategories
+                    }
+                    className="mb-6 cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  >
+                    ← Tilbake til kategorier
+                  </button>
 
 
-                <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                  <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-4">
 
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-3xl">
-                      {selectedCategory.icon}
-                    </div>
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-3xl dark:bg-blue-950/50">
+                        {selectedCategory.icon}
+                      </div>
 
-                    <div>
+                      <div>
 
-                      <p className="text-sm font-semibold text-blue-600">
-                        KATEGORI
-                      </p>
+                        <p className="text-sm font-semibold text-blue-600">
+                          KATEGORI
+                        </p>
 
-                      <h2 className="mt-1 text-2xl font-bold">
-                        {selectedCategory.name}
-                      </h2>
+                        <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                          {selectedCategory.name}
+                        </h2>
 
-                      <p className="mt-2 text-sm text-slate-500">
-                        {selectedCategory.description}
-                      </p>
+                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                          {
+                            selectedCategory.description
+                          }
+                        </p>
+
+                      </div>
 
                     </div>
 
                   </div>
 
-                </div>
+
+                  <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+                    Hva gjelder problemet?
+                  </h2>
 
 
-                <h2 className="mb-4 text-lg font-semibold">
-                  Hva gjelder problemet?
-                </h2>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+                    {selectedCategory.subcategories.map(
+                      (subcategory) => (
+
+                        <button
+                          key={
+                            subcategory
+                          }
+                          onClick={() =>
+                            setSelectedSubcategory(
+                              subcategory
+                            )
+                          }
+                          className={`cursor-pointer rounded-xl border bg-white p-4 text-left text-sm font-medium shadow-sm transition dark:bg-slate-900 ${
+                            selectedSubcategory ===
+                            subcategory
+                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100 dark:bg-blue-950/50 dark:text-blue-400"
+                              : "border-slate-200 hover:border-blue-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+                          }`}
+                        >
+
+                          <div className="flex items-center justify-between">
+
+                            <span>
+                              {
+                                subcategory
+                              }
+                            </span>
+
+                            {selectedSubcategory ===
+                              subcategory && (
+                              <span className="text-blue-600">
+                                ✓
+                              </span>
+                            )}
+
+                          </div>
+
+                        </button>
+
+                      )
+                    )}
+
+                  </div>
 
 
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-
-                  {selectedCategory.subcategories.map((subcategory) => (
+                  <div className="mt-8 flex justify-end">
 
                     <button
-                      key={subcategory}
-                      onClick={() =>
-                        setSelectedSubcategory(subcategory)
+                      disabled={
+                        !selectedSubcategory
                       }
-                      className={`cursor-pointer rounded-xl border bg-white p-4 text-left text-sm font-medium shadow-sm transition ${
-                        selectedSubcategory === subcategory
-                          ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100"
-                          : "border-slate-200 hover:border-blue-300 hover:bg-slate-50"
-                      }`}
+                      onClick={startTicket}
+                      className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-
-                      <div className="flex items-center justify-between">
-
-                        <span>
-                          {subcategory}
-                        </span>
-
-                        {selectedSubcategory === subcategory && (
-                          <span className="text-blue-600">
-                            ✓
-                          </span>
-                        )}
-
-                      </div>
-
+                      Fortsett →
                     </button>
 
-                  ))}
+                  </div>
 
-                </div>
+                </section>
 
-
-                <div className="mt-8 flex justify-end">
-
-                  <button
-                    disabled={!selectedSubcategory}
-                    onClick={startTicket}
-                    className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    Fortsett →
-                  </button>
-
-                </div>
-
-              </section>
-
-            )}
+              )}
 
 
             {/* TICKET FORM */}
 
-            {selectedCategory && showTicketForm && (
+            {selectedCategory &&
+              showTicketForm && (
 
-              <section id="ticket-form">
+                <section id="ticket-form">
 
-                <button
-                  onClick={() => setShowTicketForm(false)}
-                  className="mb-6 cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-900"
-                >
-                  ← Tilbake
-                </button>
-
-
-                <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-
-                  <form
-                    onSubmit={handleSubmit}
-                    className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+                  <button
+                    onClick={() =>
+                      setShowTicketForm(false)
+                    }
+                    className="mb-6 cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                   >
-
-                    <div className="mb-8">
-
-                      <p className="text-sm font-semibold text-blue-600">
-                        NY STØTTESAK
-                      </p>
-
-                      <h2 className="mt-1 text-2xl font-bold">
-                        Beskriv problemet
-                      </h2>
-
-                      <p className="mt-2 text-sm text-slate-500">
-                        Jo mer informasjon du gir, desto lettere er det
-                        for oss å hjelpe deg.
-                      </p>
-
-                    </div>
+                    ← Tilbake
+                  </button>
 
 
-                    {/* SELECTED CATEGORY */}
+                  <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
 
-                    <div className="mb-6 rounded-xl bg-slate-50 p-4">
 
-                      <div className="flex items-center justify-between">
+                    {/* FORM */}
 
-                        <div>
+                    <form
+                      onSubmit={
+                        handleSubmit
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8"
+                    >
 
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Kategori
-                          </p>
+                      <div className="mb-8">
 
-                          <p className="mt-1 text-sm font-semibold">
-                            {selectedCategory.name}
-                          </p>
+                        <p className="text-sm font-semibold text-blue-600">
+                          NY STØTTESAK
+                        </p>
+
+                        <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                          Beskriv problemet
+                        </h2>
+
+                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                          Jo mer informasjon
+                          du gir, desto lettere
+                          er det for oss å
+                          hjelpe deg.
+                        </p>
+
+                      </div>
+
+
+                      {/* CATEGORY */}
+
+                      <div className="mb-6 rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
+
+                        <div className="flex items-center justify-between">
+
+                          <div>
+
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                              Kategori
+                            </p>
+
+                            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                              {
+                                selectedCategory.name
+                              }
+                            </p>
+
+                          </div>
+
+                          <div className="text-right">
+
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                              Problem
+                            </p>
+
+                            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                              {
+                                selectedSubcategory
+                              }
+                            </p>
+
+                          </div>
 
                         </div>
 
-                        <div className="text-right">
+                      </div>
 
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Problem
-                          </p>
 
-                          <p className="mt-1 text-sm font-semibold">
-                            {selectedSubcategory}
-                          </p>
+                      {/* DESCRIPTION */}
+
+                      <div className="mb-6">
+
+                        <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
+                          Beskrivelse
+                        </label>
+
+                        <textarea
+                          rows={7}
+                          value={content}
+                          onChange={(e) =>
+                            setContent(
+                              e.target.value
+                            )
+                          }
+                          required
+                          placeholder="Forklar hva som har skjedd, hva du har prøvd, og eventuelle feilmeldinger du har fått..."
+                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                        />
+
+                      </div>
+
+
+                      {/* PRIORITY */}
+
+                      <div className="mb-6">
+
+                        <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
+                          Hvor viktig er problemet?
+                        </label>
+
+                        <div className="grid gap-2 sm:grid-cols-3">
+
+                          {[
+                            {
+                              value: "lav",
+                              label: "Lav",
+                              description:
+                                "Kan vente",
+                            },
+                            {
+                              value:
+                                "medium",
+                              label:
+                                "Medium",
+                              description:
+                                "Bør løses snart",
+                            },
+                            {
+                              value: "høy",
+                              label: "Høy",
+                              description:
+                                "Haster",
+                            },
+                          ].map(
+                            (item) => (
+
+                              <button
+                                type="button"
+                                key={
+                                  item.value
+                                }
+                                onClick={() =>
+                                  setPriority(
+                                    item.value
+                                  )
+                                }
+                                className={`cursor-pointer rounded-xl border p-3 text-left transition ${
+                                  priority ===
+                                  item.value
+                                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100 dark:bg-blue-950/50"
+                                    : "border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+                                }`}
+                              >
+
+                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                  {
+                                    item.label
+                                  }
+                                </p>
+
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                  {
+                                    item.description
+                                  }
+                                </p>
+
+                              </button>
+
+                            )
+                          )}
 
                         </div>
 
                       </div>
 
-                    </div>
 
+                      {/* DUE DATE */}
 
-                    {/* DESCRIPTION */}
+                      <div className="mb-8">
 
-                    <div className="mb-6">
+                        <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
+                          Frist
 
-                      <label className="mb-2 block text-sm font-semibold">
-                        Beskrivelse
-                      </label>
+                          <span className="ml-2 font-normal text-slate-400">
+                            Valgfritt
+                          </span>
+                        </label>
 
-                      <textarea
-                        rows={7}
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        required
-                        placeholder="Forklar hva som har skjedd, hva du har prøvd, og eventuelle feilmeldinger du har fått..."
-                        className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
-                      />
-
-                    </div>
-
-
-                    {/* PRIORITY */}
-
-                    <div className="mb-6">
-
-                      <label className="mb-2 block text-sm font-semibold">
-                        Hvor viktig er problemet?
-                      </label>
-
-                      <div className="grid gap-2 sm:grid-cols-3">
-
-                        {[
-                          {
-                            value: "lav",
-                            label: "Lav",
-                            description: "Kan vente",
-                          },
-                          {
-                            value: "medium",
-                            label: "Medium",
-                            description: "Bør løses snart",
-                          },
-                          {
-                            value: "høy",
-                            label: "Høy",
-                            description: "Haster",
-                          },
-                        ].map((item) => (
-
-                          <button
-                            type="button"
-                            key={item.value}
-                            onClick={() => setPriority(item.value)}
-                            className={`cursor-pointer rounded-xl border p-3 text-left transition ${
-                              priority === item.value
-                                ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
-                                : "border-slate-200 hover:bg-slate-50"
-                            }`}
-                          >
-
-                            <p className="text-sm font-semibold">
-                              {item.label}
-                            </p>
-
-                            <p className="mt-1 text-xs text-slate-500">
-                              {item.description}
-                            </p>
-
-                          </button>
-
-                        ))}
+                        <input
+                          type="date"
+                          value={dueDate}
+                          onChange={(e) =>
+                            setDueDate(
+                              e.target.value
+                            )
+                          }
+                          className="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                        />
 
                       </div>
 
-                    </div>
 
+                      {/* BUTTONS */}
 
-                    {/* DUE DATE */}
+                      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
 
-                    <div className="mb-8">
+                        <button
+                          type="button"
+                          onClick={
+                            resetForm
+                          }
+                          className="cursor-pointer rounded-xl px-5 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
+                          Avbryt
+                        </button>
 
-                      <label className="mb-2 block text-sm font-semibold">
-                        Frist
-                        <span className="ml-2 font-normal text-slate-400">
-                          Valgfritt
-                        </span>
-                      </label>
+                        <button
+                          type="submit"
+                          className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                        >
+                          Send inn støttesak
+                        </button>
 
-                      <input
-                        type="date"
-                        value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
-                        className="cursor-pointer rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
-                      />
-
-                    </div>
-
-
-                    {/* BUTTONS */}
-
-                    <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
-
-                      <button
-                        type="button"
-                        onClick={resetForm}
-                        className="cursor-pointer rounded-xl px-5 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100"
-                      >
-                        Avbryt
-                      </button>
-
-                      <button
-                        type="submit"
-                        className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                      >
-                        Send inn støttesak
-                      </button>
-
-                    </div>
-
-
-                    {statusMessage && (
-
-                      <div className="mt-5 rounded-xl bg-blue-50 p-4 text-center text-sm font-medium text-blue-700">
-                        {statusMessage}
                       </div>
 
-                    )}
 
-                  </form>
+                      {statusMessage && (
+
+                        <div className="mt-5 rounded-xl bg-blue-50 p-4 text-center text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+                          {statusMessage}
+                        </div>
+
+                      )}
+
+                    </form>
 
 
-                  {/* SIDE INFORMATION */}
+                    {/* SIDE INFORMATION */}
 
-                  <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                    <h3 className="font-semibold">
-                      Tips til beskrivelsen
-                    </h3>
+                      <h3 className="font-semibold text-slate-900 dark:text-white">
+                        Tips til beskrivelsen
+                      </h3>
 
-                    <ul className="mt-4 space-y-4 text-sm text-slate-500">
+                      <ul className="mt-4 space-y-4 text-sm text-slate-500 dark:text-slate-400">
 
-                      <li className="flex gap-3">
-                        <span>✓</span>
-                        <span>
-                          Fortell hva som faktisk skjer.
-                        </span>
-                      </li>
+                        <li className="flex gap-3">
+                          <span>✓</span>
 
-                      <li className="flex gap-3">
-                        <span>✓</span>
-                        <span>
-                          Oppgi eventuelle feilmeldinger.
-                        </span>
-                      </li>
+                          <span>
+                            Fortell hva som
+                            faktisk skjer.
+                          </span>
+                        </li>
 
-                      <li className="flex gap-3">
-                        <span>✓</span>
-                        <span>
-                          Fortell når problemet startet.
-                        </span>
-                      </li>
+                        <li className="flex gap-3">
+                          <span>✓</span>
 
-                      <li className="flex gap-3">
-                        <span>✓</span>
-                        <span>
-                          Fortell hva du allerede har prøvd.
-                        </span>
-                      </li>
+                          <span>
+                            Oppgi eventuelle
+                            feilmeldinger.
+                          </span>
+                        </li>
 
-                    </ul>
+                        <li className="flex gap-3">
+                          <span>✓</span>
 
-                  </aside>
+                          <span>
+                            Fortell når
+                            problemet startet.
+                          </span>
+                        </li>
 
-                </div>
+                        <li className="flex gap-3">
+                          <span>✓</span>
 
-              </section>
+                          <span>
+                            Fortell hva du
+                            allerede har prøvd.
+                          </span>
+                        </li>
 
-            )}
-            
+                      </ul>
+
+                    </aside>
+
+                  </div>
+
+                </section>
+
+              )}
+
           </div>
 
         </main>

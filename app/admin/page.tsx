@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "../components/ThemeToggle";
 
 type User = {
   name: string;
@@ -20,27 +21,28 @@ type Ticket = {
 };
 
 export default function AdminDashboard() {
-
   const router = useRouter();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [user, setUser] = useState<User | null>(
+    null
+  );
+
+  const [tickets, setTickets] = useState<
+    Ticket[]
+  >([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
 
   useEffect(() => {
     checkAdmin();
   }, []);
 
-
   async function checkAdmin() {
-
     try {
-
-      // Check logged-in user
-      const meResponse = await fetch("/api/auth/me");
+      const meResponse = await fetch(
+        "/api/auth/me"
+      );
 
       if (!meResponse.ok) {
         router.push("/login");
@@ -54,7 +56,6 @@ export default function AdminDashboard() {
         return;
       }
 
-      // Not an admin
       if (me.user.role !== "admin") {
         router.push("/");
         return;
@@ -62,35 +63,33 @@ export default function AdminDashboard() {
 
       setUser(me.user);
 
+      const ticketResponse = await fetch(
+        "/api/admin/tasks"
+      );
 
-      // Get admin-only tickets
-      const ticketResponse = await fetch("/api/admin/tasks");
-
-      const ticketResult = await ticketResponse.json();
+      const ticketResult =
+        await ticketResponse.json();
 
       if (!ticketResult.success) {
         setError(ticketResult.error);
         return;
       }
 
-      setTickets(ticketResult.data || []);
-
+      setTickets(
+        ticketResult.data || []
+      );
     } catch (err) {
-
       console.error(err);
 
-      setError("Kunne ikke laste adminpanelet.");
-
+      setError(
+        "Kunne ikke laste adminpanelet."
+      );
     } finally {
-
       setLoading(false);
-
     }
   }
 
-
   async function logout() {
-
     await fetch("/api/auth/logout", {
       method: "POST",
     });
@@ -98,70 +97,61 @@ export default function AdminDashboard() {
     router.push("/login");
   }
 
-
   if (loading) {
-
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-
-        <div className="text-sm text-slate-500">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="text-sm text-slate-500 dark:text-slate-400">
           Laster adminpanel...
         </div>
-
       </main>
     );
-
   }
-
 
   if (error) {
-
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-
-        <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
           {error}
         </div>
-
       </main>
     );
-
   }
-
 
   const totalTickets = tickets.length;
 
   const openTickets = tickets.filter(
-    ticket => ticket.status === "not_started"
+    (ticket) =>
+      ticket.status === "not_started"
   ).length;
 
-  const highPriorityTickets = tickets.filter(
-    ticket =>
-      ticket.priority === "høy" ||
-      ticket.priority === "high"
-  ).length;
+  const highPriorityTickets =
+    tickets.filter(
+      (ticket) =>
+        ticket.priority === "høy" ||
+        ticket.priority === "high"
+    ).length;
 
-  const inProgressTickets = tickets.filter(
-    ticket =>
-      ticket.status === "in_progress" ||
-      ticket.status === "pågår"
-  ).length;
-
+  const inProgressTickets =
+    tickets.filter(
+      (ticket) =>
+        ticket.status === "in_progress" ||
+        ticket.status === "pågår"
+    ).length;
 
   return (
-
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
       <div className="flex min-h-screen">
 
 
         {/* SIDEBAR */}
 
-        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
+        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
 
-          {/* Logo */}
 
-          <div className="border-b border-slate-200 p-5">
+          {/* LOGO */}
+
+          <div className="border-b border-slate-200 p-5 dark:border-slate-800">
 
             <div className="flex items-center gap-3">
 
@@ -171,11 +161,11 @@ export default function AdminDashboard() {
 
               <div>
 
-                <p className="font-bold">
+                <p className="font-bold text-slate-900 dark:text-white">
                   IT Support
                 </p>
 
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Administrasjon
                 </p>
 
@@ -186,19 +176,21 @@ export default function AdminDashboard() {
           </div>
 
 
-          {/* Navigation */}
+          {/* NAVIGATION */}
 
-          <nav className="flex-1 space-y-1 p-3">
+          <nav className="flex-1 space-y-1 overflow-y-auto p-3">
 
             <button
-              className="cursor-pointer w-full rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700"
+              className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
             >
               Dashboard
             </button>
 
             <button
-              onClick={() => router.push("/")}
-              className="cursor-pointer w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
+              onClick={() =>
+                router.push("/")
+              }
+              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Mine saker
             </button>
@@ -214,13 +206,13 @@ export default function AdminDashboard() {
 
 
             <button
-              className="cursor-pointer w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
+              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Alle saker
             </button>
 
             <button
-              className="cursor-pointer w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
+              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Ansatte
             </button>
@@ -228,23 +220,32 @@ export default function AdminDashboard() {
           </nav>
 
 
-          {/* Account */}
+          {/* BOTTOM */}
 
-          <div className="border-t border-slate-200 p-4">
+          <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+
+            <div className="mb-3">
+              <ThemeToggle />
+            </div>
+
+
+            {/* ACCOUNT */}
 
             <div className="mb-3 flex items-center gap-3">
 
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
-                {user?.name?.charAt(0).toUpperCase()}
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                {user?.name
+                  ?.charAt(0)
+                  .toUpperCase()}
               </div>
 
               <div className="min-w-0">
 
-                <p className="truncate text-sm font-semibold">
+                <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                   {user?.name}
                 </p>
 
-                <p className="truncate text-xs text-slate-500">
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                   Administrator
                 </p>
 
@@ -253,9 +254,11 @@ export default function AdminDashboard() {
             </div>
 
 
+            {/* LOGOUT */}
+
             <button
               onClick={logout}
-              className="cursor-pointer w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Logg ut
             </button>
@@ -265,38 +268,35 @@ export default function AdminDashboard() {
         </aside>
 
 
-        {/* MAIN CONTENT */}
+        {/* MAIN */}
 
         <section className="min-w-0 flex-1">
 
-          {/* Header */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-5 lg:px-8">
+          {/* HEADER */}
 
-            <div className="flex items-center justify-between">
+          <header className="border-b border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-              <div>
+            <div>
 
-                <p className="text-sm font-medium text-blue-600">
-                  Administrasjon
-                </p>
+              <p className="text-sm font-medium text-blue-600">
+                Administrasjon
+              </p>
 
-                <h1 className="mt-1 text-2xl font-bold tracking-tight">
-                  Dashboard
-                </h1>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Dashboard
+              </h1>
 
-                <p className="mt-1 text-sm text-slate-500">
-                  Oversikt over alle støttesaker.
-                </p>
-
-              </div>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Oversikt over alle støttesaker.
+              </p>
 
             </div>
 
           </header>
 
 
-          {/* Content */}
+          {/* CONTENT */}
 
           <div className="space-y-8 p-6 lg:p-8">
 
@@ -319,14 +319,18 @@ export default function AdminDashboard() {
 
               <StatCard
                 title="Høy prioritet"
-                value={highPriorityTickets}
+                value={
+                  highPriorityTickets
+                }
                 description="Krever oppmerksomhet"
                 important
               />
 
               <StatCard
                 title="Pågår"
-                value={inProgressTickets}
+                value={
+                  inProgressTickets
+                }
                 description="Saker som behandles"
               />
 
@@ -337,51 +341,55 @@ export default function AdminDashboard() {
 
             <section>
 
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4">
 
-                <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Alle saker
+                </h2>
 
-                  <h2 className="text-lg font-bold">
-                    Alle saker
-                  </h2>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Administrer og følg opp registrerte støttesaker.
-                  </p>
-
-                </div>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Administrer og følg opp
+                  registrerte støttesaker.
+                </p>
 
               </div>
 
 
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                {tickets.length === 0 ? (
+                {tickets.length ===
+                0 ? (
 
                   <div className="p-10 text-center">
 
-                    <p className="font-medium text-slate-700">
+                    <p className="font-medium text-slate-700 dark:text-slate-200">
                       Ingen saker
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-500">
-                      Det finnes ingen registrerte støttesaker.
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Det finnes ingen
+                      registrerte
+                      støttesaker.
                     </p>
 
                   </div>
 
                 ) : (
 
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
 
-                    {tickets.map(ticket => (
-
-                      <TicketRow
-                        key={ticket.id}
-                        ticket={ticket}
-                      />
-
-                    ))}
+                    {tickets.map(
+                      (ticket) => (
+                        <TicketRow
+                          key={
+                            ticket.id
+                          }
+                          ticket={
+                            ticket
+                          }
+                        />
+                      )
+                    )}
 
                   </div>
 
@@ -415,12 +423,10 @@ function StatCard({
   description: string;
   important?: boolean;
 }) {
-
   return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-
-      <p className="text-sm font-medium text-slate-500">
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
         {title}
       </p>
 
@@ -428,7 +434,7 @@ function StatCard({
         className={`mt-2 text-3xl font-bold ${
           important
             ? "text-red-600"
-            : "text-slate-900"
+            : "text-slate-900 dark:text-white"
         }`}
       >
         {value}
@@ -439,7 +445,6 @@ function StatCard({
       </p>
 
     </div>
-
   );
 }
 
@@ -451,10 +456,9 @@ function TicketRow({
 }: {
   ticket: Ticket;
 }) {
-
   return (
+    <div className="flex flex-col gap-4 p-5 transition hover:bg-slate-50 dark:hover:bg-slate-800/50 md:flex-row md:items-center">
 
-    <div className="flex flex-col gap-4 p-5 transition hover:bg-slate-50 md:flex-row md:items-center">
 
       {/* ID */}
 
@@ -464,54 +468,63 @@ function TicketRow({
           SAK
         </p>
 
-        <p className="font-mono text-sm font-semibold">
+        <p className="font-mono text-sm font-semibold text-slate-900 dark:text-white">
           #{ticket.id}
         </p>
 
       </div>
 
 
-      {/* Main content */}
+      {/* MAIN */}
 
       <div className="min-w-0 flex-1">
 
         <div className="mb-1 flex flex-wrap items-center gap-2">
 
-          <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+          <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
             {ticket.category}
           </span>
 
-          <PriorityBadge priority={ticket.priority} />
+          <PriorityBadge
+            priority={
+              ticket.priority
+            }
+          />
 
         </div>
 
-        <p className="truncate text-sm font-medium text-slate-800">
+        <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
           {ticket.content}
         </p>
 
         <p className="mt-1 text-xs text-slate-400">
           Opprettet{" "}
-          {new Date(ticket.created_at).toLocaleDateString("nb-NO")}
+          {new Date(
+            ticket.created_at
+          ).toLocaleDateString(
+            "nb-NO"
+          )}
         </p>
 
       </div>
 
 
-      {/* Status */}
+      {/* STATUS */}
 
-      <StatusBadge status={ticket.status} />
+      <StatusBadge
+        status={ticket.status}
+      />
 
 
-      {/* Action */}
+      {/* ACTION */}
 
       <button
-        className="cursor-pointer shrink-0 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-white"
+        className="shrink-0 cursor-pointer rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
       >
         Åpne
       </button>
 
     </div>
-
   );
 }
 
@@ -523,7 +536,6 @@ function PriorityBadge({
 }: {
   priority: string;
 }) {
-
   const isHigh =
     priority === "høy" ||
     priority === "high";
@@ -531,31 +543,24 @@ function PriorityBadge({
   const isMedium =
     priority === "medium";
 
-
   if (isHigh) {
-
     return (
-      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Høy
       </span>
     );
-
   }
 
-
   if (isMedium) {
-
     return (
-      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
+      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
         Medium
       </span>
     );
-
   }
 
-
   return (
-    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Lav
     </span>
   );
@@ -569,37 +574,30 @@ function StatusBadge({
 }: {
   status: string;
 }) {
-
   if (
     status === "in_progress" ||
     status === "pågår"
   ) {
-
     return (
-      <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+      <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
       </span>
     );
-
   }
-
 
   if (
     status === "completed" ||
     status === "finished"
   ) {
-
     return (
-      <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+      <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
       </span>
     );
-
   }
 
-
   return (
-    <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+    <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Åpen
     </span>
   );
