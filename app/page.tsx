@@ -389,46 +389,43 @@ export default function TicketingSystem() {
 
 
           {/* ACCOUNT */}
-          <div className="shrink-0 border-t border-slate-200 bg-white p-4">
+          <div className="border-t border-slate-200 bg-white p-4">
 
-            <div className="border-t border-slate-200 bg-white p-4">
+            {user ? (
 
-              {user ? (
+              <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
 
-                <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
+                <div className="min-w-0 flex-1">
 
-                  <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">
+                    {user.name}
+                  </p>
 
-                    <p className="truncate text-sm font-semibold">
-                      {user.name}
-                    </p>
-
-                    <p className="truncate text-xs text-slate-500">
-                      {user.email}
-                    </p>
-
-                  </div>
+                  <p className="truncate text-xs text-slate-500">
+                    {user.email}
+                  </p>
 
                 </div>
 
-              ) : (
+              </div>
 
-                <button
-                  onClick={() => {
-                    window.location.href = "/login";
-                  }}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-                >
-                  Logg inn
-                </button>
+            ) : (
 
-              )}
+              <button
+                onClick={() => {
+                  window.location.href = "/login";
+                }}
+                className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                Logg inn
+              </button>
 
-            </div>
+            )}
+
           </div>
 
         </aside>
