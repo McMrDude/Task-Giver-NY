@@ -92,6 +92,31 @@ const categories: Category[] = [
   },
 ];
 
+const [user, setUser] = useState<{
+  name: string;
+  email: string;
+} | null>(null);
+
+useEffect(() => {
+  fetch("/api/auth/me")
+    .then(async (res) => {
+      if (!res.ok) {
+        setUser(null);
+        return;
+      }
+
+      const result = await res.json();
+
+      if (result.success) {
+        setUser(result.user);
+      }
+    })
+    .catch(() => {
+      setUser(null);
+    });
+}, []);
+
+
 function getStatusLabel(status: string) {
   switch (status) {
     case "not_started":
@@ -374,13 +399,44 @@ export default function TicketingSystem() {
               </div>
 
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">
-                  Gjestebruker
-                </p>
+                <div className="border-t border-slate-200 bg-white p-4">
 
-                <p className="text-xs text-slate-500">
-                  Ikke innlogget
-                </p>
+                  {user ? (
+
+                    <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+
+                        <p className="truncate text-sm font-semibold">
+                          {user.name}
+                        </p>
+
+                        <p className="truncate text-xs text-slate-500">
+                          {user.email}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  ) : (
+
+                    <button
+                      onClick={() => {
+                        window.location.href = "/login";
+                      }}
+                      className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      Logg inn
+                    </button>
+
+                  )}
+
+                </div>
               </div>
 
             </div>
