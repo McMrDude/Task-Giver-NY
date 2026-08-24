@@ -146,6 +146,7 @@ export default function TicketingSystem() {
   const [user, setUser] = useState<{
     name: string;
     email: string;
+    role: string;
   } | null>(null);
 
   const [tickets, setTickets] = useState<any[]>([]);
@@ -375,10 +376,17 @@ export default function TicketingSystem() {
               Oversikt
             </button>
 
-            <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50">
-              <span>📋</span>
-              Mine saker
-            </button>
+            {user?.role === "admin" && (
+              <button
+                onClick={() => {
+                  window.location.href = "/admin";
+                }}
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50"
+              >
+                <span>📋</span>
+                Admin dashboard
+              </button>
+            )}
 
             <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50">
               <span>❓</span>
