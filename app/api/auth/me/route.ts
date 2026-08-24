@@ -29,6 +29,7 @@ export async function GET() {
       user: {
         name: payload.name,
         email: payload.email,
+        role: payload.role,
       },
     });
   } catch {
