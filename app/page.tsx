@@ -319,7 +319,7 @@ export default function TicketingSystem() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-lg border border-slate-200 p-2"
+            className="cursor-pointer rounded-lg border border-slate-200 p-2"
           >
             ☰
           </button>
@@ -329,11 +329,11 @@ export default function TicketingSystem() {
         {mobileMenuOpen && (
           <div className="border-t border-slate-200 bg-white px-5 py-4 space-y-2">
 
-            <button className="w-full rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700">
+            <button className="cursor-pointer w-full rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700">
               Oversikt
             </button>
 
-            <button className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50">
+            <button className="cursor-pointer w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50">
               Mine saker
             </button>
 
@@ -371,7 +371,7 @@ export default function TicketingSystem() {
           {/* NAVIGATION */}
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
-            <button className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700">
+            <button className="cursor-pointer flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700">
               <span>⌂</span>
               Oversikt
             </button>
@@ -381,14 +381,14 @@ export default function TicketingSystem() {
                 onClick={() => {
                   window.location.href = "/admin";
                 }}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50"
+                className="cursor-pointer flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50"
               >
                 <span>📋</span>
                 Admin dashboard
               </button>
             )}
 
-            <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50">
+            <button className="cursor-pointer flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50">
               <span>❓</span>
               Hjelp
             </button>
@@ -427,7 +427,7 @@ export default function TicketingSystem() {
                 onClick={() => {
                   window.location.href = "/login";
                 }}
-                className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                className="cursor-pointer w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
                 Logg inn
               </button>
@@ -466,7 +466,7 @@ export default function TicketingSystem() {
 
                   window.location.href = "/login";
                 }}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+                className="cursor-pointer rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
               >
                 Logg ut
               </button>
@@ -475,7 +475,7 @@ export default function TicketingSystem() {
                 onClick={() => {
                     window.location.href = "/login";
                   }}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+                className="cursor-pointer rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
               >
                 Logg inn
               </button>
@@ -536,7 +536,7 @@ export default function TicketingSystem() {
                     <button
                       key={category.id}
                       onClick={() => openCategory(category)}
-                      className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
+                      className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
                     >
 
                       <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl transition group-hover:bg-blue-100">
@@ -577,7 +577,7 @@ export default function TicketingSystem() {
 
                 <button
                   onClick={goBackToCategories}
-                  className="mb-6 text-sm font-medium text-slate-500 hover:text-slate-900"
+                  className="mb-6 cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-900"
                 >
                   ← Tilbake til kategorier
                 </button>
@@ -626,7 +626,7 @@ export default function TicketingSystem() {
                       onClick={() =>
                         setSelectedSubcategory(subcategory)
                       }
-                      className={`rounded-xl border bg-white p-4 text-left text-sm font-medium shadow-sm transition ${
+                      className={`cursor-pointer rounded-xl border bg-white p-4 text-left text-sm font-medium shadow-sm transition ${
                         selectedSubcategory === subcategory
                           ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100"
                           : "border-slate-200 hover:border-blue-300 hover:bg-slate-50"
@@ -659,7 +659,7 @@ export default function TicketingSystem() {
                   <button
                     disabled={!selectedSubcategory}
                     onClick={startTicket}
-                    className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
                     Fortsett →
                   </button>
@@ -679,7 +679,7 @@ export default function TicketingSystem() {
 
                 <button
                   onClick={() => setShowTicketForm(false)}
-                  className="mb-6 text-sm font-medium text-slate-500 hover:text-slate-900"
+                  className="mb-6 cursor-pointer text-sm font-medium text-slate-500 hover:text-slate-900"
                 >
                   ← Tilbake
                 </button>
@@ -797,7 +797,7 @@ export default function TicketingSystem() {
                             type="button"
                             key={item.value}
                             onClick={() => setPriority(item.value)}
-                            className={`rounded-xl border p-3 text-left transition ${
+                            className={`cursor-pointer rounded-xl border p-3 text-left transition ${
                               priority === item.value
                                 ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
                                 : "border-slate-200 hover:bg-slate-50"
@@ -836,7 +836,7 @@ export default function TicketingSystem() {
                         type="date"
                         value={dueDate}
                         onChange={(e) => setDueDate(e.target.value)}
-                        className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                        className="cursor-pointer rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                       />
 
                     </div>
@@ -849,14 +849,14 @@ export default function TicketingSystem() {
                       <button
                         type="button"
                         onClick={resetForm}
-                        className="rounded-xl px-5 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                        className="cursor-pointer rounded-xl px-5 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100"
                       >
                         Avbryt
                       </button>
 
                       <button
                         type="submit"
-                        className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                        className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                       >
                         Send inn støttesak
                       </button>

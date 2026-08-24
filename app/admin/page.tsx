@@ -191,14 +191,14 @@ export default function AdminDashboard() {
           <nav className="flex-1 space-y-1 p-3">
 
             <button
-              className="w-full rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700"
+              className="cursor-pointer w-full rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700"
             >
               Dashboard
             </button>
 
             <button
               onClick={() => router.push("/")}
-              className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
+              className="cursor-pointer w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
             >
               Mine saker
             </button>
@@ -214,13 +214,13 @@ export default function AdminDashboard() {
 
 
             <button
-              className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
+              className="cursor-pointer w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
             >
               Alle saker
             </button>
 
             <button
-              className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
+              className="cursor-pointer w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50"
             >
               Ansatte
             </button>
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
 
             <button
               onClick={logout}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              className="cursor-pointer w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
               Logg ut
             </button>
@@ -505,7 +505,7 @@ function TicketRow({
       {/* Action */}
 
       <button
-        className="shrink-0 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-white"
+        className="cursor-pointer shrink-0 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-white"
       >
         Åpne
       </button>
