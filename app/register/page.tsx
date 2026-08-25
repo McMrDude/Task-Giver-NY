@@ -224,9 +224,9 @@ export default function RegisterPage() {
 
         {/* THEME TOGGLE */}
 
-        <div className="mt-5 rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+        {/* <div className="mt-5 rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
           <ThemeToggle />
-        </div>
+        </div> */}
 
       </div>
 
