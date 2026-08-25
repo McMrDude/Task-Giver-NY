@@ -107,7 +107,7 @@ export default function EmployeeDashboard() {
       // ----------------------------------------------
 
       const ticketResponse = await fetch(
-        "/api/my-tickets"
+        "/api/employee/tasks"
       );
 
       const ticketResult =
@@ -135,6 +135,70 @@ export default function EmployeeDashboard() {
       setLoading(false);
     }
   }
+
+  async function updateTicketStatus(
+    ticketId: number,
+    status: string
+    ) {
+    try {
+
+        const response = await fetch(
+        "/api/employee/tasks",
+        {
+            method: "PATCH",
+
+            headers: {
+            "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+            id: ticketId,
+            status,
+            }),
+        }
+        );
+
+
+        const result =
+        await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+        alert(
+            result.error ||
+            "Kunne ikke oppdatere saken."
+        );
+
+        return;
+        }
+
+
+        // --------------------------------------------
+        // UPDATE THE TICKET LOCALLY
+        // --------------------------------------------
+
+        setTickets(current =>
+        current.map(ticket =>
+            ticket.id === ticketId
+            ? {
+                ...ticket,
+                status,
+                }
+            : ticket
+        )
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+        "En nettverksfeil oppstod."
+        );
+
+    }
+    }
 
   // ==================================================
   // LOGOUT
@@ -564,11 +628,14 @@ export default function EmployeeDashboard() {
                   {tickets.map(ticket => (
 
                     <EmployeeTicketCard
-                      key={ticket.id}
-                      ticket={ticket}
+                        key={ticket.id}
+                        ticket={ticket}
+                        onUpdateStatus={
+                        updateTicketStatus
+                        }
                     />
 
-                  ))}
+                    ))}
 
                 </div>
 
@@ -626,8 +693,14 @@ function StatCard({
 
 function EmployeeTicketCard({
   ticket,
+  onUpdateStatus,
 }: {
   ticket: Ticket;
+
+  onUpdateStatus: (
+    ticketId: number,
+    status: string
+  ) => void;
 }) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 sm:p-6">
@@ -780,21 +853,40 @@ function EmployeeTicketCard({
         </div>
 
 
-        {/* CURRENT STATUS */}
+        {/* STATUS */}
 
-        <div className="text-left sm:text-right">
+<div className="text-left sm:text-right">
 
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            Status
-          </p>
+  <p className="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+    Status
+  </p>
 
-          <div className="mt-1">
-            <StatusBadge
-              status={ticket.status}
-            />
-          </div>
+  <select
+    value={ticket.status}
+    onChange={e =>
+        onUpdateStatus(
+            ticket.id,
+            e.target.value
+        )
+    }
+    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+  >
 
-        </div>
+    <option value="not_started">
+      Ny
+    </option>
+
+    <option value="in_progress">
+      Pågår
+    </option>
+
+    <option value="completed">
+      Ferdig
+    </option>
+
+  </select>
+
+</div>
 
       </div>
 
