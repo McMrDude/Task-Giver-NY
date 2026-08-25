@@ -40,6 +40,8 @@ export default function LoginPage() {
 
       if (result.user.role === "admin") {
         router.push("/admin");
+      } else if (result.user.role === "employee") {
+        router.push("/employee");
       } else {
         router.push("/");
       }

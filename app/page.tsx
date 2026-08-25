@@ -379,21 +379,15 @@ export default function TicketingSystem() {
             </button>
 
 
-            {/* Admin dashboard */}
-
-            {user?.role === "admin" && (
-
-              <button
-                onClick={() => {
-                  window.location.href = "/admin";
-                }}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                <span>📋</span>
-                Admin dashboard
-              </button>
-
-            )}
+            <button
+              onClick={() => {
+                window.location.href = "/my-tickets";
+              }}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+            >
+              <span>📋</span>
+              Mine saker
+            </button>
 
 
             {/* Hjelp */}

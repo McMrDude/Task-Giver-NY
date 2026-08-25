@@ -37,6 +37,16 @@ export async function GET() {
       secret
     );
 
+    if (payload.role === "employee") {
+        return NextResponse.json(
+            {
+            success: false,
+            error: "Ansatte kan ikke opprette støttesaker.",
+            },
+            { status: 403 }
+        );
+    }
+
 
     // Make sure we have a user ID
     if (!payload.id) {
