@@ -204,22 +204,17 @@ export default function TicketingSystem() {
     );
 
     try {
-      const res = await fetch("/api/data", {
+      const res = await fetch("/api/tickets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          table: "tasks",
-
-          insertData: {
-            content,
-            category: selectedCategory.name,
-            subcategory: selectedSubcategory,
-            priority,
-            due_date: dueDate || null,
-            status: "not_started",
-          },
+          content,
+          category: selectedCategory.name,
+          subcategory: selectedSubcategory,
+          priority,
+          due_date: dueDate || null,
         }),
       });
 

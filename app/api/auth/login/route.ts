@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     // Find user
     const { data: user, error } = await supabase
       .from("users")
-      .select("name, email, password_hash, role")
+      .select("id, name, email, password_hash, role")
       .eq("email", email)
       .maybeSingle();
 
@@ -72,6 +72,7 @@ export async function POST(request: Request) {
 
     // Create login token
     const token = await new SignJWT({
+      id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
@@ -86,6 +87,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       success: true,
       user: {
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,

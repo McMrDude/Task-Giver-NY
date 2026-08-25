@@ -27,6 +27,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       user: {
+        id: payload.id,
         name: payload.name,
         email: payload.email,
         role: payload.role,
