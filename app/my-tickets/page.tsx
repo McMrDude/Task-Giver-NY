@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ThemeToggle from "../../components/ThemeToggle";
+import ThemeToggle from "../components/ThemeToggle";
 
 type User = {
   id: string;
