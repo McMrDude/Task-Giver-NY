@@ -257,7 +257,7 @@ export default function TicketingSystem() {
 
       {/* MOBILE HEADER */}
 
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
 
         <div className="flex items-center justify-between px-5 py-4">
 
@@ -285,7 +285,7 @@ export default function TicketingSystem() {
                 !mobileMenuOpen
               )
             }
-            className="cursor-pointer rounded-lg border border-slate-200 p-2 dark:border-slate-700"
+            className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             ☰
           </button>
@@ -518,7 +518,7 @@ export default function TicketingSystem() {
 
               <div className="max-w-3xl">
 
-                <p className="mb-2 text-sm font-semibold text-blue-600">
+                <p className="mb-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
                   IT-SUPPORT
                 </p>
 
@@ -549,7 +549,7 @@ export default function TicketingSystem() {
                     Velg kategori
                   </h2>
 
-                  <span className="text-sm text-slate-400">
+                  <span className="text-sm text-slate-400 dark:text-slate-500">
                     {categories.length} kategorier
                   </span>
 
@@ -583,7 +583,7 @@ export default function TicketingSystem() {
                           {category.description}
                         </p>
 
-                        <div className="mt-5 flex items-center text-sm font-semibold text-blue-600">
+                        <div className="mt-5 flex items-center text-sm font-semibold text-blue-600 dark:text-blue-400">
                           Velg kategori
                           <span className="ml-2 transition group-hover:translate-x-1">
                             →
@@ -629,7 +629,7 @@ export default function TicketingSystem() {
 
                       <div>
 
-                        <p className="text-sm font-semibold text-blue-600">
+                        <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                           KATEGORI
                         </p>
 
@@ -672,7 +672,7 @@ export default function TicketingSystem() {
                           className={`cursor-pointer rounded-xl border bg-white p-4 text-left text-sm font-medium shadow-sm transition dark:bg-slate-900 ${
                             selectedSubcategory ===
                             subcategory
-                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100 dark:bg-blue-950/50 dark:text-blue-400"
+                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-900"
                               : "border-slate-200 hover:border-blue-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
                           }`}
                         >
@@ -687,7 +687,7 @@ export default function TicketingSystem() {
 
                             {selectedSubcategory ===
                               subcategory && (
-                              <span className="text-blue-600">
+                              <span className="text-blue-600 dark:text-blue-400">
                                 ✓
                               </span>
                             )}
@@ -709,7 +709,7 @@ export default function TicketingSystem() {
                         !selectedSubcategory
                       }
                       onClick={startTicket}
-                      className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
                     >
                       Fortsett →
                     </button>
@@ -752,7 +752,7 @@ export default function TicketingSystem() {
 
                       <div className="mb-8">
 
-                        <p className="text-sm font-semibold text-blue-600">
+                        <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                           NY STØTTESAK
                         </p>
 
@@ -827,7 +827,7 @@ export default function TicketingSystem() {
                           }
                           required
                           placeholder="Forklar hva som har skjedd, hva du har prøvd, og eventuelle feilmeldinger du har fått..."
-                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                         />
 
                       </div>
@@ -880,7 +880,7 @@ export default function TicketingSystem() {
                                 className={`cursor-pointer rounded-xl border p-3 text-left transition ${
                                   priority ===
                                   item.value
-                                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100 dark:bg-blue-950/50"
+                                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100 dark:bg-blue-950/50 dark:ring-blue-900"
                                     : "border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
                                 }`}
                               >
@@ -927,7 +927,7 @@ export default function TicketingSystem() {
                               e.target.value
                             )
                           }
-                          className="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                          className="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
                         />
 
                       </div>
@@ -979,7 +979,9 @@ export default function TicketingSystem() {
                       <ul className="mt-4 space-y-4 text-sm text-slate-500 dark:text-slate-400">
 
                         <li className="flex gap-3">
-                          <span>✓</span>
+                          <span className="text-green-600 dark:text-green-400">
+                            ✓
+                          </span>
 
                           <span>
                             Fortell hva som
@@ -988,7 +990,9 @@ export default function TicketingSystem() {
                         </li>
 
                         <li className="flex gap-3">
-                          <span>✓</span>
+                          <span className="text-green-600 dark:text-green-400">
+                            ✓
+                          </span>
 
                           <span>
                             Oppgi eventuelle
@@ -997,7 +1001,9 @@ export default function TicketingSystem() {
                         </li>
 
                         <li className="flex gap-3">
-                          <span>✓</span>
+                          <span className="text-green-600 dark:text-green-400">
+                            ✓
+                          </span>
 
                           <span>
                             Fortell når
@@ -1006,7 +1012,9 @@ export default function TicketingSystem() {
                         </li>
 
                         <li className="flex gap-3">
-                          <span>✓</span>
+                          <span className="text-green-600 dark:text-green-400">
+                            ✓
+                          </span>
 
                           <span>
                             Fortell hva du

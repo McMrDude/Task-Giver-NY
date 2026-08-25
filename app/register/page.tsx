@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function RegisterPage() {
       // Account successfully created.
       // Send user to login page.
       router.push("/login");
+
     } catch {
       setError("Kunne ikke kontakte serveren.");
     } finally {
@@ -57,11 +59,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f5f7fb] px-5 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-[#f5f7fb] px-5 py-10 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
 
       <div className="w-full max-w-md">
 
-        {/* Logo */}
+        {/* LOGO */}
 
         <div className="mb-8 text-center">
 
@@ -69,31 +71,31 @@ export default function RegisterPage() {
             IT
           </div>
 
-          <h1 className="mt-4 text-2xl font-bold">
+          <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">
             Opprett konto
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Opprett en konto for å kunne registrere og følge støttesaker.
           </p>
 
         </div>
 
 
-        {/* Form */}
+        {/* FORM */}
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-8"
         >
 
           <div className="space-y-5">
 
-            {/* Name */}
+            {/* NAME */}
 
             <div>
 
-              <label className="mb-2 block text-sm font-semibold">
+              <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
                 Navn
               </label>
 
@@ -104,17 +106,17 @@ export default function RegisterPage() {
                 required
                 autoComplete="name"
                 placeholder="Ola Nordmann"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
               />
 
             </div>
 
 
-            {/* Email */}
+            {/* EMAIL */}
 
             <div>
 
-              <label className="mb-2 block text-sm font-semibold">
+              <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
                 E-post
               </label>
 
@@ -125,17 +127,17 @@ export default function RegisterPage() {
                 required
                 autoComplete="email"
                 placeholder="ola@example.com"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
               />
 
             </div>
 
 
-            {/* Password */}
+            {/* PASSWORD */}
 
             <div>
 
-              <label className="mb-2 block text-sm font-semibold">
+              <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
                 Passord
               </label>
 
@@ -147,29 +149,31 @@ export default function RegisterPage() {
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Minst 8 tegn"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
               />
 
             </div>
 
 
-            {/* Confirm password */}
+            {/* CONFIRM PASSWORD */}
 
             <div>
 
-              <label className="mb-2 block text-sm font-semibold">
+              <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
                 Gjenta passord
               </label>
 
               <input
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) =>
+                  setConfirmPassword(e.target.value)
+                }
                 required
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Gjenta passordet"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
               />
 
             </div>
@@ -177,36 +181,38 @@ export default function RegisterPage() {
           </div>
 
 
-          {/* Error */}
+          {/* ERROR */}
 
           {error && (
-            <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">
+
+            <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
               {error}
             </div>
+
           )}
 
 
-          {/* Submit */}
+          {/* SUBMIT */}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="mt-6 w-full rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
           >
             {loading ? "Oppretter konto..." : "Opprett konto"}
           </button>
 
 
-          {/* Login */}
+          {/* LOGIN */}
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
 
             Har du allerede en konto?{" "}
 
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className="font-semibold text-blue-600 hover:text-blue-700"
+              className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Logg inn
             </button>
@@ -214,6 +220,13 @@ export default function RegisterPage() {
           </p>
 
         </form>
+
+
+        {/* THEME TOGGLE */}
+
+        <div className="mt-5 rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+          <ThemeToggle />
+        </div>
 
       </div>
 

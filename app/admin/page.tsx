@@ -419,9 +419,9 @@ export default function AdminDashboard() {
 
     return (
 
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-slate-500 dark:text-slate-400">
           Laster adminpanel...
         </div>
 
@@ -440,9 +440,9 @@ export default function AdminDashboard() {
 
     return (
 
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
-        <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
           {error}
         </div>
 
@@ -459,7 +459,7 @@ export default function AdminDashboard() {
 
   return (
 
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
       <div className="flex min-h-screen">
 
@@ -608,17 +608,17 @@ export default function AdminDashboard() {
 
           {/* HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-5 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-            <p className="text-sm font-medium text-blue-600">
+            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
               Administrasjon
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               Dashboard
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Oversikt og administrasjon av støttesaker.
             </p>
 
@@ -679,11 +679,11 @@ export default function AdminDashboard() {
 
               <div className="mb-5">
 
-                <h2 className="text-lg font-bold">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   Alle saker
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Administrer og følg opp registrerte støttesaker.
                 </p>
 
@@ -692,7 +692,7 @@ export default function AdminDashboard() {
 
               {/* FILTERS */}
 
-              <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:flex-row">
+              <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row">
 
 
                 {/* SEARCH */}
@@ -704,7 +704,7 @@ export default function AdminDashboard() {
                     setSearch(e.target.value)
                   }
                   placeholder="Søk etter sak, bruker eller problem..."
-                  className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                 />
 
 
@@ -717,7 +717,7 @@ export default function AdminDashboard() {
                       e.target.value
                     )
                   }
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 >
 
                   <option value="all">
@@ -748,7 +748,7 @@ export default function AdminDashboard() {
                       e.target.value
                     )
                   }
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 >
 
                   <option value="all">
@@ -774,18 +774,18 @@ export default function AdminDashboard() {
 
               {/* TICKET LIST */}
 
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
 
                 {filteredTickets.length === 0 ? (
 
                   <div className="p-10 text-center">
 
-                    <p className="font-medium text-slate-700">
+                    <p className="font-medium text-slate-700 dark:text-slate-200">
                       Ingen saker funnet
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       Prøv å endre søket eller filtrene.
                     </p>
 
@@ -793,7 +793,7 @@ export default function AdminDashboard() {
 
                 ) : (
 
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
 
                     {filteredTickets.map(
                       ticket => (
@@ -853,23 +853,23 @@ function StatCard({
 
   return (
 
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-      <p className="text-sm font-medium text-slate-500">
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
         {title}
       </p>
 
       <p
         className={`mt-2 text-3xl font-bold ${
           important
-            ? "text-red-600"
-            : "text-slate-900"
+            ? "text-red-600 dark:text-red-400"
+            : "text-slate-900 dark:text-white"
         }`}
       >
         {value}
       </p>
 
-      <p className="mt-1 text-xs text-slate-400">
+      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
         {description}
       </p>
 
@@ -907,7 +907,7 @@ function TicketRow({
 
   return (
 
-    <div className="p-5 transition hover:bg-slate-50">
+    <div className="p-5 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
 
 
       {/* TOP */}
@@ -919,11 +919,11 @@ function TicketRow({
 
         <div className="w-16 shrink-0">
 
-          <p className="text-xs font-medium text-slate-400">
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
             SAK
           </p>
 
-          <p className="font-mono text-sm font-semibold">
+          <p className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
             #{ticket.id}
           </p>
 
@@ -937,13 +937,13 @@ function TicketRow({
 
           <div className="mb-2 flex flex-wrap items-center gap-2">
 
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
               {ticket.category}
             </span>
 
             {ticket.subcategory && (
 
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">
+              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 {ticket.subcategory}
               </span>
 
@@ -956,12 +956,12 @@ function TicketRow({
           </div>
 
 
-          <p className="text-sm font-medium text-slate-800">
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
             {ticket.content}
           </p>
 
 
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400 dark:text-slate-500">
 
             <span>
               Opprettet{" "}
@@ -977,7 +977,7 @@ function TicketRow({
 
               <span>
                 Fra:{" "}
-                <span className="font-medium text-slate-500">
+                <span className="font-medium text-slate-500 dark:text-slate-300">
                   {ticket.sender.name}
                 </span>
               </span>
@@ -1004,14 +1004,14 @@ function TicketRow({
 
       {/* CONTROLS */}
 
-      <div className="mt-5 grid gap-3 border-t border-slate-100 pt-5 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 border-t border-slate-100 pt-5 dark:border-slate-800 md:grid-cols-3">
 
 
         {/* ASSIGN */}
 
         <div>
 
-          <label className="mb-1 block text-xs font-semibold text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
             Ansvarlig
           </label>
 
@@ -1031,7 +1031,7 @@ function TicketRow({
                 }
               )
             }
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 disabled:bg-slate-100"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:disabled:bg-slate-800"
           >
 
             <option value="">
@@ -1060,7 +1060,7 @@ function TicketRow({
 
         <div>
 
-          <label className="mb-1 block text-xs font-semibold text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
             Status
           </label>
 
@@ -1076,7 +1076,7 @@ function TicketRow({
                 }
               )
             }
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 disabled:bg-slate-100"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:disabled:bg-slate-800"
           >
 
             <option value="not_started">
@@ -1104,7 +1104,7 @@ function TicketRow({
 
         <div>
 
-          <label className="mb-1 block text-xs font-semibold text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
             Prioritet
           </label>
 
@@ -1120,7 +1120,7 @@ function TicketRow({
                 }
               )
             }
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 disabled:bg-slate-100"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:disabled:bg-slate-800"
           >
 
             <option value="lav">
@@ -1146,7 +1146,7 @@ function TicketRow({
 
       <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
 
-        <label className="text-xs font-semibold text-slate-500">
+        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
           Frist
         </label>
 
@@ -1171,12 +1171,12 @@ function TicketRow({
               }
             )
           }
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-500 disabled:bg-slate-100"
+          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:disabled:bg-slate-800"
         />
 
         {updating && (
 
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-400 dark:text-slate-500">
             Lagrer...
           </span>
 
@@ -1208,7 +1208,7 @@ function PriorityBadge({
 
     return (
 
-      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Høy
       </span>
 
@@ -1221,7 +1221,7 @@ function PriorityBadge({
 
     return (
 
-      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
+      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
         Medium
       </span>
 
@@ -1232,7 +1232,7 @@ function PriorityBadge({
 
   return (
 
-    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Lav
     </span>
 
@@ -1258,7 +1258,7 @@ function StatusBadge({
 
     return (
 
-      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
       </span>
 
@@ -1274,7 +1274,7 @@ function StatusBadge({
 
     return (
 
-      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
       </span>
 
@@ -1289,7 +1289,7 @@ function StatusBadge({
 
     return (
 
-      <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
+      <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Avbrutt
       </span>
 
@@ -1300,7 +1300,7 @@ function StatusBadge({
 
   return (
 
-    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Ny
     </span>
 
