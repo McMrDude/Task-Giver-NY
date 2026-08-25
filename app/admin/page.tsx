@@ -392,7 +392,7 @@ export default function AdminDashboard() {
     tickets.filter(
       ticket =>
         ticket.status ===
-        "in_progress"
+        "started"
     ).length;
 
 
@@ -728,7 +728,7 @@ export default function AdminDashboard() {
                     Nye
                   </option>
 
-                  <option value="in_progress">
+                  <option value="started">
                     Pågår
                   </option>
 
@@ -1083,7 +1083,7 @@ function TicketRow({
               Ny
             </option>
 
-            <option value="in_progress">
+            <option value="started">
               Pågår
             </option>
 
@@ -1252,7 +1252,7 @@ function StatusBadge({
 }) {
 
   if (
-    status === "in_progress" ||
+    status === "started" ||
     status === "pågår"
   ) {
 
