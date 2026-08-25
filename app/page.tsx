@@ -340,10 +340,9 @@ export default function TicketingSystem() {
 
         {/* SIDEBAR */}
 
-        <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
+        <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
 
-
-          {/* LOGO */}
+          {/* LOGO / HEADER */}
 
           <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
 
@@ -370,6 +369,8 @@ export default function TicketingSystem() {
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
+            {/* Oversikt */}
+
             <button
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
             >
@@ -378,24 +379,27 @@ export default function TicketingSystem() {
             </button>
 
 
-            <button
-              onClick={() =>
-                (window.location.href =
-                  "/my-tickets")
-              }
-              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-              <span>📋</span>
-              Mine saker
-            </button>
+            {/* Admin dashboard */}
+
+            {user?.role === "admin" && (
+
+              <button
+                onClick={() => {
+                  window.location.href = "/admin";
+                }}
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <span>📋</span>
+                Admin dashboard
+              </button>
+
+            )}
 
 
+            {/* Hjelp */}
+
             <button
-              onClick={() =>
-                (window.location.href =
-                  "/help")
-              }
-              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               <span>❓</span>
               Hjelp
@@ -404,25 +408,27 @@ export default function TicketingSystem() {
           </nav>
 
 
-          {/* BOTTOM AREA */}
+          {/* THEME TOGGLE */}
 
-          <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+          <div className="border-t border-slate-200 p-3 dark:border-slate-800">
 
-            <div className="mb-3">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
 
+          </div>
+
+
+          {/* ACCOUNT */}
+
+          <div className="border-t border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
 
             {user ? (
 
-              <div>
+              <>
 
-                <div className="mb-3 flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
+                <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                    {user.name
-                      .charAt(0)
-                      .toUpperCase()}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                    {user.name.charAt(0).toUpperCase()}
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -440,22 +446,31 @@ export default function TicketingSystem() {
                 </div>
 
 
+                {/* LOGOUT */}
+
                 <button
-                  onClick={logout}
-                  className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                  onClick={async () => {
+
+                    await fetch("/api/auth/logout", {
+                      method: "POST",
+                    });
+
+                    window.location.href = "/login";
+
+                  }}
+                  className="mt-3 w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   Logg ut
                 </button>
 
-              </div>
+              </>
 
             ) : (
 
               <button
-                onClick={() =>
-                  (window.location.href =
-                    "/login")
-                }
+                onClick={() => {
+                  window.location.href = "/login";
+                }}
                 className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
                 Logg inn
