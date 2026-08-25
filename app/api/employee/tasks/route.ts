@@ -222,9 +222,10 @@ export async function PATCH(
     // ----------------------------------------------
 
     const allowedStatuses = [
-      "not_started",
-      "in_progress",
-      "completed",
+        "new",
+        "not_started",
+        "started",
+        "completed"
     ];
 
     if (

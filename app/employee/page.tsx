@@ -224,7 +224,7 @@ export default function EmployeeDashboard() {
   const inProgressTickets =
     tickets.filter(
       ticket =>
-        ticket.status === "in_progress" ||
+        ticket.status === "started" ||
         ticket.status === "pågår"
     ).length;
 
@@ -876,7 +876,7 @@ function EmployeeTicketCard({
       Ny
     </option>
 
-    <option value="in_progress">
+    <option value="started">
       Pågår
     </option>
 
@@ -963,7 +963,7 @@ function StatusBadge({
   status: string;
 }) {
   if (
-    status === "in_progress" ||
+    status === "started" ||
     status === "pågår"
   ) {
     return (
