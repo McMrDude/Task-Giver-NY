@@ -702,8 +702,15 @@ function EmployeeTicketCard({
     status: string
   ) => void;
 }) {
+  const router = useRouter();
+
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 sm:p-6">
+    <article 
+      onClick={() =>
+        router.push(`/tickets/${ticket.id}`)
+      }
+      className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 sm:p-6"
+    >
 
       {/* ==================================================
           TOP
@@ -862,12 +869,15 @@ function EmployeeTicketCard({
   </p>
 
   <select
+    onClick={e =>
+      e.stopPropagation()
+    }
     value={ticket.status}
     onChange={e =>
-        onUpdateStatus(
-            ticket.id,
-            e.target.value
-        )
+      onUpdateStatus(
+        ticket.id,
+        e.target.value
+      )
     }
     className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
   >
