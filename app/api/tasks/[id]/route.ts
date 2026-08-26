@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../../supabaseClient";
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET
