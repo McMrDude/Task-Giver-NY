@@ -809,6 +809,9 @@ export default function AdminDashboard() {
                           onUpdate={
                             updateTicket
                           }
+                          onOpen={() =>
+                            router.push(`/tickets/${ticket.id}`)
+                          }
                         />
 
                       )
@@ -889,10 +892,13 @@ function TicketRow({
   employees,
   updating,
   onUpdate,
+  onOpen,
 }: {
   ticket: Ticket;
   employees: User[];
   updating: boolean;
+
+  onOpen: () => void;
 
   onUpdate: (
     id: number,
@@ -917,7 +923,10 @@ function TicketRow({
 
         {/* ID */}
 
-        <div className="w-16 shrink-0">
+        <div
+          onClick={onOpen}
+          className="w-16 shrink-0 cursor-pointer"
+        >
 
           <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
             SAK
@@ -932,7 +941,10 @@ function TicketRow({
 
         {/* CONTENT */}
 
-        <div className="min-w-0 flex-1">
+        <div
+          onClick={onOpen}
+          className="min-w-0 flex-1 cursor-pointer"
+        >
 
 
           <div className="mb-2 flex flex-wrap items-center gap-2">
