@@ -512,7 +512,7 @@ export default function TicketDetailPage() {
                     }
 
                   }}
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
 
                   ← Mine saker
@@ -524,7 +524,7 @@ export default function TicketDetailPage() {
                   onClick={() =>
                     router.push("/help")
                   }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
 
                   ❓ Hjelp

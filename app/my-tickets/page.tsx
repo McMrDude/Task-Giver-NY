@@ -227,14 +227,14 @@ export default function MyTicketsPage() {
 
             <button
               onClick={() => router.push("/")}
-              className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               ⌂ Oversikt
             </button>
 
 
             <button
-              className="w-full rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+              className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
             >
               📋 Mine saker
             </button>
@@ -242,7 +242,7 @@ export default function MyTicketsPage() {
 
             <button
               onClick={() => router.push("/help")}
-              className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               ❓ Hjelp
             </button>
@@ -289,7 +289,7 @@ export default function MyTicketsPage() {
 
             <button
               onClick={logout}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Logg ut
             </button>
@@ -314,7 +314,7 @@ export default function MyTicketsPage() {
 
               <button
                 onClick={() => router.push("/")}
-                className="text-sm font-medium text-blue-600"
+                className="cursor-pointer text-sm font-medium text-blue-600"
               >
                 ← Oversikt
               </button>
@@ -376,7 +376,7 @@ export default function MyTicketsPage() {
 
                 <button
                   onClick={() => router.push("/")}
-                  className="mt-5 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                  className="mt-5 cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
                 >
                   Opprett støttesak
                 </button>
