@@ -954,17 +954,17 @@ export default function TicketDetailPage() {
                   />
 
 
-                  {user?.role === "admin" && (
+                  {user?.role !== "admin" && (
 
                     <InfoRow
-                      label="Ansvarlig"
-                      value={
+                        label="Ansvarlig"
+                        value={
                         ticket.receiver?.name ||
-                        "Ikke tildelt"
-                      }
+                        "Ikke tildelt ennå"
+                        }
                     />
 
-                  )}
+                )}
 
                 </div>
 

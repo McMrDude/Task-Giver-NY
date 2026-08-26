@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
+
 import { supabase } from "../../supabaseClient";
 
 const secret = new TextEncoder().encode(
@@ -14,407 +15,341 @@ const secret = new TextEncoder().encode(
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{
+      id: string;
+    }>;
+  }
 ) {
+
   try {
 
-    // ------------------------------------------------
-    // GET LOGGED-IN USER
-    // ------------------------------------------------
-
-    const cookieStore = await cookies();
-
-    const token =
-      cookieStore.get("auth_token")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Du må være logget inn.",
-        },
-        { status: 401 }
-      );
-    }
-
-
-    // ------------------------------------------------
-    // VERIFY JWT
-    // ------------------------------------------------
-
-    const { payload } = await jwtVerify(
-      token,
-      secret
-    );
-
-    if (!payload.id || !payload.role) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Ugyldig innlogging.",
-        },
-        { status: 401 }
-      );
-    }
-
-    const userId = String(payload.id);
-    const role = String(payload.role);
-
-
-    // ------------------------------------------------
-    // GET TICKET ID
-    // ------------------------------------------------
+    // --------------------------------------------------
+    // GET ID FROM URL
+    // --------------------------------------------------
 
     const { id } = await params;
 
     const ticketId = Number(id);
 
+
     if (!Number.isInteger(ticketId)) {
+
       return NextResponse.json(
         {
           success: false,
           error: "Ugyldig saksnummer.",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
+
     }
 
 
-    // ------------------------------------------------
+    // --------------------------------------------------
+    // GET AUTH COOKIE
+    // --------------------------------------------------
+
+    const cookieStore = await cookies();
+
+    const token =
+      cookieStore.get("token")?.value;
+
+
+    if (!token) {
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Du må være innlogget.",
+        },
+        {
+          status: 401,
+        }
+      );
+
+    }
+
+
+    // --------------------------------------------------
+    // VERIFY JWT
+    // --------------------------------------------------
+
+    let payload;
+
+    try {
+
+      const verified =
+        await jwtVerify(
+          token,
+          secret
+        );
+
+      payload = verified.payload;
+
+    } catch {
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Ugyldig innlogging.",
+        },
+        {
+          status: 401,
+        }
+      );
+
+    }
+
+
+    // --------------------------------------------------
+    // GET USER ID FROM JWT
+    // --------------------------------------------------
+
+    const userId =
+      payload.userId ??
+      payload.user_id ??
+      payload.sub;
+
+
+    if (!userId) {
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Kunne ikke finne brukeren.",
+        },
+        {
+          status: 401,
+        }
+      );
+
+    }
+
+
+    // --------------------------------------------------
+    // GET USER
+    // --------------------------------------------------
+
+    const {
+      data: currentUser,
+      error: userError,
+    } = await supabase
+      .from("users")
+      .select(
+        "id, name, email, role"
+      )
+      .eq(
+        "id",
+        userId
+      )
+      .single();
+
+
+    if (
+      userError ||
+      !currentUser
+    ) {
+
+      console.error(
+        "User lookup error:",
+        userError
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Brukeren ble ikke funnet.",
+        },
+        {
+          status: 401,
+        }
+      );
+
+    }
+
+
+    // --------------------------------------------------
     // LOAD TICKET
-    // ------------------------------------------------
+    // --------------------------------------------------
 
-    const { data: ticket, error } =
-      await supabase
-        .from("tasks")
-        .select("*")
-        .eq("id", ticketId)
-        .single();
+    const {
+      data: ticket,
+      error: ticketError,
+    } = await supabase
+      .from("tasks")
+      .select(`
+        id,
+        sender_id,
+        receiver_id,
+        content,
+        category,
+        subcategory,
+        status,
+        priority,
+        due_date,
+        created_at,
 
-    if (error || !ticket) {
+        sender:users!tasks_sender_id_fkey (
+          id,
+          name,
+          email
+        ),
+
+        receiver:users!tasks_receiver_id_fkey (
+          id,
+          name,
+          email
+        )
+      `)
+      .eq(
+        "id",
+        ticketId
+      )
+      .single();
+
+
+    if (
+      ticketError ||
+      !ticket
+    ) {
+
+      console.error(
+        "Ticket lookup error:",
+        ticketError
+      );
+
       return NextResponse.json(
         {
           success: false,
           error: "Saken ble ikke funnet.",
         },
-        { status: 404 }
+        {
+          status: 404,
+        }
       );
+
     }
 
 
-    // ------------------------------------------------
-    // PERMISSION CHECK
-    // ------------------------------------------------
+    // ==================================================
+    // AUTHORIZATION
+    // ==================================================
 
-    if (role === "user") {
+    // --------------------------------------------------
+    // ADMIN
+    // --------------------------------------------------
+    //
+    // Admins can view every ticket.
+    //
+
+    if (
+      currentUser.role === "admin"
+    ) {
+
+      return NextResponse.json({
+        success: true,
+        data: ticket,
+      });
+
+    }
+
+
+    // --------------------------------------------------
+    // EMPLOYEE
+    // --------------------------------------------------
+    //
+    // Employees can view tickets assigned to them.
+    //
+
+    if (
+      currentUser.role === "employee"
+    ) {
 
       if (
-        String(ticket.sender_id) !== userId
+        String(ticket.receiver_id) !==
+        String(currentUser.id)
       ) {
+
         return NextResponse.json(
           {
             success: false,
-            error:
-              "Du har ikke tilgang til denne saken.",
+            error: "Du har ikke tilgang til denne saken.",
           },
-          { status: 403 }
-        );
-      }
-
-    }
-
-
-    if (role === "employee") {
-
-      if (
-        String(ticket.receiver_id) !== userId
-      ) {
-        return NextResponse.json(
           {
-            success: false,
-            error:
-              "Denne saken er ikke tildelt deg.",
-          },
-          { status: 403 }
+            status: 403,
+          }
         );
+
       }
+
+
+      return NextResponse.json({
+        success: true,
+        data: ticket,
+      });
 
     }
 
-    // Admin can access everything.
+
+    // --------------------------------------------------
+    // NORMAL USER
+    // --------------------------------------------------
+    //
+    // A normal user may ONLY view tickets that
+    // they themselves created.
+    //
+
+    if (
+      String(ticket.sender_id) !==
+      String(currentUser.id)
+    ) {
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Du har ikke tilgang til denne saken.",
+        },
+        {
+          status: 403,
+        }
+      );
+
+    }
 
 
-    // ------------------------------------------------
-    // RETURN
-    // ------------------------------------------------
+    // --------------------------------------------------
+    // USER IS ALLOWED
+    // --------------------------------------------------
 
     return NextResponse.json({
       success: true,
       data: ticket,
     });
 
+
   } catch (error) {
 
     console.error(
-      "GET TICKET ERROR:",
+      "GET /api/tasks/[id] error:",
       error
     );
+
 
     return NextResponse.json(
       {
         success: false,
         error: "Kunne ikke hente saken.",
       },
-      { status: 500 }
-    );
-  }
-}
-
-
-
-// ====================================================
-// PATCH SINGLE TICKET
-// ADMIN ONLY
-// ====================================================
-
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-
-    // ------------------------------------------------
-    // GET LOGGED-IN USER
-    // ------------------------------------------------
-
-    const cookieStore = await cookies();
-
-    const token =
-      cookieStore.get("auth_token")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Du må være logget inn.",
-        },
-        { status: 401 }
-      );
-    }
-
-
-    // ------------------------------------------------
-    // VERIFY JWT
-    // ------------------------------------------------
-
-    const { payload } = await jwtVerify(
-      token,
-      secret
-    );
-
-    if (!payload.id || !payload.role) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Ugyldig innlogging.",
-        },
-        { status: 401 }
-      );
-    }
-
-    const role = String(payload.role);
-
-
-    // ------------------------------------------------
-    // ADMIN ONLY
-    // ------------------------------------------------
-
-    if (role !== "admin") {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Du har ikke tilgang til å endre denne saken.",
-        },
-        { status: 403 }
-      );
-    }
-
-
-    // ------------------------------------------------
-    // GET TICKET ID
-    // ------------------------------------------------
-
-    const { id } = await params;
-
-    const ticketId = Number(id);
-
-    if (!Number.isInteger(ticketId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Ugyldig saksnummer.",
-        },
-        { status: 400 }
-      );
-    }
-
-
-    // ------------------------------------------------
-    // READ REQUEST BODY
-    // ------------------------------------------------
-
-    const body = await request.json();
-
-    const {
-      receiver_id,
-      status,
-      priority,
-      due_date,
-    } = body;
-
-
-    // ------------------------------------------------
-    // BUILD UPDATE
-    // ------------------------------------------------
-
-    const updateData: Record<string, any> = {};
-
-
-    // ------------------------------------------------
-    // ASSIGN EMPLOYEE
-    // ------------------------------------------------
-
-    if (
-      receiver_id !== undefined
-    ) {
-
-      if (
-        receiver_id === null ||
-        receiver_id === ""
-      ) {
-        updateData.receiver_id = null;
-      } else {
-        updateData.receiver_id =
-          String(receiver_id);
-      }
-
-    }
-
-
-    // ------------------------------------------------
-    // STATUS
-    // ------------------------------------------------
-
-    if (
-      status !== undefined
-    ) {
-      updateData.status = status;
-    }
-
-
-    // ------------------------------------------------
-    // PRIORITY
-    // ------------------------------------------------
-
-    if (
-      priority !== undefined
-    ) {
-      updateData.priority = priority;
-    }
-
-
-    // ------------------------------------------------
-    // DUE DATE
-    // ------------------------------------------------
-
-    if (
-      due_date !== undefined
-    ) {
-      updateData.due_date =
-        due_date === ""
-          ? null
-          : due_date;
-    }
-
-
-    // ------------------------------------------------
-    // NOTHING TO UPDATE
-    // ------------------------------------------------
-
-    if (
-      Object.keys(updateData).length === 0
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Ingen endringer ble sendt.",
-        },
-        { status: 400 }
-      );
-    }
-
-
-    // ------------------------------------------------
-    // UPDATE DATABASE
-    // ------------------------------------------------
-
-    const {
-      data: updatedTicket,
-      error,
-    } = await supabase
-      .from("tasks")
-      .update(updateData)
-      .eq("id", ticketId)
-      .select("*")
-      .single();
-
-
-    // ------------------------------------------------
-    // DATABASE ERROR
-    // ------------------------------------------------
-
-    if (error) {
-
-      console.error(
-        "UPDATE TICKET ERROR:",
-        error
-      );
-
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Kunne ikke oppdatere saken.",
-        },
-        { status: 500 }
-      );
-    }
-
-
-    // ------------------------------------------------
-    // RETURN UPDATED TICKET
-    // ------------------------------------------------
-
-    return NextResponse.json({
-      success: true,
-      data: updatedTicket,
-    });
-
-  } catch (error) {
-
-    console.error(
-      "PATCH TICKET ERROR:",
-      error
-    );
-
-    return NextResponse.json(
       {
-        success: false,
-        error:
-          "Kunne ikke oppdatere saken.",
-      },
-      { status: 500 }
+        status: 500,
+      }
     );
+
   }
+
 }

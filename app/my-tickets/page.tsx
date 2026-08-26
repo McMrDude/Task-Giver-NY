@@ -392,6 +392,11 @@ export default function MyTicketsPage() {
                   <TicketCard
                     key={ticket.id}
                     ticket={ticket}
+                    onOpen={() =>
+                      router.push(
+                        `/tickets/${ticket.id}`
+                      )
+                    }
                   />
 
                 ))}
@@ -418,13 +423,18 @@ export default function MyTicketsPage() {
 
 function TicketCard({
   ticket,
+  onOpen,
 }: {
   ticket: Ticket;
+  onOpen: () => void;
 }) {
 
   return (
 
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div 
+      onClick={onOpen}
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+    >
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
