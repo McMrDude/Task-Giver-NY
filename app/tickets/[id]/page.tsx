@@ -32,6 +32,18 @@ type Ticket = {
 
   due_date: string | null;
   created_at: string;
+
+  sender?: {
+    id: string | number;
+    name: string;
+    email: string;
+  } | null;
+
+  receiver?: {
+    id: string | number;
+    name: string;
+    email: string;
+  } | null;
 };
 
 
@@ -58,6 +70,9 @@ export default function TicketDetailPage() {
   const [ticket, setTicket] =
     useState<Ticket | null>(null);
 
+  const [employees, setEmployees] =
+    useState<User[]>([]);
+
   const [loading, setLoading] =
     useState(true);
 
@@ -67,7 +82,7 @@ export default function TicketDetailPage() {
   const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false);
 
-  const [updatingStatus, setUpdatingStatus] =
+  const [updating, setUpdating] =
     useState(false);
 
 
@@ -101,8 +116,10 @@ export default function TicketDetailPage() {
 
       }
 
+
       const me =
         await meResponse.json();
+
 
       if (
         !me.success ||
@@ -114,6 +131,7 @@ export default function TicketDetailPage() {
         return;
 
       }
+
 
       setUser(me.user);
 
@@ -127,11 +145,15 @@ export default function TicketDetailPage() {
           `/api/tasks/${id}`
         );
 
+
       const result =
         await response.json();
 
 
-      if (!response.ok || !result.success) {
+      if (
+        !response.ok ||
+        !result.success
+      ) {
 
         setError(
           result.error ||
@@ -144,6 +166,43 @@ export default function TicketDetailPage() {
 
 
       setTicket(result.data);
+
+
+      // ----------------------------------------------
+      // LOAD EMPLOYEES FOR ADMIN
+      // ----------------------------------------------
+
+      if (
+        me.user.role === "admin"
+      ) {
+
+        const employeeResponse =
+          await fetch(
+            "/api/admin/users"
+          );
+
+
+        if (
+          employeeResponse.ok
+        ) {
+
+          const employeeResult =
+            await employeeResponse.json();
+
+
+          if (
+            employeeResult.success
+          ) {
+
+            setEmployees(
+              employeeResult.data || []
+            );
+
+          }
+
+        }
+
+      }
 
     } catch (error) {
 
@@ -163,10 +222,149 @@ export default function TicketDetailPage() {
 
 
   // ==================================================
-  // UPDATE STATUS
+  // UPDATE TICKET - ADMIN
   // ==================================================
 
-  async function updateStatus(
+  async function updateAdminTicket(
+    changes: {
+      status?: string;
+      receiver_id?: string | null;
+      priority?: string;
+      due_date?: string | null;
+    }
+  ) {
+
+    if (!ticket) {
+      return;
+    }
+
+
+    setUpdating(true);
+
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/admin/tasks",
+          {
+            method: "PATCH",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              id: ticket.id,
+              ...changes,
+            }),
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+
+        alert(
+          result.error ||
+          "Kunne ikke oppdatere saken."
+        );
+
+        return;
+
+      }
+
+
+      // --------------------------------------------
+      // UPDATE LOCAL TICKET
+      // --------------------------------------------
+
+      setTicket(current => {
+
+        if (!current) {
+          return current;
+        }
+
+
+        let receiver =
+          current.receiver;
+
+
+        if (
+          "receiver_id" in changes
+        ) {
+
+          if (
+            changes.receiver_id
+          ) {
+
+            const selectedEmployee =
+              employees.find(
+                employee =>
+                  String(employee.id) ===
+                  String(changes.receiver_id)
+              );
+
+
+            receiver =
+              selectedEmployee
+                ? {
+                    id:
+                      selectedEmployee.id,
+                    name:
+                      selectedEmployee.name,
+                    email:
+                      selectedEmployee.email,
+                  }
+                : null;
+
+          } else {
+
+            receiver = null;
+
+          }
+
+        }
+
+
+        return {
+          ...current,
+          ...changes,
+          receiver,
+        };
+
+      });
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "En nettverksfeil oppstod."
+      );
+
+    } finally {
+
+      setUpdating(false);
+
+    }
+
+  }
+
+
+  // ==================================================
+  // UPDATE STATUS - EMPLOYEE
+  // ==================================================
+
+  async function updateEmployeeStatus(
     status: string
   ) {
 
@@ -174,7 +372,9 @@ export default function TicketDetailPage() {
       return;
     }
 
-    setUpdatingStatus(true);
+
+    setUpdating(true);
+
 
     try {
 
@@ -222,12 +422,14 @@ export default function TicketDetailPage() {
           return current;
         }
 
+
         return {
           ...current,
           status,
         };
 
       });
+
 
     } catch (error) {
 
@@ -239,9 +441,42 @@ export default function TicketDetailPage() {
 
     } finally {
 
-      setUpdatingStatus(false);
+      setUpdating(false);
 
     }
+
+  }
+
+
+  // ==================================================
+  // BACK NAVIGATION
+  // ==================================================
+
+  function goBack() {
+
+    if (
+      user?.role === "admin"
+    ) {
+
+      router.push("/admin");
+
+      return;
+
+    }
+
+
+    if (
+      user?.role === "employee"
+    ) {
+
+      router.push("/employee");
+
+      return;
+
+    }
+
+
+    router.push("/my-tickets");
 
   }
 
@@ -259,6 +494,7 @@ export default function TicketDetailPage() {
       }
     );
 
+
     router.push("/login");
 
   }
@@ -271,6 +507,7 @@ export default function TicketDetailPage() {
   if (loading) {
 
     return (
+
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
         <div className="text-sm text-slate-500 dark:text-slate-400">
@@ -280,6 +517,7 @@ export default function TicketDetailPage() {
         </div>
 
       </main>
+
     );
 
   }
@@ -289,18 +527,24 @@ export default function TicketDetailPage() {
   // ERROR
   // ==================================================
 
-  if (error || !ticket) {
+  if (
+    error ||
+    !ticket
+  ) {
 
     return (
+
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
         <div className="max-w-md rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
 
-          {error || "Saken ble ikke funnet."}
+          {error ||
+            "Saken ble ikke funnet."}
 
         </div>
 
       </main>
+
     );
 
   }
@@ -321,7 +565,7 @@ export default function TicketDetailPage() {
             DESKTOP SIDEBAR
         ================================================== */}
 
-        <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+        <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
 
           {/* LOGO */}
@@ -329,17 +573,25 @@ export default function TicketDetailPage() {
           <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
 
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+
               IT
+
             </div>
+
 
             <div>
 
               <p className="font-bold text-slate-900 dark:text-white">
+
                 IT Support
+
               </p>
 
+
               <p className="text-xs text-slate-500 dark:text-slate-400">
+
                 Støttesystem
+
               </p>
 
             </div>
@@ -351,25 +603,24 @@ export default function TicketDetailPage() {
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
+
+            {/* BACK */}
+
             <button
-              onClick={() => {
-
-                if (user?.role === "employee") {
-                  router.push("/employee");
-                } else {
-                  router.push("/my-tasks");
-                }
-
-              }}
+              onClick={goBack}
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
 
               <span>←</span>
 
-              Mine saker
+              {user?.role === "admin"
+                ? "Tilbake til admin"
+                : "Tilbake til mine saker"}
 
             </button>
 
+
+            {/* HELP */}
 
             <button
               onClick={() =>
@@ -414,6 +665,7 @@ export default function TicketDetailPage() {
 
                   </div>
 
+
                   <div className="min-w-0 flex-1">
 
                     <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
@@ -421,6 +673,7 @@ export default function TicketDetailPage() {
                       {user.name}
 
                     </p>
+
 
                     <p className="truncate text-xs text-slate-500 dark:text-slate-400">
 
@@ -464,17 +717,25 @@ export default function TicketDetailPage() {
               <div className="flex items-center gap-3">
 
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
+
                   IT
+
                 </div>
+
 
                 <div>
 
                   <p className="text-sm font-bold text-slate-900 dark:text-white">
+
                     IT Support
+
                   </p>
 
+
                   <p className="text-xs text-slate-500 dark:text-slate-400">
+
                     Støttesystem
+
                   </p>
 
                 </div>
@@ -502,20 +763,17 @@ export default function TicketDetailPage() {
 
               <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
 
+
                 <button
-                  onClick={() => {
-
-                    if (user?.role === "employee") {
-                      router.push("/employee");
-                    } else {
-                      router.push("/my-tasks");
-                    }
-
-                  }}
+                  onClick={goBack}
                   className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
 
-                  ← Mine saker
+                  ←{" "}
+
+                  {user?.role === "admin"
+                    ? "Tilbake til admin"
+                    : "Mine saker"}
 
                 </button>
 
@@ -554,28 +812,29 @@ export default function TicketDetailPage() {
 
           <header className="border-b border-slate-200 bg-white px-5 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
+
             <button
-              onClick={() => {
-
-                if (user?.role === "employee") {
-                  router.push("/employee");
-                } else {
-                  router.push("/my-tasks");
-                }
-
-              }}
+              onClick={goBack}
               className="mb-4 cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
             >
 
-              ← Tilbake til mine saker
+              ←{" "}
+
+              {user?.role === "admin"
+                ? "Tilbake til admin"
+                : "Tilbake til mine saker"}
 
             </button>
 
 
             <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              {user?.role === "employee"
+
+              {user?.role === "admin"
+                ? "Administrasjon"
+                : user?.role === "employee"
                 ? "Ansattportal"
                 : "Brukerportal"}
+
             </p>
 
 
@@ -588,6 +847,7 @@ export default function TicketDetailPage() {
                   Sak #{ticket.id}
 
                 </h1>
+
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
 
@@ -670,10 +930,12 @@ export default function TicketDetailPage() {
                     value={`#${ticket.id}`}
                   />
 
+
                   <InfoRow
                     label="Kategori"
                     value={ticket.category}
                   />
+
 
                   <InfoRow
                     label="Underkategori"
@@ -683,14 +945,26 @@ export default function TicketDetailPage() {
                     }
                   />
 
+
                   <InfoRow
                     label="Prioritet"
-                    value={
-                      getPriorityLabel(
-                        ticket.priority
-                      )
-                    }
+                    value={getPriorityLabel(
+                      ticket.priority
+                    )}
                   />
+
+
+                  {user?.role === "admin" && (
+
+                    <InfoRow
+                      label="Ansvarlig"
+                      value={
+                        ticket.receiver?.name ||
+                        "Ikke tildelt"
+                      }
+                    />
+
+                  )}
 
                 </div>
 
@@ -717,6 +991,7 @@ export default function TicketDetailPage() {
                     )}
                   />
 
+
                   <InfoRow
                     label="Frist"
                     value={
@@ -736,6 +1011,233 @@ export default function TicketDetailPage() {
 
 
             {/* ==================================================
+                ADMIN CONTROLS
+            ================================================== */}
+
+            {user?.role === "admin" && (
+
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+
+                <div>
+
+                  <h2 className="font-semibold text-slate-900 dark:text-white">
+
+                    Administrasjon
+
+                  </h2>
+
+
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                    Administrer ansvarlig, status, prioritet og frist for denne saken.
+
+                  </p>
+
+                </div>
+
+
+                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+
+
+                  {/* ASSIGN EMPLOYEE */}
+
+                  <div>
+
+                    <label className="mb-2 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+
+                      Ansvarlig ansatt
+
+                    </label>
+
+
+                    <select
+                      value={
+                        ticket.receiver_id
+                          ? String(
+                              ticket.receiver_id
+                            )
+                          : ""
+                      }
+                      disabled={updating}
+                      onChange={e =>
+                        updateAdminTicket({
+                          receiver_id:
+                            e.target.value ||
+                            null,
+                        })
+                      }
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                    >
+
+                      <option value="">
+                        Ikke tildelt
+                      </option>
+
+
+                      {employees.map(
+                        employee => (
+
+                          <option
+                            key={employee.id}
+                            value={String(
+                              employee.id
+                            )}
+                          >
+
+                            {employee.name}
+
+                          </option>
+
+                        )
+                      )}
+
+                    </select>
+
+                  </div>
+
+
+                  {/* STATUS */}
+
+                  <div>
+
+                    <label className="mb-2 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+
+                      Status
+
+                    </label>
+
+
+                    <select
+                      value={ticket.status}
+                      disabled={updating}
+                      onChange={e =>
+                        updateAdminTicket({
+                          status:
+                            e.target.value,
+                        })
+                      }
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                    >
+
+                      <option value="not_started">
+                        Ny
+                      </option>
+
+
+                      <option value="started">
+                        Pågår
+                      </option>
+
+
+                      <option value="completed">
+                        Ferdig
+                      </option>
+
+
+                      <option value="cancelled">
+                        Avbrutt
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  {/* PRIORITY */}
+
+                  <div>
+
+                    <label className="mb-2 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+
+                      Prioritet
+
+                    </label>
+
+
+                    <select
+                      value={ticket.priority}
+                      disabled={updating}
+                      onChange={e =>
+                        updateAdminTicket({
+                          priority:
+                            e.target.value,
+                        })
+                      }
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                    >
+
+                      <option value="lav">
+                        Lav
+                      </option>
+
+
+                      <option value="medium">
+                        Medium
+                      </option>
+
+
+                      <option value="høy">
+                        Høy
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  {/* DUE DATE */}
+
+                  <div>
+
+                    <label className="mb-2 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+
+                      Frist
+
+                    </label>
+
+
+                    <input
+                      type="date"
+                      value={
+                        ticket.due_date
+                          ? ticket.due_date.slice(
+                              0,
+                              10
+                            )
+                          : ""
+                      }
+                      disabled={updating}
+                      onChange={e =>
+                        updateAdminTicket({
+                          due_date:
+                            e.target.value ||
+                            null,
+                        })
+                      }
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                    />
+
+                  </div>
+
+                </div>
+
+
+                {updating && (
+
+                  <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">
+
+                    Lagrer endring...
+
+                  </p>
+
+                )}
+
+              </section>
+
+            )}
+
+
+            {/* ==================================================
                 EMPLOYEE CONTROLS
             ================================================== */}
 
@@ -748,6 +1250,7 @@ export default function TicketDetailPage() {
                   Behandling
 
                 </h2>
+
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
 
@@ -767,9 +1270,9 @@ export default function TicketDetailPage() {
 
                   <select
                     value={ticket.status}
-                    disabled={updatingStatus}
+                    disabled={updating}
                     onChange={e =>
-                      updateStatus(
+                      updateEmployeeStatus(
                         e.target.value
                       )
                     }
@@ -780,9 +1283,11 @@ export default function TicketDetailPage() {
                       Ny
                     </option>
 
+
                     <option value="started">
                       Pågår
                     </option>
+
 
                     <option value="completed">
                       Ferdig
@@ -798,7 +1303,7 @@ export default function TicketDetailPage() {
 
 
             {/* ==================================================
-                FUTURE ACTIVITY
+                ACTIVITY
             ================================================== */}
 
             <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -808,6 +1313,7 @@ export default function TicketDetailPage() {
                 Aktivitet
 
               </h2>
+
 
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
 
@@ -838,6 +1344,7 @@ export default function TicketDetailPage() {
     </main>
 
   );
+
 }
 
 
@@ -862,6 +1369,7 @@ function InfoRow({
         {label}
 
       </span>
+
 
       <span className="text-right text-sm font-medium text-slate-900 dark:text-slate-100">
 
@@ -910,14 +1418,20 @@ function getPriorityLabel(
     priority === "høy" ||
     priority === "high"
   ) {
+
     return "Høy";
+
   }
+
 
   if (
     priority === "medium"
   ) {
+
     return "Medium";
+
   }
+
 
   return "Lav";
 
