@@ -124,7 +124,8 @@ export default function TicketDetailPage() {
 
   }, [id]);
 
-  useEffect(() => {
+useEffect(() => {
+
   if (!id) {
     return;
   }
@@ -136,27 +137,99 @@ export default function TicketDetailPage() {
       {
         event: "INSERT",
         schema: "public",
-        table: "messages",
+        table: "task_messages",
         filter: `task_id=eq.${id}`,
       },
-      (payload) => {
-        console.log("Realtime message received:", payload);
+      async (payload) => {
 
-        setMessages((currentMessages) => {
+        console.log(
+          "Realtime message received:",
+          payload
+        );
+
+        const newMessage =
+          payload.new as Message;
+
+
+        // --------------------------------------------
+        // PREVENT DUPLICATES
+        // --------------------------------------------
+
+        setMessages(currentMessages => {
+
+          const alreadyExists =
+            currentMessages.some(
+              message =>
+                message.id === newMessage.id
+            );
+
+          if (alreadyExists) {
+            return currentMessages;
+          }
+
           return [
             ...currentMessages,
-            payload.new as Message,
+            newMessage,
           ];
+
         });
+
+
+        // --------------------------------------------
+        // LOAD SENDER INFORMATION
+        // --------------------------------------------
+
+        try {
+
+          const response =
+            await fetch(
+              `/api/tasks/${id}/messages`
+            );
+
+          const result =
+            await response.json();
+
+          if (
+            response.ok &&
+            result.success
+          ) {
+
+            const updatedMessages =
+              result.data || [];
+
+            setMessages(updatedMessages);
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Could not load message sender:",
+            error
+          );
+
+        }
+
       }
     )
     .subscribe((status) => {
-      console.log("Realtime subscription:", status);
+
+      console.log(
+        "Realtime subscription:",
+        status
+      );
+
     });
 
+
   return () => {
-    supabase.removeChannel(channel);
+
+    supabase.removeChannel(
+      channel
+    );
+
   };
+
 }, [id]);
 
 
