@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 
 import { supabase } from "../../../supabaseClient";
+import { supabaseAdmin } from "../../../../supabaseAdmin";
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET
@@ -653,6 +654,16 @@ export async function POST(
       );
 
     }
+
+    await supabaseAdmin
+    .channel(`ticket-messages-${ticketId}`)
+    .send({
+        type: "broadcast",
+        event: "new-message",
+        payload: {
+            messageId: message.id,
+        },
+    });
 
 
     return NextResponse.json(

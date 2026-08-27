@@ -138,37 +138,61 @@ useEffect(() => {
   const channel = supabase
     .channel(`ticket-messages-${id}`)
     .on(
-      "postgres_changes",
+      "broadcast",
       {
-        event: "INSERT",
-        schema: "public",
-        table: "task_messages",
-        filter: `task_id=eq.${id}`,
+        event: "new-message",
       },
-      (payload) => {
+      async (payload) => {
 
         console.log(
           "🔥 REALTIME MESSAGE RECEIVED:",
           payload
         );
 
+
+        // --------------------------------------------
+        // RELOAD MESSAGES
+        // --------------------------------------------
+
+        try {
+
+          const response =
+            await fetch(
+              `/api/tasks/${id}/messages`
+            );
+
+          const result =
+            await response.json();
+
+
+          if (
+            response.ok &&
+            result.success
+          ) {
+
+            setMessages(
+              result.data || []
+            );
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Could not reload messages:",
+            error
+          );
+
+        }
+
       }
     )
-    .subscribe((status, error) => {
+    .subscribe((status) => {
 
       console.log(
         "Realtime subscription:",
         status
       );
-
-      if (error) {
-
-        console.error(
-          "Realtime subscription error:",
-          error
-        );
-
-      }
 
     });
 
