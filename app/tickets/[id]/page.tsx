@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import ThemeToggle from "../../components/ThemeToggle";
+import { supabase } from "../../supabaseClient";
 
 
 // ====================================================
@@ -122,6 +123,41 @@ export default function TicketDetailPage() {
     loadTicket();
 
   }, [id]);
+
+  useEffect(() => {
+  if (!id) {
+    return;
+  }
+
+  const channel = supabase
+    .channel(`ticket-messages-${id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `task_id=eq.${id}`,
+      },
+      (payload) => {
+        console.log("Realtime message received:", payload);
+
+        setMessages((currentMessages) => {
+          return [
+            ...currentMessages,
+            payload.new as Message,
+          ];
+        });
+      }
+    )
+    .subscribe((status) => {
+      console.log("Realtime subscription:", status);
+    });
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [id]);
 
 
   async function loadTicket() {
