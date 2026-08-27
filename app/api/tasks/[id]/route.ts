@@ -4,13 +4,9 @@ import { jwtVerify } from "jose";
 
 import { supabase } from "../../supabaseClient";
 
-const secretValue = process.env.AUTH_SECRET;
-
-if (!secretValue) {
-  throw new Error("AUTH_SECRET is not configured.");
-}
-
-const secret = new TextEncoder().encode(secretValue);
+const secret = new TextEncoder().encode(
+  process.env.AUTH_SECRET
+);
 
 
 // ====================================================
@@ -27,17 +23,20 @@ export async function GET(
     }>;
   }
 ) {
+
   try {
 
-    // ==================================================
-    // GET TICKET ID
-    // ==================================================
+    // --------------------------------------------------
+    // GET ID FROM URL
+    // --------------------------------------------------
 
     const { id } = await params;
 
     const ticketId = Number(id);
 
+
     if (!Number.isInteger(ticketId)) {
+
       return NextResponse.json(
         {
           success: false,
@@ -47,18 +46,22 @@ export async function GET(
           status: 400,
         }
       );
+
     }
 
 
-    // ==================================================
-    // AUTHENTICATION
-    // ==================================================
+    // --------------------------------------------------
+    // GET AUTH COOKIE
+    // --------------------------------------------------
 
     const cookieStore = await cookies();
 
-    const token = cookieStore.get("token")?.value;
+    const token =
+      cookieStore.get("auth_token")?.value;
+
 
     if (!token) {
+
       return NextResponse.json(
         {
           success: false,
@@ -68,30 +71,27 @@ export async function GET(
           status: 401,
         }
       );
+
     }
 
 
-    // ==================================================
+    // --------------------------------------------------
     // VERIFY JWT
-    // ==================================================
+    // --------------------------------------------------
 
     let payload;
 
     try {
 
-      const verified = await jwtVerify(
-        token,
-        secret
-      );
+      const verified =
+        await jwtVerify(
+          token,
+          secret
+        );
 
       payload = verified.payload;
 
-    } catch (error) {
-
-      console.error(
-        "JWT verification error:",
-        error
-      );
+    } catch {
 
       return NextResponse.json(
         {
@@ -102,17 +102,19 @@ export async function GET(
           status: 401,
         }
       );
+
     }
 
 
-    // ==================================================
-    // GET USER ID
-    // ==================================================
+    // --------------------------------------------------
+    // GET USER ID FROM JWT
+    // --------------------------------------------------
 
     const userId =
       payload.userId ??
       payload.user_id ??
       payload.sub;
+
 
     if (!userId) {
 
@@ -125,12 +127,13 @@ export async function GET(
           status: 401,
         }
       );
+
     }
 
 
-    // ==================================================
-    // LOAD CURRENT USER
-    // ==================================================
+    // --------------------------------------------------
+    // GET USER
+    // --------------------------------------------------
 
     const {
       data: currentUser,
@@ -147,7 +150,10 @@ export async function GET(
       .single();
 
 
-    if (userError || !currentUser) {
+    if (
+      userError ||
+      !currentUser
+    ) {
 
       console.error(
         "User lookup error:",
@@ -163,12 +169,13 @@ export async function GET(
           status: 401,
         }
       );
+
     }
 
 
-    // ==================================================
+    // --------------------------------------------------
     // LOAD TICKET
-    // ==================================================
+    // --------------------------------------------------
 
     const {
       data: ticket,
@@ -206,7 +213,10 @@ export async function GET(
       .single();
 
 
-    if (ticketError || !ticket) {
+    if (
+      ticketError ||
+      !ticket
+    ) {
 
       console.error(
         "Ticket lookup error:",
@@ -222,6 +232,7 @@ export async function GET(
           status: 404,
         }
       );
+
     }
 
 
@@ -232,39 +243,48 @@ export async function GET(
     // --------------------------------------------------
     // ADMIN
     // --------------------------------------------------
+    //
+    // Admins can view every ticket.
+    //
 
-    if (currentUser.role === "admin") {
+    if (
+      currentUser.role === "admin"
+    ) {
 
       return NextResponse.json({
         success: true,
         data: ticket,
       });
+
     }
 
 
     // --------------------------------------------------
     // EMPLOYEE
     // --------------------------------------------------
+    //
+    // Employees can view tickets assigned to them.
+    //
 
-    if (currentUser.role === "employee") {
+    if (
+      currentUser.role === "employee"
+    ) {
 
-      const assignedToCurrentUser =
-        String(ticket.receiver_id) ===
-        String(currentUser.id);
-
-
-      if (!assignedToCurrentUser) {
+      if (
+        String(ticket.receiver_id) !==
+        String(currentUser.id)
+      ) {
 
         return NextResponse.json(
           {
             success: false,
-            error:
-              "Du har ikke tilgang til denne saken.",
+            error: "Du har ikke tilgang til denne saken.",
           },
           {
             status: 403,
           }
         );
+
       }
 
 
@@ -272,30 +292,33 @@ export async function GET(
         success: true,
         data: ticket,
       });
+
     }
 
 
     // --------------------------------------------------
     // NORMAL USER
     // --------------------------------------------------
+    //
+    // A normal user may ONLY view tickets that
+    // they themselves created.
+    //
 
-    const createdByCurrentUser =
-      String(ticket.sender_id) ===
-      String(currentUser.id);
-
-
-    if (!createdByCurrentUser) {
+    if (
+      String(ticket.sender_id) !==
+      String(currentUser.id)
+    ) {
 
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Du har ikke tilgang til denne saken.",
+          error: "Du har ikke tilgang til denne saken.",
         },
         {
           status: 403,
         }
       );
+
     }
 
 
@@ -308,12 +331,14 @@ export async function GET(
       data: ticket,
     });
 
+
   } catch (error) {
 
     console.error(
       "GET /api/tasks/[id] error:",
       error
     );
+
 
     return NextResponse.json(
       {
@@ -324,5 +349,7 @@ export async function GET(
         status: 500,
       }
     );
+
   }
+
 }
