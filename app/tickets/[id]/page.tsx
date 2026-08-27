@@ -130,6 +130,11 @@ useEffect(() => {
     return;
   }
 
+  console.log(
+    "Creating Realtime subscription for ticket:",
+    id
+  );
+
   const channel = supabase
     .channel(`ticket-messages-${id}`)
     .on(
@@ -140,89 +145,39 @@ useEffect(() => {
         table: "task_messages",
         filter: `task_id=eq.${id}`,
       },
-      async (payload) => {
+      (payload) => {
 
         console.log(
-          "Realtime message received:",
+          "🔥 REALTIME MESSAGE RECEIVED:",
           payload
         );
 
-        const newMessage =
-          payload.new as Message;
-
-
-        // --------------------------------------------
-        // PREVENT DUPLICATES
-        // --------------------------------------------
-
-        setMessages(currentMessages => {
-
-          const alreadyExists =
-            currentMessages.some(
-              message =>
-                message.id === newMessage.id
-            );
-
-          if (alreadyExists) {
-            return currentMessages;
-          }
-
-          return [
-            ...currentMessages,
-            newMessage,
-          ];
-
-        });
-
-
-        // --------------------------------------------
-        // LOAD SENDER INFORMATION
-        // --------------------------------------------
-
-        try {
-
-          const response =
-            await fetch(
-              `/api/tasks/${id}/messages`
-            );
-
-          const result =
-            await response.json();
-
-          if (
-            response.ok &&
-            result.success
-          ) {
-
-            const updatedMessages =
-              result.data || [];
-
-            setMessages(updatedMessages);
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "Could not load message sender:",
-            error
-          );
-
-        }
-
       }
     )
-    .subscribe((status) => {
+    .subscribe((status, error) => {
 
       console.log(
         "Realtime subscription:",
         status
       );
 
+      if (error) {
+
+        console.error(
+          "Realtime subscription error:",
+          error
+        );
+
+      }
+
     });
 
 
   return () => {
+
+    console.log(
+      "Removing Realtime subscription"
+    );
 
     supabase.removeChannel(
       channel
