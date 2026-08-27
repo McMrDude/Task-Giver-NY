@@ -23,7 +23,6 @@ export async function GET(
     }>;
   }
 ) {
-
   try {
 
     // --------------------------------------------------
@@ -34,9 +33,7 @@ export async function GET(
 
     const ticketId = Number(id);
 
-
     if (!Number.isInteger(ticketId)) {
-
       return NextResponse.json(
         {
           success: false,
@@ -46,7 +43,6 @@ export async function GET(
           status: 400,
         }
       );
-
     }
 
 
@@ -56,12 +52,11 @@ export async function GET(
 
     const cookieStore = await cookies();
 
-    const token =
-      cookieStore.get("auth_token")?.value;
-
+    // IMPORTANT:
+    // Your login system uses "auth_token"
+    const token = cookieStore.get("auth_token")?.value;
 
     if (!token) {
-
       return NextResponse.json(
         {
           success: false,
@@ -71,7 +66,6 @@ export async function GET(
           status: 401,
         }
       );
-
     }
 
 
@@ -83,15 +77,19 @@ export async function GET(
 
     try {
 
-      const verified =
-        await jwtVerify(
-          token,
-          secret
-        );
+      const verified = await jwtVerify(
+        token,
+        secret
+      );
 
       payload = verified.payload;
 
-    } catch {
+    } catch (error) {
+
+      console.error(
+        "JWT verification error:",
+        error
+      );
 
       return NextResponse.json(
         {
@@ -109,12 +107,12 @@ export async function GET(
     // --------------------------------------------------
     // GET USER ID FROM JWT
     // --------------------------------------------------
+    //
+    // /api/auth/me shows that your JWT stores
+    // the user ID as payload.id.
+    //
 
-    const userId =
-      payload.userId ??
-      payload.user_id ??
-      payload.sub;
-
+    const userId = payload.id;
 
     if (!userId) {
 
@@ -132,7 +130,7 @@ export async function GET(
 
 
     // --------------------------------------------------
-    // GET USER
+    // GET USER FROM DATABASE
     // --------------------------------------------------
 
     const {
@@ -229,7 +227,7 @@ export async function GET(
           error: "Saken ble ikke funnet.",
         },
         {
-          status: 404,
+          status: 404
         }
       );
 
@@ -263,7 +261,7 @@ export async function GET(
     // EMPLOYEE
     // --------------------------------------------------
     //
-    // Employees can view tickets assigned to them.
+    // Employees can only view tickets assigned to them.
     //
 
     if (
@@ -300,8 +298,7 @@ export async function GET(
     // NORMAL USER
     // --------------------------------------------------
     //
-    // A normal user may ONLY view tickets that
-    // they themselves created.
+    // Normal users can only view tickets they created.
     //
 
     if (
@@ -339,7 +336,6 @@ export async function GET(
       error
     );
 
-
     return NextResponse.json(
       {
         success: false,
@@ -351,5 +347,4 @@ export async function GET(
     );
 
   }
-
 }
