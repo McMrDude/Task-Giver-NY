@@ -46,6 +46,21 @@ type Ticket = {
   } | null;
 };
 
+type Message = {
+  id: number;
+  task_id: number;
+  sender_id: string | number;
+  content: string;
+  created_at: string;
+
+  sender?: {
+    id: string | number;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+};
+
 
 // ====================================================
 // PAGE
@@ -84,6 +99,18 @@ export default function TicketDetailPage() {
 
   const [updating, setUpdating] =
     useState(false);
+
+  const [messages, setMessages] =
+    useState<Message[]>([]);
+
+  const [messageText, setMessageText] =
+    useState("");
+
+  const [sendingMessage, setSendingMessage] =
+    useState(false);
+
+  const [messagesLoading, setMessagesLoading] =
+    useState(true);
 
 
   // ==================================================
@@ -166,6 +193,30 @@ export default function TicketDetailPage() {
 
 
       setTicket(result.data);
+
+    // ----------------------------------------------
+    // LOAD MESSAGES
+    // ----------------------------------------------
+
+    const messageResponse =
+    await fetch(
+        `/api/tasks/${id}/messages`
+    );
+
+    const messageResult =
+    await messageResponse.json();
+
+    if (
+    messageResponse.ok &&
+    messageResult.success
+    ) {
+
+    setMessages(
+        messageResult.data || []
+    );
+
+    }
+    setMessagesLoading(false);
 
 
       // ----------------------------------------------
@@ -446,6 +497,98 @@ export default function TicketDetailPage() {
     }
 
   }
+
+  // ==================================================
+// SEND MESSAGE
+// ==================================================
+
+async function sendMessage() {
+
+  const content =
+    messageText.trim();
+
+  if (
+    !content ||
+    sendingMessage
+  ) {
+    return;
+  }
+
+
+  setSendingMessage(true);
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/tasks/${id}/messages`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            content,
+          }),
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+
+      alert(
+        result.error ||
+        "Kunne ikke sende meldingen."
+      );
+
+      return;
+
+    }
+
+
+    // ----------------------------------------------
+    // ADD MESSAGE TO SCREEN
+    // ----------------------------------------------
+
+    setMessages(current => [
+      ...current,
+      result.data,
+    ]);
+
+
+    // ----------------------------------------------
+    // CLEAR INPUT
+    // ----------------------------------------------
+
+    setMessageText("");
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "En nettverksfeil oppstod."
+    );
+
+  } finally {
+
+    setSendingMessage(false);
+
+  }
+
+}
 
 
   // ==================================================
@@ -1303,36 +1446,196 @@ export default function TicketDetailPage() {
 
 
             {/* ==================================================
-                ACTIVITY
-            ================================================== */}
+    MESSAGES
+================================================== */}
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+<section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-              <h2 className="font-semibold text-slate-900 dark:text-white">
+  {/* HEADER */}
 
-                Aktivitet
+  <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
 
-              </h2>
+    <h2 className="font-semibold text-slate-900 dark:text-white">
+      Samtale
+    </h2>
+
+    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      Meldinger mellom deg og de som behandler saken.
+    </p>
+
+  </div>
 
 
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  {/* MESSAGES */}
 
-                Aktivitetshistorikk kommer her.
+  <div className="space-y-4 p-5">
 
-              </p>
+    {messagesLoading ? (
 
+      <div className="py-6 text-center">
 
-              <div className="mt-5 rounded-lg bg-slate-50 p-5 text-center dark:bg-slate-950">
+        <p className="text-sm text-slate-400 dark:text-slate-500">
+          Laster meldinger...
+        </p>
 
-                <p className="text-sm text-slate-400 dark:text-slate-500">
+      </div>
 
-                  Ingen aktivitet registrert ennå.
+    ) : messages.length === 0 ? (
 
-                </p>
+      <div className="rounded-lg bg-slate-50 p-6 text-center dark:bg-slate-950">
+
+        <p className="text-sm text-slate-400 dark:text-slate-500">
+          Ingen meldinger ennå.
+        </p>
+
+      </div>
+
+    ) : (
+
+      messages.map(message => {
+
+        const isOwnMessage =
+          String(message.sender_id) ===
+          String(user?.id);
+
+        return (
+
+          <div
+            key={message.id}
+            className={`flex ${
+              isOwnMessage
+                ? "justify-end"
+                : "justify-start"
+            }`}
+          >
+
+            <div
+              className={`max-w-[85%] rounded-xl px-4 py-3 ${
+                isOwnMessage
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+              }`}
+            >
+
+              {/* SENDER */}
+
+              <div className="mb-1 flex items-center gap-2">
+
+                <span
+                  className={`text-xs font-semibold ${
+                    isOwnMessage
+                      ? "text-blue-100"
+                      : "text-slate-600 dark:text-slate-300"
+                  }`}
+                >
+                  {message.sender?.name ||
+                    "Ukjent bruker"}
+                </span>
 
               </div>
 
-            </section>
+
+              {/* CONTENT */}
+
+              <p className="whitespace-pre-wrap text-sm leading-6">
+                {message.content}
+              </p>
+
+
+              {/* DATE */}
+
+              <p
+                className={`mt-2 text-[11px] ${
+                  isOwnMessage
+                    ? "text-blue-200"
+                    : "text-slate-400 dark:text-slate-500"
+                }`}
+              >
+                {new Date(
+                  message.created_at
+                ).toLocaleString(
+                  "nb-NO",
+                  {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )}
+              </p>
+
+            </div>
+
+          </div>
+
+        );
+
+      })
+
+    )}
+
+  </div>
+
+
+  {/* MESSAGE INPUT */}
+
+  <div className="border-t border-slate-100 p-5 dark:border-slate-800">
+
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+
+      <textarea
+        value={messageText}
+        onChange={e =>
+          setMessageText(
+            e.target.value
+          )
+        }
+        onKeyDown={e => {
+
+          if (
+            e.key === "Enter" &&
+            !e.shiftKey
+          ) {
+
+            e.preventDefault();
+
+            sendMessage();
+
+          }
+
+        }}
+        disabled={sendingMessage}
+        placeholder="Skriv en melding..."
+        rows={3}
+        className="min-h-[80px] flex-1 resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
+      />
+
+
+      <button
+        type="button"
+        onClick={sendMessage}
+        disabled={
+          sendingMessage ||
+          !messageText.trim()
+        }
+        className="cursor-pointer rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {sendingMessage
+          ? "Sender..."
+          : "Send melding"}
+      </button>
+
+    </div>
+
+
+    <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+      Enter sender meldingen. Shift + Enter lager en ny linje.
+    </p>
+
+  </div>
+
+</section>
 
 
           </div>
