@@ -104,7 +104,6 @@ export async function GET() {
 }
 
 
-
 // ----------------------------------------------------
 // POST
 // ----------------------------------------------------
@@ -177,7 +176,10 @@ export async function POST(request: Request) {
     }
 
 
-    // Create ticket
+    // ------------------------------------------------
+    // CREATE TICKET
+    // ------------------------------------------------
+
     const { data, error } = await supabase
       .from("tasks")
       .insert([
@@ -199,6 +201,10 @@ export async function POST(request: Request) {
       .single();
 
 
+    // ------------------------------------------------
+    // CHECK TICKET CREATION
+    // ------------------------------------------------
+
     if (error) {
 
       console.error(error);
@@ -213,6 +219,71 @@ export async function POST(request: Request) {
 
     }
 
+
+    // ------------------------------------------------
+    // FIND ADMINS
+    // ------------------------------------------------
+
+    const {
+      data: admins,
+      error: adminError,
+    } = await supabase
+      .from("users")
+      .select("id")
+      .eq("role", "admin");
+
+
+    if (adminError) {
+
+      console.error(
+        "Could not find admins:",
+        adminError
+      );
+
+    } else if (admins && admins.length > 0) {
+
+
+      // ----------------------------------------------
+      // CREATE NOTIFICATIONS
+      // ----------------------------------------------
+
+      const notifications =
+        admins.map(admin => ({
+          user_id: admin.id,
+
+          type: "new_task",
+
+          task_id: data.id,
+
+          message:
+            `En ny støttesak #${data.id} er opprettet.`,
+
+          is_read: false,
+        }));
+
+
+      const {
+        error: notificationError,
+      } = await supabase
+        .from("notifications")
+        .insert(notifications);
+
+
+      if (notificationError) {
+
+        console.error(
+          "Could not create notifications:",
+          notificationError
+        );
+
+      }
+
+    }
+
+
+    // ------------------------------------------------
+    // RESPONSE
+    // ------------------------------------------------
 
     return NextResponse.json({
       success: true,
