@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import ThemeToggle from "../../components/ThemeToggle";
@@ -113,10 +113,26 @@ export default function TicketDetailPage() {
   const [messagesLoading, setMessagesLoading] =
     useState(true);
 
+  const messagesContainerRef =
+    useRef<HTMLDivElement | null>(null);
 
   // ==================================================
   // LOAD
   // ==================================================
+
+  useEffect(() => {
+
+  if (messagesLoading) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+
+    scrollMessagesToBottom("smooth");
+
+  });
+
+}, [messages, messagesLoading]);
 
   useEffect(() => {
 
@@ -585,6 +601,27 @@ useEffect(() => {
     }
 
   }
+
+
+  // ==================================================
+// SCROLL CHAT TO BOTTOM
+// ==================================================
+
+function scrollMessagesToBottom(
+  behavior: ScrollBehavior = "smooth"
+) {
+  const container =
+    messagesContainerRef.current;
+
+  if (!container) {
+    return;
+  }
+
+  container.scrollTo({
+    top: container.scrollHeight,
+    behavior,
+  });
+}
 
   // ==================================================
 // SEND MESSAGE
@@ -1533,172 +1570,285 @@ async function sendMessage() {
             )}
 
 
-            {/* ==================================================
+{/* ==================================================
     MESSAGES
 ================================================== */}
 
-<section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+<section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-  {/* HEADER */}
+  {/* ==================================================
+      HEADER
+  ================================================== */}
 
-  <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+  <div className="border-b border-slate-100 px-5 py-5 dark:border-slate-800">
 
-    <h2 className="font-semibold text-slate-900 dark:text-white">
-      Samtale
-    </h2>
+    <div className="flex items-start justify-between gap-4">
 
-    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-      Meldinger mellom deg og de som behandler saken.
-    </p>
+      <div>
+
+        <h2 className="font-semibold text-slate-900 dark:text-white">
+          Samtale
+        </h2>
+
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Meldinger mellom deg og de som behandler saken.
+        </p>
+
+      </div>
+
+
+      {/* MESSAGE COUNT */}
+
+      <div className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+
+        {messages.length}{" "}
+        {messages.length === 1
+          ? "melding"
+          : "meldinger"}
+
+      </div>
+
+    </div>
 
   </div>
 
 
-  {/* MESSAGES */}
+  {/* ==================================================
+      SCROLLABLE MESSAGE AREA
+  ================================================== */}
 
-  <div className="space-y-4 p-5">
+  <div 
+    ref={messagesContainerRef}
+    className="h-[500px] overflow-y-auto overscroll-contain"
+  >
 
-    {messagesLoading ? (
+    <div className="space-y-5 p-5">
 
-      <div className="py-6 text-center">
+      {messagesLoading ? (
 
-        <p className="text-sm text-slate-400 dark:text-slate-500">
-          Laster meldinger...
-        </p>
+        <div className="flex h-full min-h-[420px] items-center justify-center">
 
-      </div>
+          <div className="text-center">
 
-    ) : messages.length === 0 ? (
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
 
-      <div className="rounded-lg bg-slate-50 p-6 text-center dark:bg-slate-950">
-
-        <p className="text-sm text-slate-400 dark:text-slate-500">
-          Ingen meldinger ennå.
-        </p>
-
-      </div>
-
-    ) : (
-
-      messages.map(message => {
-
-        const isOwnMessage =
-          String(message.sender_id) ===
-          String(user?.id);
-
-        return (
-
-          <div
-            key={message.id}
-            className={`flex ${
-              isOwnMessage
-                ? "justify-end"
-                : "justify-start"
-            }`}
-          >
-
-            <div
-              className={`max-w-[85%] rounded-xl px-4 py-3 ${
-                isOwnMessage
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
-              }`}
-            >
-
-              {/* SENDER */}
-
-              <div className="mb-1 flex items-center gap-2">
-
-                <span
-                  className={`text-xs font-semibold ${
-                    isOwnMessage
-                      ? "text-blue-100"
-                      : "text-slate-600 dark:text-slate-300"
-                  }`}
-                >
-                  {message.sender?.name ||
-                    "Ukjent bruker"}
-                </span>
-
-              </div>
-
-
-              {/* CONTENT */}
-
-              <p className="whitespace-pre-wrap text-sm leading-6">
-                {message.content}
-              </p>
-
-
-              {/* DATE */}
-
-              <p
-                className={`mt-2 text-[11px] ${
-                  isOwnMessage
-                    ? "text-blue-200"
-                    : "text-slate-400 dark:text-slate-500"
-                }`}
-              >
-                {new Date(
-                  message.created_at
-                ).toLocaleString(
-                  "nb-NO",
-                  {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }
-                )}
-              </p>
+              <span className="text-lg">
+                💬
+              </span>
 
             </div>
 
+            <p className="text-sm text-slate-400 dark:text-slate-500">
+              Laster meldinger...
+            </p>
+
           </div>
 
-        );
+        </div>
 
-      })
+      ) : messages.length === 0 ? (
 
-    )}
+        <div className="flex min-h-[420px] items-center justify-center">
+
+          <div className="text-center">
+
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
+              💬
+            </div>
+
+            <p className="mt-4 font-medium text-slate-700 dark:text-slate-200">
+              Ingen meldinger ennå
+            </p>
+
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+              Start samtalen ved å sende en melding nedenfor.
+            </p>
+
+          </div>
+
+        </div>
+
+      ) : (
+
+        messages.map(message => {
+
+          const isOwnMessage =
+            String(message.sender_id) ===
+            String(user?.id);
+
+          return (
+
+            <div
+              key={message.id}
+              className={`flex ${
+                isOwnMessage
+                  ? "justify-end"
+                  : "justify-start"
+              }`}
+            >
+
+              <div
+                className={`flex max-w-[85%] gap-3 sm:max-w-[75%] ${
+                  isOwnMessage
+                    ? "flex-row-reverse"
+                    : "flex-row"
+                }`}
+              >
+
+                {/* ==================================================
+                    AVATAR
+                ================================================== */}
+
+                <div
+                  className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                    isOwnMessage
+                      ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
+                      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  }`}
+                >
+
+                  {(
+                    message.sender?.name ||
+                    "?"
+                  )
+                    .charAt(0)
+                    .toUpperCase()}
+
+                </div>
+
+
+                {/* ==================================================
+                    MESSAGE
+                ================================================== */}
+
+                <div>
+
+                  {/* SENDER */}
+
+                  <div
+                    className={`mb-1 flex items-center gap-2 ${
+                      isOwnMessage
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
+                  >
+
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+
+                      {message.sender?.name ||
+                        "Ukjent bruker"}
+
+                    </span>
+
+                  </div>
+
+
+                  {/* MESSAGE BUBBLE */}
+
+                  <div
+                    className={`rounded-2xl px-4 py-3 ${
+                      isOwnMessage
+                        ? "rounded-tr-md bg-blue-600 text-white"
+                        : "rounded-tl-md bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                    }`}
+                  >
+
+                    <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                      {message.content}
+                    </p>
+
+                  </div>
+
+
+                  {/* DATE */}
+
+                  <p
+                    className={`mt-1.5 text-[11px] text-slate-400 dark:text-slate-500 ${
+                      isOwnMessage
+                        ? "text-right"
+                        : "text-left"
+                    }`}
+                  >
+
+                    {new Date(
+                      message.created_at
+                    ).toLocaleString(
+                      "nb-NO",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )}
+
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          );
+
+        })
+
+      )}
+
+    </div>
 
   </div>
 
 
-  {/* MESSAGE INPUT */}
+  {/* ==================================================
+      MESSAGE INPUT
+  ================================================== */}
 
-  <div className="border-t border-slate-100 p-5 dark:border-slate-800">
+  <div className="border-t border-slate-100 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-950/40 sm:p-5">
 
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
 
-      <textarea
-        value={messageText}
-        onChange={e =>
-          setMessageText(
-            e.target.value
-          )
-        }
-        onKeyDown={e => {
+      {/* TEXT INPUT */}
 
-          if (
-            e.key === "Enter" &&
-            !e.shiftKey
-          ) {
+      <div className="min-w-0 flex-1">
 
-            e.preventDefault();
-
-            sendMessage();
-
+        <textarea
+          value={messageText}
+          onChange={e =>
+            setMessageText(
+              e.target.value
+            )
           }
+          onKeyDown={e => {
 
-        }}
-        disabled={sendingMessage}
-        placeholder="Skriv en melding..."
-        rows={3}
-        className="min-h-[80px] flex-1 resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
-      />
+            if (
+              e.key === "Enter" &&
+              !e.shiftKey
+            ) {
 
+              e.preventDefault();
+
+              sendMessage();
+
+            }
+
+          }}
+          disabled={sendingMessage}
+          placeholder="Skriv en melding..."
+          rows={2}
+          className="min-h-[60px] w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-950"
+        />
+
+        <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+          Enter sender · Shift + Enter for ny linje
+        </p>
+
+      </div>
+
+
+      {/* SEND BUTTON */}
 
       <button
         type="button"
@@ -1707,19 +1857,16 @@ async function sendMessage() {
           sendingMessage ||
           !messageText.trim()
         }
-        className="cursor-pointer rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="shrink-0 cursor-pointer rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-blue-950 sm:h-[60px]"
       >
+
         {sendingMessage
           ? "Sender..."
           : "Send melding"}
+
       </button>
 
     </div>
-
-
-    <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-      Enter sender meldingen. Shift + Enter lager en ny linje.
-    </p>
 
   </div>
 
