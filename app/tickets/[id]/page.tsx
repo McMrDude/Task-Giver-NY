@@ -1619,7 +1619,7 @@ async function sendMessage() {
 
   <div 
     ref={messagesContainerRef}
-    className="h-[500px] overflow-y-auto overscroll-contain"
+    className="chat-scrollbar h-[500px] overflow-y-auto space-y-4 p-5"
   >
 
     <div className="space-y-5 p-5">
