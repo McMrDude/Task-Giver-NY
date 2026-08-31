@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ThemeToggle from "./components/ThemeToggle";
-import NotificationBell from "./components/NotificationBell";
+
 
 type Category = {
   id: string;
@@ -485,25 +485,17 @@ export default function TicketingSystem() {
 
           {/* DESKTOP HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="hidden h-20 items-center border-b border-slate-200 bg-white px-8 dark:border-slate-800 dark:bg-slate-900 lg:flex">
 
-            <div className="flex items-start justify-between gap-4">
+            <div>
 
-              <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                IT Support
+              </p>
 
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  IT Support
-                </p>
-
-                <p className="font-semibold text-slate-900 dark:text-white">
-                  Oversikt
-                </p>
-
-              </div>
-
-              {/* NOTIFICATIONS */}
-
-              <NotificationBell />
+              <p className="font-semibold text-slate-900 dark:text-white">
+                Oversikt
+              </p>
 
             </div>
 
