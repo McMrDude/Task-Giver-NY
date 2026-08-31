@@ -158,7 +158,50 @@ export async function PATCH(
 
 
     // ------------------------------------------------
-    // Build update object
+    // GET CURRENT TASK
+    // ------------------------------------------------
+    //
+    // We need the old receiver_id so we can determine
+    // whether a new employee was actually assigned.
+    //
+
+    const {
+      data: currentTask,
+      error: currentTaskError,
+    } = await supabase
+      .from("tasks")
+      .select("id, receiver_id")
+      .eq("id", id)
+      .single();
+
+
+    if (
+      currentTaskError ||
+      !currentTask
+    ) {
+
+      console.error(
+        "CURRENT TASK LOOKUP ERROR:",
+        currentTaskError
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Saken ble ikke funnet.",
+        },
+        { status: 404 }
+      );
+
+    }
+
+
+    const oldReceiverId =
+      currentTask.receiver_id;
+
+
+    // ------------------------------------------------
+    // BUILD UPDATE OBJECT
     // ------------------------------------------------
 
     const updates: Record<string, unknown> = {};
@@ -185,10 +228,13 @@ export async function PATCH(
 
 
     // ------------------------------------------------
-    // Make sure something is being changed
+    // MAKE SURE SOMETHING IS BEING CHANGED
     // ------------------------------------------------
 
-    if (Object.keys(updates).length === 0) {
+    if (
+      Object.keys(updates).length === 0
+    ) {
+
       return NextResponse.json(
         {
           success: false,
@@ -196,14 +242,29 @@ export async function PATCH(
         },
         { status: 400 }
       );
+
     }
 
 
     // ------------------------------------------------
-    // Update task
+    // CHECK WHETHER A NEW EMPLOYEE IS BEING ASSIGNED
     // ------------------------------------------------
 
-    const { data, error } = await supabase
+    const assigningNewEmployee =
+      receiver_id !== undefined &&
+      receiver_id !== null &&
+      String(receiver_id) !==
+        String(oldReceiverId);
+
+
+    // ------------------------------------------------
+    // UPDATE TASK
+    // ------------------------------------------------
+
+    const {
+      data,
+      error,
+    } = await supabase
       .from("tasks")
       .update(updates)
       .eq("id", id)
@@ -212,6 +273,7 @@ export async function PATCH(
 
 
     if (error) {
+
       console.error(
         "SUPABASE UPDATE ERROR:",
         error
@@ -224,17 +286,57 @@ export async function PATCH(
         },
         { status: 500 }
       );
+
+    }
+
+
+    // ==================================================
+    // CREATE EMPLOYEE NOTIFICATION
+    // ==================================================
+
+    if (assigningNewEmployee) {
+
+      const {
+        error: notificationError,
+      } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: receiver_id,
+          type: "task_assigned",
+          task_id: id,
+          message:
+            `Du har fått tildelt sak #${id}.`,
+          is_read: false,
+        });
+
+
+      if (notificationError) {
+
+        console.error(
+          "TASK ASSIGNMENT NOTIFICATION ERROR:",
+          notificationError
+        );
+
+        // The task was successfully updated,
+        // so we don't undo the update here.
+        //
+        // The error is logged so it can be
+        // investigated if notification creation fails.
+
+      }
+
     }
 
 
     // ------------------------------------------------
-    // Success
+    // SUCCESS
     // ------------------------------------------------
 
     return NextResponse.json({
       success: true,
       data,
     });
+
 
   } catch (error) {
 
