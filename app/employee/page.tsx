@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "../components/ThemeToggle";
+import NotificationBell from "../components/NotificationBell";
 
 // ====================================================
 // TYPES
@@ -515,6 +516,10 @@ export default function EmployeeDashboard() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Her finner du støttesakene som er tildelt til deg.
             </p>
+
+            {/* NOTIFICATIONS */}
+  
+            <NotificationBell />
 
           </header>
 
