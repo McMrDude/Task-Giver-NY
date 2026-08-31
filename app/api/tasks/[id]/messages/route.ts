@@ -656,39 +656,107 @@ export async function POST(
     }
 
     // ------------------------------------------------
-    // CREATE MESSAGE NOTIFICATION
-    // ------------------------------------------------
+// CREATE MESSAGE NOTIFICATION
+// ------------------------------------------------
 
-    const notificationRecipient =
-      currentUser.role === "employee"
-        ? ticket.sender_id
-        : ticket.receiver_id;
-
-
-    if (notificationRecipient) {
-
-      const { error: notificationError } =
-        await supabaseAdmin
-          .from("notifications")
-          .insert({
-            user_id: notificationRecipient,
-            type: "message",
-            message: `${currentUser.name} har sendt deg en ny melding på en sak.`,
-            task_id: ticketId,
-            is_read: false,
-          });
+const notificationRecipient =
+  currentUser.role === "employee"
+    ? ticket.sender_id
+    : ticket.receiver_id;
 
 
-      if (notificationError) {
+if (notificationRecipient) {
 
-        console.error(
-          "MESSAGE NOTIFICATION ERROR:",
-          notificationError
-        );
+  // ----------------------------------------------
+  // CHECK IF RECIPIENT IS CURRENTLY VIEWING TASK
+  // ----------------------------------------------
 
-      }
+  const presenceCutoff =
+    new Date(
+      Date.now() - 20000
+    ).toISOString();
+
+
+  const {
+    data: presence,
+    error: presenceError,
+  } = await supabaseAdmin
+    .from("task_chat_presence")
+    .select("user_id, updated_at")
+    .eq(
+      "task_id",
+      ticketId
+    )
+    .eq(
+      "user_id",
+      notificationRecipient
+    )
+    .gt(
+      "updated_at",
+      presenceCutoff
+    )
+    .maybeSingle();
+
+
+  if (presenceError) {
+
+    console.error(
+      "CHAT PRESENCE CHECK ERROR:",
+      presenceError
+    );
+
+  }
+
+
+  // ----------------------------------------------
+  // ONLY CREATE NOTIFICATION IF NOT VIEWING CHAT
+  // ----------------------------------------------
+
+  if (!presence) {
+
+    const {
+      error: notificationError,
+    } = await supabaseAdmin
+      .from("notifications")
+      .insert({
+        user_id:
+          notificationRecipient,
+
+        type:
+          "message",
+
+        title:
+          "Ny melding",
+
+        message:
+          `${currentUser.name} har sendt deg en ny melding på en sak.`,
+
+        task_id:
+          ticketId,
+
+        is_read:
+          false,
+      });
+
+
+    if (notificationError) {
+
+      console.error(
+        "MESSAGE NOTIFICATION ERROR:",
+        notificationError
+      );
 
     }
+
+  } else {
+
+    console.log(
+      `Skipping notification: user ${notificationRecipient} is viewing task ${ticketId}`
+    );
+
+  }
+
+}
 
     await supabaseAdmin
     .channel(`ticket-messages-${ticketId}`)
