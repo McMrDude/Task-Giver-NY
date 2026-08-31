@@ -140,6 +140,69 @@ export default function TicketDetailPage() {
 
   }, [id]);
 
+
+// ==================================================
+// CHAT PRESENCE
+// Tell server that this task is currently being viewed
+// ==================================================
+
+useEffect(() => {
+
+  if (!id) {
+    return;
+  }
+
+
+  const updatePresence = () => {
+
+    fetch(
+      `/api/tasks/${id}/messages/presence`,
+      {
+        method: "POST",
+      }
+    ).catch(error => {
+
+      console.error(
+        "Could not update chat presence:",
+        error
+      );
+
+    });
+
+  };
+
+
+  // Tell server immediately
+  updatePresence();
+
+
+  // Keep presence alive
+  const interval =
+    setInterval(
+      updatePresence,
+      10000
+    );
+
+
+  return () => {
+
+    clearInterval(interval);
+
+
+    // Tell server we left the chat
+    fetch(
+      `/api/tasks/${id}/messages/presence`,
+      {
+        method: "DELETE",
+        keepalive: true,
+      }
+    ).catch(() => {});
+
+  };
+
+}, [id]);
+
+
 useEffect(() => {
 
   if (!id) {

@@ -656,10 +656,9 @@ export async function POST(
     }
 
     // ------------------------------------------------
-    // CREATE MESSAGE NOTIFICATION
-    // ------------------------------------------------
+// CREATE MESSAGE NOTIFICATION
+// ------------------------------------------------
 
-<<<<<<< HEAD
 // ------------------------------------------------
 // CREATE MESSAGE NOTIFICATION
 // ------------------------------------------------
@@ -668,17 +667,10 @@ const notificationRecipient =
   currentUser.role === "employee"
     ? ticket.sender_id
     : ticket.receiver_id;
-=======
-    const notificationRecipient =
-      currentUser.role === "employee"
-        ? ticket.sender_id
-        : ticket.receiver_id;
->>>>>>> parent of 0a1a841 (e)
 
 
-    if (notificationRecipient) {
+if (notificationRecipient) {
 
-<<<<<<< HEAD
   // ----------------------------------------------
   // CHECK IF RECIPIENT IS CURRENTLY VIEWING TASK
   // ----------------------------------------------
@@ -692,28 +684,8 @@ const notificationRecipient =
     .eq("task_id", ticketId)
     .eq("user_id", notificationRecipient)
     .maybeSingle();
-=======
-      const { error: notificationError } =
-        await supabaseAdmin
-          .from("notifications")
-          .insert({
-            user_id: notificationRecipient,
-            type: "message",
-            message: `${currentUser.name} har sendt deg en ny melding på en sak.`,
-            task_id: ticketId,
-            is_read: false,
-          });
 
 
-      if (notificationError) {
->>>>>>> parent of 0a1a841 (e)
-
-        console.error(
-          "MESSAGE NOTIFICATION ERROR:",
-          notificationError
-        );
-
-<<<<<<< HEAD
   if (presenceError) {
 
     console.error(
@@ -802,9 +774,6 @@ const notificationRecipient =
         "MESSAGE NOTIFICATION ERROR:",
         notificationError
       );
-=======
-      }
->>>>>>> parent of 0a1a841 (e)
 
     } else {
 
@@ -814,7 +783,6 @@ const notificationRecipient =
 
     }
 
-<<<<<<< HEAD
   } else {
 
     console.log(
@@ -825,8 +793,6 @@ const notificationRecipient =
 
 }
 
-=======
->>>>>>> parent of 0a1a841 (e)
     await supabaseAdmin
     .channel(`ticket-messages-${ticketId}`)
     .send({
