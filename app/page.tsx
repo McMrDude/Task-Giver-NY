@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ThemeToggle from "./components/ThemeToggle";
-
+import NotificationBell from "./components/NotificationBell";
 
 type Category = {
   id: string;
@@ -258,83 +258,86 @@ export default function TicketingSystem() {
 
       {/* MOBILE HEADER */}
 
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <div className="w-full lg:hidden">
 
-        <div className="flex items-center justify-between px-5 py-4">
+        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-5 py-4">
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-              IT
+            <div className="flex items-center gap-3">
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
+                IT
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
+                  IT Support
+                </p>
+
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Støttesystem
+                </p>
+              </div>
+
             </div>
 
-            <div>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">
-                IT Support
-              </p>
-
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Støttesystem
-              </p>
-            </div>
+            <button
+              onClick={() =>
+                setMobileMenuOpen(
+                  !mobileMenuOpen
+                )
+              }
+              className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              ☰
+            </button>
 
           </div>
 
-          <button
-            onClick={() =>
-              setMobileMenuOpen(
-                !mobileMenuOpen
-              )
-            }
-            className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            ☰
-          </button>
 
-        </div>
+          {mobileMenuOpen && (
 
+            <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
 
-        {mobileMenuOpen && (
+              <button
+                onClick={() =>
+                  setMobileMenuOpen(false)
+                }
+                className="w-full cursor-pointer rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+              >
+                Oversikt
+              </button>
 
-          <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+              <button
+                onClick={() =>
+                  (window.location.href =
+                    "/my-tickets")
+                }
+                className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Mine saker
+              </button>
 
-            <button
-              onClick={() =>
-                setMobileMenuOpen(false)
-              }
-              className="w-full cursor-pointer rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-            >
-              Oversikt
-            </button>
+              <button
+                onClick={() =>
+                  (window.location.href =
+                    "/help")
+                }
+                className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Hjelp
+              </button>
 
-            <button
-              onClick={() =>
-                (window.location.href =
-                  "/my-tickets")
-              }
-              className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-              Mine saker
-            </button>
+              <ThemeToggle />
 
-            <button
-              onClick={() =>
-                (window.location.href =
-                  "/help")
-              }
-              className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-              Hjelp
-            </button>
+            </div>
 
-            <ThemeToggle />
+          )}
 
-          </div>
+        </header>
 
-        )}
-
-      </header>
-
+      </div>
 
       <div className="flex min-h-screen">
 
@@ -485,17 +488,25 @@ export default function TicketingSystem() {
 
           {/* DESKTOP HEADER */}
 
-          <header className="hidden h-20 items-center border-b border-slate-200 bg-white px-8 dark:border-slate-800 dark:bg-slate-900 lg:flex">
+          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-            <div>
+            <div className="flex items-start justify-between gap-4">
 
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                IT Support
-              </p>
+              <div>
 
-              <p className="font-semibold text-slate-900 dark:text-white">
-                Oversikt
-              </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  IT Support
+                </p>
+
+                <p className="font-semibold text-slate-900 dark:text-white">
+                  Oversikt
+                </p>
+
+              </div>
+
+              {/* NOTIFICATIONS */}
+
+              <NotificationBell />
 
             </div>
 
