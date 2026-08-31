@@ -659,6 +659,10 @@ export async function POST(
 // CREATE MESSAGE NOTIFICATION
 // ------------------------------------------------
 
+// ------------------------------------------------
+// CREATE MESSAGE NOTIFICATION
+// ------------------------------------------------
+
 const notificationRecipient =
   currentUser.role === "employee"
     ? ticket.sender_id
@@ -671,30 +675,14 @@ if (notificationRecipient) {
   // CHECK IF RECIPIENT IS CURRENTLY VIEWING TASK
   // ----------------------------------------------
 
-  const presenceCutoff =
-    new Date(
-      Date.now() - 20000
-    ).toISOString();
-
-
   const {
     data: presence,
     error: presenceError,
   } = await supabaseAdmin
     .from("task_chat_presence")
-    .select("user_id, updated_at")
-    .eq(
-      "task_id",
-      ticketId
-    )
-    .eq(
-      "user_id",
-      notificationRecipient
-    )
-    .gt(
-      "updated_at",
-      presenceCutoff
-    )
+    .select("updated_at")
+    .eq("task_id", ticketId)
+    .eq("user_id", notificationRecipient)
     .maybeSingle();
 
 
@@ -709,10 +697,51 @@ if (notificationRecipient) {
 
 
   // ----------------------------------------------
-  // ONLY CREATE NOTIFICATION IF NOT VIEWING CHAT
+  // DETERMINE IF PRESENCE IS ACTUALLY ACTIVE
   // ----------------------------------------------
 
-  if (!presence) {
+  let isCurrentlyViewing = false;
+
+
+  if (presence) {
+
+    const updatedAt =
+      new Date(
+        presence.updated_at
+      ).getTime();
+
+    const now =
+      Date.now();
+
+    const presenceAge =
+      now - updatedAt;
+
+
+    // Presence is considered active for 15 seconds.
+    // The page sends a heartbeat every 10 seconds.
+
+    isCurrentlyViewing =
+      presenceAge < 15000;
+
+
+    console.log(
+      "CHAT PRESENCE CHECK:",
+      {
+        taskId: ticketId,
+        userId: notificationRecipient,
+        presenceAge,
+        isCurrentlyViewing,
+      }
+    );
+
+  }
+
+
+  // ----------------------------------------------
+  // CREATE NOTIFICATION ONLY IF NOT VIEWING CHAT
+  // ----------------------------------------------
+
+  if (!isCurrentlyViewing) {
 
     const {
       error: notificationError,
@@ -746,12 +775,18 @@ if (notificationRecipient) {
         notificationError
       );
 
+    } else {
+
+      console.log(
+        `Created message notification for user ${notificationRecipient} on task ${ticketId}`
+      );
+
     }
 
   } else {
 
     console.log(
-      `Skipping notification: user ${notificationRecipient} is viewing task ${ticketId}`
+      `Skipping notification: user ${notificationRecipient} is currently viewing task ${ticketId}`
     );
 
   }
