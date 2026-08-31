@@ -170,7 +170,7 @@ export async function PATCH(
       error: currentTaskError,
     } = await supabase
       .from("tasks")
-      .select("id, receiver_id")
+      .select("id, receiver_id, sender_id, status")
       .eq("id", id)
       .single();
 
@@ -286,6 +286,45 @@ export async function PATCH(
         },
         { status: 500 }
       );
+
+    }
+
+    // ==================================================
+    // CREATE USER NOTIFICATION WHEN TASK IS COMPLETED
+    // ==================================================
+
+    const completingTask =
+      status === "completed" &&
+      currentTask.status !== "completed";
+
+
+    if (
+      completingTask &&
+      currentTask.sender_id
+    ) {
+
+      const {
+        error: notificationError,
+      } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: currentTask.sender_id,
+          type: "task_completed",
+          task_id: id,
+          message:
+            `Sak #${id} er ferdig behandlet.`,
+          is_read: false,
+        });
+
+
+      if (notificationError) {
+
+        console.error(
+          "TASK COMPLETION NOTIFICATION ERROR:",
+          notificationError
+        );
+
+      }
 
     }
 

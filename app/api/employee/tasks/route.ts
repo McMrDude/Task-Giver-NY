@@ -222,10 +222,10 @@ export async function PATCH(
     // ----------------------------------------------
 
     const allowedStatuses = [
-        "new",
-        "not_started",
-        "started",
-        "completed"
+      "new",
+      "not_started",
+      "started",
+      "completed"
     ];
 
     if (
@@ -242,19 +242,73 @@ export async function PATCH(
 
 
     // ----------------------------------------------
-    // UPDATE ONLY IF ASSIGNED TO THIS EMPLOYEE
+    // GET CURRENT TASK
+    // ----------------------------------------------
+    //
+    // We need the current status and sender_id
+    // before changing anything.
+    //
+
+    const {
+      data: currentTask,
+      error: currentTaskError,
+    } = await supabase
+      .from("tasks")
+      .select(
+        "id, sender_id, status"
+      )
+      .eq("id", id)
+      .eq("receiver_id", user.id)
+      .single();
+
+
+    if (
+      currentTaskError ||
+      !currentTask
+    ) {
+
+      console.error(
+        "EMPLOYEE CURRENT TASK ERROR:",
+        currentTaskError
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Kunne ikke finne saken. Kontroller at saken er tildelt til deg.",
+        },
+        { status: 404 }
+      );
+
+    }
+
+
+    // ----------------------------------------------
+    // CHECK WHETHER TASK IS BEING COMPLETED
     // ----------------------------------------------
 
-    const { data, error } =
-      await supabase
-        .from("tasks")
-        .update({
-          status,
-        })
-        .eq("id", id)
-        .eq("receiver_id", user.id)
-        .select()
-        .single();
+    const completingTask =
+      status === "completed" &&
+      currentTask.status !== "completed";
+
+
+    // ----------------------------------------------
+    // UPDATE TASK
+    // ----------------------------------------------
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("tasks")
+      .update({
+        status,
+      })
+      .eq("id", id)
+      .eq("receiver_id", user.id)
+      .select()
+      .single();
 
 
     // ----------------------------------------------
@@ -280,6 +334,41 @@ export async function PATCH(
     }
 
 
+    // ==================================================
+    // CREATE USER NOTIFICATION
+    // ==================================================
+
+    if (
+      completingTask &&
+      currentTask.sender_id
+    ) {
+
+      const {
+        error: notificationError,
+      } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: currentTask.sender_id,
+          type: "task_completed",
+          task_id: id,
+          message:
+            `Sak #${id} er ferdig behandlet.`,
+          is_read: false,
+        });
+
+
+      if (notificationError) {
+
+        console.error(
+          "TASK COMPLETION NOTIFICATION ERROR:",
+          notificationError
+        );
+
+      }
+
+    }
+
+
     // ----------------------------------------------
     // SUCCESS
     // ----------------------------------------------
@@ -288,6 +377,7 @@ export async function PATCH(
       success: true,
       data,
     });
+
 
   } catch (error) {
 
