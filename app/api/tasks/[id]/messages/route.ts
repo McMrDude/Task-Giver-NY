@@ -655,6 +655,42 @@ export async function POST(
 
     }
 
+    // ------------------------------------------------
+    // CREATE MESSAGE NOTIFICATION
+    // ------------------------------------------------
+
+    const notificationRecipient =
+      currentUser.role === "employee"
+        ? ticket.sender_id
+        : ticket.receiver_id;
+
+
+    if (notificationRecipient) {
+
+      const { error: notificationError } =
+        await supabaseAdmin
+          .from("notifications")
+          .insert({
+            user_id: notificationRecipient,
+            type: "message",
+            title: "Ny melding",
+            message: `${currentUser.name} har sendt deg en ny melding på en sak.`,
+            task_id: ticketId,
+            is_read: false,
+          });
+
+
+      if (notificationError) {
+
+        console.error(
+          "MESSAGE NOTIFICATION ERROR:",
+          notificationError
+        );
+
+      }
+
+    }
+
     await supabaseAdmin
     .channel(`ticket-messages-${ticketId}`)
     .send({
