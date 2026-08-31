@@ -503,27 +503,31 @@ export default function EmployeeDashboard() {
 
           {/* DESKTOP HEADER */}
 
-          <header className="flex items-start justify-between gap-4">
+          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-            <div>
+            <div className="flex items-start justify-between gap-4">
 
-              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                Ansattportal
-              </p>
+              <div>
 
-              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Mine tildelte saker
-              </h1>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                  Ansattportal
+                </p>
 
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Her finner du støttesakene som er tildelt til deg.
-              </p>
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  Mine tildelte saker
+                </h1>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Her finner du støttesakene som er tildelt til deg.
+                </p>
+
+              </div>
+
+              {/* NOTIFICATIONS */}
+    
+              <NotificationBell />
 
             </div>
-
-            {/* NOTIFICATIONS */}
-  
-            <NotificationBell />
 
           </header>
 
