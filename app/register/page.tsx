@@ -142,9 +142,9 @@ export default function RegisterPage() {
                 Telefon nummer
               </label>
               <input
-                type="text" 
-                inputMode="numeric" 
-                pattern="[0-9]{8}" 
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]{8}"
                 maxLength={8}
                 required
                 value={phone}
