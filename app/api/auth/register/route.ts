@@ -8,14 +8,25 @@ export async function POST(request: Request) {
 
     const name = body.name?.trim();
     const email = body.email?.trim().toLowerCase();
+    const phone = body.phone?.trim();
     const password = body.password;
 
     // Basic validation
-    if (!name || !email || !password) {
+    if (!name || !email || !phone || !password) {
       return NextResponse.json(
         {
           success: false,
           error: "Alle feltene må fylles ut.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (phone.length !== 8) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Telefonnummeret må være nøyaktig 8 sifre.",
         },
         { status: 400 }
       );

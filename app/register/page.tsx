@@ -26,6 +26,12 @@ export default function RegisterPage() {
       return;
     }
 
+    if (phone.length !== 8) {
+      setError("Telefonnummeret må være nøyaktig 8 sifre.");
+      return;
+    }
+
+
     setLoading(true);
 
     try {
@@ -139,18 +145,26 @@ export default function RegisterPage() {
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
-                Telefon nummer
+                Telefonnummer
               </label>
               <input
-                type="number"
-                inputMode="numeric"
-                pattern="[0-9]{8}"
+                type="text" 
+                inputMode="numeric" 
+                pattern="[0-9]{8}" 
+                minLength={8}
                 maxLength={8}
                 required
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  // 1. Strip away everything that isn't a number
+                  const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                  // 2. Only update state if it is 8 digits or fewer
+                  if (cleaned.length <= 8) {
+                    setPhone(cleaned);
+                  }
+                }}
                 autoComplete="tel"
-                placeholder="12 34 56 78"
+                placeholder="12345678" // Removed spaces to avoid confusing the user
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
               />
             </div>
