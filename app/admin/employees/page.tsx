@@ -15,6 +15,7 @@ type User = {
   name: string;
   email: string;
   role: string;
+  phone_number: string | null;
 };
 
 type Ticket = {
@@ -318,14 +319,18 @@ export default function EmployeesPage() {
       return employeeData.filter(
         data =>
 
-          data.employee.name
+            data.employee.name
             .toLowerCase()
             .includes(searchText) ||
 
-          data.employee.email
+            data.employee.email
             .toLowerCase()
+            .includes(searchText) ||
+
+            data.employee.phone_number
+            ?.toLowerCase()
             .includes(searchText)
-      );
+       );
 
     }, [
       employeeData,
@@ -728,7 +733,7 @@ export default function EmployeesPage() {
                   onChange={e =>
                     setSearch(e.target.value)
                   }
-                  placeholder="Søk etter ansatt eller e-post..."
+                  placeholder="Søk etter ansatt, e-post eller telefon..."
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                 />
 
@@ -916,17 +921,27 @@ function EmployeeCard({
 
             <div className="min-w-0">
 
-              <p className="font-semibold text-slate-900 dark:text-white">
+                <p className="font-semibold text-slate-900 dark:text-white">
 
-                {employee.name}
+                    {employee.name}
 
-              </p>
+                </p>
 
-              <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
 
-                {employee.email}
+                    {employee.email}
 
-              </p>
+                </p>
+
+                {employee.phone_number && (
+
+                    <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+
+                    {employee.phone_number}
+
+                    </p>
+
+                )}
 
             </div>
 
@@ -1037,20 +1052,29 @@ function EmployeeCard({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-              <InfoItem
-                label="Navn"
-                value={employee.name}
-              />
+                <InfoItem
+                    label="Navn"
+                    value={employee.name}
+                />
 
-              <InfoItem
-                label="E-post"
-                value={employee.email}
-              />
+                <InfoItem
+                    label="E-post"
+                    value={employee.email}
+                />
 
-              <InfoItem
-                label="Rolle"
-                value="Ansatt"
-              />
+                {employee.phone_number && (
+
+                    <InfoItem
+                    label="Telefon"
+                    value={employee.phone_number}
+                    />
+
+                )}
+
+                <InfoItem
+                    label="Rolle"
+                    value="Ansatt"
+                />
 
             </div>
 

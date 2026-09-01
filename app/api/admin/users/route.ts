@@ -8,9 +8,17 @@ const secret = new TextEncoder().encode(
 );
 
 
+// ====================================================
+// GET
+// ====================================================
+
 export async function GET() {
 
   try {
+
+    // ------------------------------------------------
+    // CHECK LOGIN
+    // ------------------------------------------------
 
     const cookieStore = await cookies();
 
@@ -31,12 +39,20 @@ export async function GET() {
     }
 
 
+    // ------------------------------------------------
+    // VERIFY TOKEN
+    // ------------------------------------------------
+
     const { payload } =
       await jwtVerify(
         token,
         secret
       );
 
+
+    // ------------------------------------------------
+    // CHECK ADMIN
+    // ------------------------------------------------
 
     if (payload.role !== "admin") {
 
@@ -51,25 +67,33 @@ export async function GET() {
     }
 
 
-    const { data, error } =
-      await supabase
-        .from("users")
-        .select(
-          "id, name, email, role"
-        )
-        .eq("role", "employee")
-        .order("name");
+    // ==================================================
+    // GET EMPLOYEES
+    // ==================================================
+
+    const {
+      data: employees,
+      error: employeeError,
+    } = await supabase
+      .from("users")
+      .select(
+        "id, name, email, role, phone_number"
+      )
+      .eq("role", "employee")
+      .order("name");
 
 
-    if (error) {
+    if (employeeError) {
 
-      console.error(error);
+      console.error(
+        "EMPLOYEE FETCH ERROR:",
+        employeeError
+      );
 
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Kunne ikke hente ansatte.",
+          error: "Kunne ikke hente ansatte.",
         },
         { status: 500 }
       );
@@ -77,15 +101,134 @@ export async function GET() {
     }
 
 
+    // ==================================================
+    // GET ALL TASKS
+    // ==================================================
+
+    const {
+      data: tasks,
+      error: taskError,
+    } = await supabase
+      .from("tasks")
+      .select(`
+        id,
+        receiver_id,
+        sender_id,
+        content,
+        category,
+        subcategory,
+        status,
+        priority,
+        due_date,
+        created_at
+      `)
+      .not("receiver_id", "is", null)
+      .order("created_at", {
+        ascending: false,
+      });
+
+
+    if (taskError) {
+
+      console.error(
+        "EMPLOYEE TASK FETCH ERROR:",
+        taskError
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Kunne ikke hente ansattes saker.",
+        },
+        { status: 500 }
+      );
+
+    }
+
+
+    // ==================================================
+    // ADD TASKS TO EACH EMPLOYEE
+    // ==================================================
+
+    const employeeData =
+      (employees || []).map(employee => {
+
+        const employeeTasks =
+          (tasks || []).filter(
+            task =>
+              String(task.receiver_id) ===
+              String(employee.id)
+          );
+
+
+        // ----------------------------------------------
+        // CURRENT TASKS
+        // ----------------------------------------------
+
+        const currentTasks =
+          employeeTasks.filter(
+            task =>
+              task.status !== "completed" &&
+              task.status !== "cancelled"
+          );
+
+
+        // ----------------------------------------------
+        // COMPLETED TASKS
+        // ----------------------------------------------
+
+        const completedTasks =
+          employeeTasks.filter(
+            task =>
+              task.status === "completed"
+          );
+
+
+        return {
+
+          id: employee.id,
+
+          name: employee.name,
+
+          email: employee.email,
+
+          role: employee.role,
+
+          // Can be null for older accounts
+          phone_number:
+            employee.phone_number || null,
+
+          currentTaskCount:
+            currentTasks.length,
+
+          currentTasks,
+
+          completedTasks,
+
+        };
+
+      });
+
+
+    // ==================================================
+    // SUCCESS
+    // ==================================================
+
     return NextResponse.json({
+
       success: true,
-      data: data || [],
+
+      data: employeeData,
+
     });
 
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "ADMIN USERS ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {
