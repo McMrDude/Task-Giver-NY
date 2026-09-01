@@ -142,12 +142,15 @@ export default function RegisterPage() {
                 Telefon nummer
               </label>
               <input
-                type="tel"
+                type="text" 
+                inputMode="numeric" 
+                pattern="[0-9]{8}" 
+                maxLength={8}
+                required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                required
                 autoComplete="tel"
-                placeholder="123 45 678"
+                placeholder="12 34 56 78"
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
               />
             </div>
