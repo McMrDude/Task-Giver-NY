@@ -754,9 +754,6 @@ if (notificationRecipient) {
         type:
           "message",
 
-        title:
-          "Ny melding",
-
         message:
           `${currentUser.name} har sendt deg en ny melding på en sak.`,
 
