@@ -70,6 +70,7 @@ export async function POST(request: Request) {
         {
           name,
           email,
+          phone_number: body.phone?.trim() || null,
           password_hash: passwordHash,
         },
       ])
