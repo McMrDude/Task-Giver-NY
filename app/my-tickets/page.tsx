@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "../components/ThemeToggle";
+import NotificationBell from "../components/NotificationBell";
 
 type User = {
   id: string;
@@ -328,19 +329,29 @@ export default function MyTicketsPage() {
 
           {/* DESKTOP HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              Mine saker
-            </p>
+            <div className="flex items-start justify-between gap-4">
 
-            <h1 className="mt-1 text-2xl font-bold">
-              Mine støttesaker
-            </h1>
+              <div>
 
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Her finner du støttesakene du har sendt inn.
-            </p>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                  Mine saker
+                </p>
+
+                <h1 className="mt-1 text-2xl font-bold">
+                  Mine støttesaker
+                </h1>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Her finner du støttesakene du har sendt inn.
+                </p>
+
+              </div>
+
+              <NotificationBell />
+
+            </div>
 
           </header>
 
