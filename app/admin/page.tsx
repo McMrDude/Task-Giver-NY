@@ -481,6 +481,9 @@ export default function AdminDashboard() {
             {/* EMPLOYEES */}
 
             <button
+              onClick={() =>
+                router.push("/admin/employees")
+              }
               className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
 
