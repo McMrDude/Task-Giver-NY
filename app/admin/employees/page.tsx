@@ -856,6 +856,47 @@ function StatCard({
 
 }
 
+// ====================================================
+// WORKLOAD BAR
+// ====================================================
+
+function WorkloadBar({
+  taskCount,
+}: {
+  taskCount: number;
+}) {
+
+  // 8 tasks represents a full bar.
+  // This is only a visual reference, not a maximum.
+  const maxTasks = 8;
+
+  const percentage =
+    Math.min(
+      (taskCount / maxTasks) * 100,
+      100
+    );
+
+
+  return (
+
+    <div className="mt-3 w-full max-w-xs">
+
+      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+
+        <div
+          className="h-full rounded-full bg-blue-600 transition-all duration-500 dark:bg-blue-500"
+          style={{
+            width: `${percentage}%`,
+          }}
+        />
+
+      </div>
+
+    </div>
+
+  );
+
+}
 
 // ====================================================
 // EMPLOYEE CARD
