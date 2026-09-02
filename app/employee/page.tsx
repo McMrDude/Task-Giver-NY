@@ -673,45 +673,39 @@ const completedTickets =
 
               {activeTickets.length === 0 ? (
 
-                <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
-                    📋
-                  </div>
+    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
+      📋
+    </div>
 
-                  <p className="mt-4 font-semibold text-slate-700 dark:text-slate-200">
-                    Ingen tildelte saker
-                  </p>
+    <p className="mt-4 font-semibold text-slate-700 dark:text-slate-200">
+      Ingen aktive saker
+    </p>
 
-                  <p className="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
-                    Du har ingen støttesaker tildelt til deg akkurat nå.
-                  </p>
+    <p className="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
+      Du har ingen støttesaker å behandle akkurat nå.
+    </p>
 
-                </div>
+  </div>
 
-              ) : (
+) : (
 
-                /* ==================================================
-                   TICKET LIST
-                ================================================== */
+  <div className="space-y-4">
 
-                <div className="space-y-4">
+    {activeTickets.map(ticket => (
 
-                  {activeTickets.map(ticket => (
+      <EmployeeTicketCard
+        key={ticket.id}
+        ticket={ticket}
+        onUpdateStatus={updateTicketStatus}
+      />
 
-                    <EmployeeTicketCard
-                        key={ticket.id}
-                        ticket={ticket}
-                        onUpdateStatus={
-                        updateTicketStatus
-                        }
-                    />
+    ))}
 
-                    ))}
+  </div>
 
-                </div>
-
-              )}
+)}
 
             </section>
 
