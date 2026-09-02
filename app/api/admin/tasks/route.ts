@@ -1,30 +1,131 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
+import emailjs from "@emailjs/nodejs";
 import { supabase } from "../../supabaseClient";
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET
 );
 
+
+// ====================================================
+// EMAILJS
+// ====================================================
+
+async function sendTaskAssignmentEmail({
+  employeeEmail,
+  employeeName,
+  taskId,
+  taskCategory,
+  taskPriority,
+  dueDate,
+  taskContent,
+  assignedBy,
+}: {
+  employeeEmail: string;
+  employeeName: string;
+  taskId: string | number;
+  taskCategory?: string | null;
+  taskPriority?: string | null;
+  dueDate?: string | null;
+  taskContent?: string | null;
+  assignedBy?: string | null;
+}) {
+
+  const serviceId =
+    process.env.EMAILJS_SERVICE_ID;
+
+  const templateId =
+    process.env.EMAILJS_TEMPLATE_ID_TASK_ASSIGNED;
+
+  const publicKey =
+    process.env.EMAILJS_PUBLIC_KEY;
+
+  const privateKey =
+    process.env.EMAILJS_PRIVATE_KEY;
+
+
+  if (
+    !serviceId ||
+    !templateId ||
+    !publicKey ||
+    !privateKey
+  ) {
+    throw new Error(
+      "EmailJS environment variables are missing."
+    );
+  }
+
+
+  await emailjs.send(
+    serviceId,
+    templateId,
+    {
+      to_email: employeeEmail,
+
+      to_name: employeeName,
+
+      task_id: String(taskId),
+
+      task_category:
+        taskCategory ?? "Ikke spesifisert",
+
+      task_priority:
+        taskPriority ?? "Ikke spesifisert",
+
+      due_date:
+        dueDate
+          ? new Date(dueDate).toLocaleDateString("nb-NO")
+          : "Ingen frist",
+
+      task_content:
+        taskContent ?? "",
+
+      assigned_by:
+        assignedBy ?? "IT Support",
+    },
+    {
+      publicKey,
+      privateKey,
+    }
+  );
+}
+
+
+// ====================================================
+// GET CURRENT USER
+// ====================================================
+
 async function getCurrentUser() {
+
   const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
+
+  const token =
+    cookieStore.get("auth_token")?.value;
+
 
   if (!token) {
     return null;
   }
 
+
   try {
-    const { payload } = await jwtVerify(token, secret);
+
+    const { payload } =
+      await jwtVerify(token, secret);
+
 
     return {
       email: payload.email as string,
       name: payload.name as string,
       role: payload.role as string,
     };
+
   } catch {
+
     return null;
+
   }
 }
 
@@ -34,10 +135,15 @@ async function getCurrentUser() {
 // ====================================================
 
 export async function GET() {
+
   try {
-    const user = await getCurrentUser();
+
+    const user =
+      await getCurrentUser();
+
 
     if (!user) {
+
       return NextResponse.json(
         {
           success: false,
@@ -45,44 +151,69 @@ export async function GET() {
         },
         { status: 401 }
       );
+
     }
 
+
     if (user.role !== "admin") {
+
       return NextResponse.json(
         {
           success: false,
-          error: "Du har ikke tilgang til adminpanelet.",
+          error:
+            "Du har ikke tilgang til adminpanelet.",
         },
         { status: 403 }
       );
+
     }
 
-    const { data, error } = await supabase
+
+    const {
+      data,
+      error,
+    } = await supabase
       .from("tasks")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", {
+        ascending: false,
+      });
+
 
     if (error) {
+
       console.error(error);
+
       throw error;
+
     }
+
 
     return NextResponse.json({
       success: true,
       data,
     });
 
+
   } catch (error) {
-    console.error("ADMIN TASK ERROR:", error);
+
+    console.error(
+      "ADMIN TASK ERROR:",
+      error
+    );
+
 
     return NextResponse.json(
       {
         success: false,
-        error: "Kunne ikke hente saker.",
+        error:
+          "Kunne ikke hente saker.",
       },
       { status: 500 }
     );
+
   }
+
 }
 
 
@@ -93,22 +224,28 @@ export async function GET() {
 export async function PATCH(
   request: Request
 ) {
+
   try {
 
     // ------------------------------------------------
     // Check logged-in user
     // ------------------------------------------------
 
-    const user = await getCurrentUser();
+    const user =
+      await getCurrentUser();
+
 
     if (!user) {
+
       return NextResponse.json(
         {
           success: false,
-          error: "Du må være logget inn.",
+          error:
+            "Du må være logget inn.",
         },
         { status: 401 }
       );
+
     }
 
 
@@ -117,13 +254,16 @@ export async function PATCH(
     // ------------------------------------------------
 
     if (user.role !== "admin") {
+
       return NextResponse.json(
         {
           success: false,
-          error: "Du har ikke tilgang til adminpanelet.",
+          error:
+            "Du har ikke tilgang til adminpanelet.",
         },
         { status: 403 }
       );
+
     }
 
 
@@ -131,7 +271,9 @@ export async function PATCH(
     // Read request body
     // ------------------------------------------------
 
-    const body = await request.json();
+    const body =
+      await request.json();
+
 
     const {
       id,
@@ -147,30 +289,31 @@ export async function PATCH(
     // ------------------------------------------------
 
     if (!id) {
+
       return NextResponse.json(
         {
           success: false,
-          error: "Mangler sak-ID.",
+          error:
+            "Mangler sak-ID.",
         },
         { status: 400 }
       );
+
     }
 
 
     // ------------------------------------------------
     // GET CURRENT TASK
     // ------------------------------------------------
-    //
-    // We need the old receiver_id so we can determine
-    // whether a new employee was actually assigned.
-    //
 
     const {
       data: currentTask,
       error: currentTaskError,
     } = await supabase
       .from("tasks")
-      .select("id, receiver_id, sender_id, status")
+      .select(
+        "id, receiver_id, sender_id, status"
+      )
       .eq("id", id)
       .single();
 
@@ -185,10 +328,12 @@ export async function PATCH(
         currentTaskError
       );
 
+
       return NextResponse.json(
         {
           success: false,
-          error: "Saken ble ikke funnet.",
+          error:
+            "Saken ble ikke funnet.",
         },
         { status: 404 }
       );
@@ -204,7 +349,8 @@ export async function PATCH(
     // BUILD UPDATE OBJECT
     // ------------------------------------------------
 
-    const updates: Record<string, unknown> = {};
+    const updates:
+      Record<string, unknown> = {};
 
 
     if (status !== undefined) {
@@ -213,7 +359,8 @@ export async function PATCH(
 
 
     if (receiver_id !== undefined) {
-      updates.receiver_id = receiver_id;
+      updates.receiver_id =
+        receiver_id;
     }
 
 
@@ -223,7 +370,8 @@ export async function PATCH(
 
 
     if (due_date !== undefined) {
-      updates.due_date = due_date;
+      updates.due_date =
+        due_date;
     }
 
 
@@ -238,7 +386,8 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Ingen endringer ble sendt.",
+          error:
+            "Ingen endringer ble sendt.",
         },
         { status: 400 }
       );
@@ -257,9 +406,108 @@ export async function PATCH(
         String(oldReceiverId);
 
 
-    // ------------------------------------------------
+    // ==================================================
+    // FIND EMPLOYEE BEING ASSIGNED
+    // ==================================================
+    //
+    // This happens BEFORE updating the task.
+    //
+    // We need their email address for EmailJS.
+    //
+    // ==================================================
+
+    let assignedEmployee:
+      {
+        id: string | number;
+        name: string;
+        email: string;
+        role: string;
+      } | null = null;
+
+
+    if (assigningNewEmployee) {
+
+      const {
+        data: employee,
+        error: employeeError,
+      } = await supabase
+        .from("users")
+        .select(
+          "id, name, email, role"
+        )
+        .eq("id", receiver_id)
+        .single();
+
+
+      if (
+        employeeError ||
+        !employee
+      ) {
+
+        console.error(
+          "ASSIGNED EMPLOYEE LOOKUP ERROR:",
+          employeeError
+        );
+
+
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Den valgte ansatte ble ikke funnet.",
+          },
+          { status: 404 }
+        );
+
+      }
+
+
+      // ------------------------------------------------
+      // Make sure the selected user really is an employee
+      // ------------------------------------------------
+
+      if (
+        employee.role !== "employee"
+      ) {
+
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Du kan bare tildele saker til ansatte.",
+          },
+          { status: 400 }
+        );
+
+      }
+
+
+      // ------------------------------------------------
+      // Make sure employee has an email
+      // ------------------------------------------------
+
+      if (!employee.email) {
+
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Den ansatte har ingen registrert e-postadresse.",
+          },
+          { status: 400 }
+        );
+
+      }
+
+
+      assignedEmployee = employee;
+
+    }
+
+
+    // ==================================================
     // UPDATE TASK
-    // ------------------------------------------------
+    // ==================================================
 
     const {
       data,
@@ -279,15 +527,18 @@ export async function PATCH(
         error
       );
 
+
       return NextResponse.json(
         {
           success: false,
-          error: "Kunne ikke oppdatere saken.",
+          error:
+            "Kunne ikke oppdatere saken.",
         },
         { status: 500 }
       );
 
     }
+
 
     // ==================================================
     // CREATE USER NOTIFICATION WHEN TASK IS COMPLETED
@@ -295,7 +546,8 @@ export async function PATCH(
 
     const completingTask =
       status === "completed" &&
-      currentTask.status !== "completed";
+      currentTask.status !==
+        "completed";
 
 
     if (
@@ -308,12 +560,20 @@ export async function PATCH(
       } = await supabase
         .from("notifications")
         .insert({
-          user_id: currentTask.sender_id,
-          type: "task_completed",
-          task_id: id,
+          user_id:
+            currentTask.sender_id,
+
+          type:
+            "task_completed",
+
+          task_id:
+            id,
+
           message:
             `Sak #${id} er ferdig behandlet.`,
-          is_read: false,
+
+          is_read:
+            false,
         });
 
 
@@ -330,22 +590,37 @@ export async function PATCH(
 
 
     // ==================================================
-    // CREATE EMPLOYEE NOTIFICATION
+    // EMPLOYEE ASSIGNMENT
     // ==================================================
 
-    if (assigningNewEmployee) {
+    if (
+      assigningNewEmployee &&
+      assignedEmployee
+    ) {
+
+      // -----------------------------------------------
+      // Create in-app notification
+      // -----------------------------------------------
 
       const {
         error: notificationError,
       } = await supabase
         .from("notifications")
         .insert({
-          user_id: receiver_id,
-          type: "task_assigned",
-          task_id: id,
+          user_id:
+            receiver_id,
+
+          type:
+            "task_assigned",
+
+          task_id:
+            id,
+
           message:
             `Du har fått tildelt sak #${id}.`,
-          is_read: false,
+
+          is_read:
+            false,
         });
 
 
@@ -356,20 +631,73 @@ export async function PATCH(
           notificationError
         );
 
-        // The task was successfully updated,
-        // so we don't undo the update here.
+      }
+
+
+      // -----------------------------------------------
+      // SEND EMAIL
+      // -----------------------------------------------
+
+      try {
+
+        await sendTaskAssignmentEmail({
+
+          employeeEmail:
+            assignedEmployee.email,
+
+          employeeName:
+            assignedEmployee.name,
+
+          taskId:
+            id,
+
+          taskCategory:
+            data?.category,
+
+          taskPriority:
+            data?.priority,
+
+          dueDate:
+            data?.due_date,
+
+          taskContent:
+            data?.content,
+
+          assignedBy:
+            user.name,
+
+        });
+
+
+        console.log(
+          `TASK ASSIGNMENT EMAIL SENT TO ${assignedEmployee.email}`
+        );
+
+
+      } catch (emailError) {
+
+        console.error(
+          "TASK ASSIGNMENT EMAIL ERROR:",
+          emailError
+        );
+
+        // ---------------------------------------------
+        // IMPORTANT:
         //
-        // The error is logged so it can be
-        // investigated if notification creation fails.
+        // The task WAS successfully assigned.
+        //
+        // If EmailJS fails, we do NOT undo the
+        // database update.
+        // ---------------------------------------------
 
       }
 
     }
 
 
-    // ------------------------------------------------
+    // ==================================================
     // SUCCESS
-    // ------------------------------------------------
+    // ==================================================
 
     return NextResponse.json({
       success: true,
@@ -384,13 +712,16 @@ export async function PATCH(
       error
     );
 
+
     return NextResponse.json(
       {
         success: false,
-        error: "Kunne ikke oppdatere saken.",
+        error:
+          "Kunne ikke oppdatere saken.",
       },
       { status: 500 }
     );
 
   }
+
 }

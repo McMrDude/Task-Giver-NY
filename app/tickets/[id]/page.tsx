@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import emailjs from "@emailjs/browser";
 
 import ThemeToggle from "../../components/ThemeToggle";
 import { supabase } from "../../supabaseClient";
