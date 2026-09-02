@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import emailjs from "@emailjs/browser";
+import emailjs from "@emailjs/nodejs";
 import { supabase } from "../../supabaseClient";
 
 const secret = new TextEncoder().encode(
