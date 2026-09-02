@@ -860,42 +860,30 @@ function StatCard({
 // WORKLOAD BAR
 // ====================================================
 
-function WorkloadBar({
-  taskCount,
-}: {
-  taskCount: number;
-}) {
-
-  // 8 tasks represents a full bar.
-  // This is only a visual reference, not a maximum.
+function WorkloadBar({ taskCount }: { taskCount: number }) {
   const maxTasks = 8;
-
-  const percentage =
-    Math.min(
-      (taskCount / maxTasks) * 100,
-      100
-    );
-
+  const percentage = Math.min((taskCount / maxTasks) * 100, 100);
 
   return (
+    <div className="w-56">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          Arbeidsmengde
+        </p>
 
-    <div className="mt-3 w-full max-w-xs">
-
-      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-
-        <div
-          className="h-full rounded-full bg-blue-600 transition-all duration-500 dark:bg-blue-500"
-          style={{
-            width: `${percentage}%`,
-          }}
-        />
-
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {taskCount} {taskCount === 1 ? "sak" : "saker"}
+        </p>
       </div>
 
+      <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+        <div
+          className="h-full rounded-full bg-blue-500 transition-all duration-500"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
     </div>
-
   );
-
 }
 
 // ====================================================
@@ -996,97 +984,49 @@ function EmployeeCard({
 
           {/* CURRENT TASK COUNT + WORKLOAD */}
 
-<div className="flex min-w-0 flex-1 items-center justify-end gap-4">
+<div className="flex shrink-0 items-center gap-6">
 
-  <div className="min-w-0 flex-1 max-w-xs">
-
-    <div className="flex items-center justify-between gap-3">
-
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-
-        Arbeidsmengde
-
-      </p>
-
-      <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
-
-        Aktive saker
-
-      </p>
-
-    </div>
-
-
-    <WorkloadBar
-      taskCount={currentTasks.length}
-    />
-
+  {/* WORKLOAD */}
+  <div className="hidden sm:block">
+    <WorkloadBar taskCount={currentTasks.length} />
   </div>
 
+  {/* ACTIVE TASK COUNT */}
+  <div className="min-w-[70px] text-center">
+    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+      Aktive
+    </p>
 
-  {/* LARGE TASK COUNT */}
-
-  <div className="shrink-0 text-right">
-
-    <p className="text-3xl font-bold leading-none text-slate-900 dark:text-white">
-
+    <p className="mt-1 text-2xl font-bold leading-none text-slate-900 dark:text-white">
       {currentTasks.length}
-
     </p>
-
-    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-
-      {currentTasks.length === 1
-        ? "aktiv sak"
-        : "aktive saker"}
-
-    </p>
-
   </div>
-
 
   {/* HIGH PRIORITY */}
-
   {highPriorityTasks > 0 && (
-
-    <div className="hidden rounded-lg bg-red-50 px-3 py-2 text-center sm:block dark:bg-red-950/40">
-
-      <p className="text-xs font-medium text-red-600 dark:text-red-400">
-
+    <div className="hidden min-w-[72px] border-l border-slate-200 pl-5 text-center dark:border-slate-800 sm:block">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
         Høy prioritet
-
       </p>
 
-      <p className="mt-0.5 text-sm font-bold text-red-700 dark:text-red-300">
-
+      <p className="mt-1 text-lg font-bold leading-none text-red-600 dark:text-red-400">
         {highPriorityTasks}
-
       </p>
-
     </div>
-
   )}
 
+  {/* COMPLETED */}
+  <div className="hidden min-w-[70px] border-l border-slate-200 pl-5 text-center dark:border-slate-800 md:block">
+    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+      Ferdige
+    </p>
+
+    <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+      {completedTasks.length}
+    </p>
+  </div>
+
 </div>
-
-
-          {/* COMPLETED */}
-
-          <div className="hidden text-right sm:block">
-
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-
-              Ferdige
-
-            </p>
-
-            <p className="mt-1 text-lg font-semibold text-green-600 dark:text-green-400">
-
-              {completedTasks.length}
-
-            </p>
-
-          </div>
 
 
           {/* ARROW */}
