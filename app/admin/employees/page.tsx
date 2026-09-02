@@ -861,29 +861,54 @@ function StatCard({
 // ====================================================
 
 function WorkloadBar({ taskCount }: { taskCount: number }) {
+
   const maxTasks = 8;
-  const percentage = Math.min((taskCount / maxTasks) * 100, 100);
+
+  const percentage =
+    Math.min(
+      (taskCount / maxTasks) * 100,
+      100
+    );
 
   return (
-    <div className="w-56">
+
+    <div className="w-56 shrink-0">
+
       <div className="mb-2 flex items-center justify-between">
+
         <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+
           Arbeidsmengde
+
         </p>
 
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          {taskCount} {taskCount === 1 ? "sak" : "saker"}
+
+          {taskCount}{" "}
+          {taskCount === 1
+            ? "sak"
+            : "saker"}
+
         </p>
+
       </div>
 
+
       <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+
         <div
           className="h-full rounded-full bg-blue-500 transition-all duration-500"
-          style={{ width: `${percentage}%` }}
+          style={{
+            width: `${percentage}%`,
+          }}
         />
+
       </div>
+
     </div>
+
   );
+
 }
 
 // ====================================================
@@ -932,7 +957,7 @@ function EmployeeCard({
         className="group w-full cursor-pointer p-5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
       >
 
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-6">
 
 
           {/* AVATAR */}
@@ -981,53 +1006,84 @@ function EmployeeCard({
 
           <div className="hidden flex-1 lg:block" />
 
+{/* ==================================================
+    WORKLOAD / TASK SUMMARY
+================================================== */}
 
-          {/* CURRENT TASK COUNT + WORKLOAD */}
-
-<div className="flex shrink-0 items-center gap-6">
+<div className="flex shrink-0 items-center gap-5">
 
   {/* WORKLOAD */}
+
   <div className="hidden sm:block">
-    <WorkloadBar taskCount={currentTasks.length} />
+
+    <WorkloadBar
+      taskCount={currentTasks.length}
+    />
+
   </div>
 
-  {/* ACTIVE TASK COUNT */}
-  <div className="min-w-[70px] text-center">
+
+  {/* ACTIVE TASKS */}
+
+  <div className="min-w-[64px] text-center">
+
     <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+
       Aktive
+
     </p>
 
     <p className="mt-1 text-2xl font-bold leading-none text-slate-900 dark:text-white">
+
       {currentTasks.length}
+
     </p>
+
   </div>
 
+
   {/* HIGH PRIORITY */}
+
   {highPriorityTasks > 0 && (
-    <div className="hidden min-w-[72px] border-l border-slate-200 pl-5 text-center dark:border-slate-800 sm:block">
+
+    <div className="hidden min-w-[70px] border-l border-slate-200 pl-5 text-center sm:block dark:border-slate-800">
+
       <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
+
         Høy prioritet
+
       </p>
 
       <p className="mt-1 text-lg font-bold leading-none text-red-600 dark:text-red-400">
+
         {highPriorityTasks}
+
       </p>
+
     </div>
+
   )}
 
+
   {/* COMPLETED */}
-  <div className="hidden min-w-[70px] border-l border-slate-200 pl-5 text-center dark:border-slate-800 md:block">
+
+  <div className="hidden min-w-[64px] border-l border-slate-200 pl-5 text-center md:block dark:border-slate-800">
+
     <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+
       Ferdige
+
     </p>
 
     <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+
       {completedTasks.length}
+
     </p>
+
   </div>
 
 </div>
-
 
           {/* ARROW */}
 
