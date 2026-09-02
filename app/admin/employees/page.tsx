@@ -994,54 +994,80 @@ function EmployeeCard({
           <div className="hidden flex-1 lg:block" />
 
 
-          {/* CURRENT TASK COUNT */}
+          {/* CURRENT TASK COUNT + WORKLOAD */}
 
-          <div className="flex items-center gap-3">
+<div className="flex min-w-0 flex-1 items-center justify-end gap-4">
 
-            <div className="text-right">
+  <div className="min-w-0 flex-1 max-w-xs">
 
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+    <div className="flex items-center justify-between gap-3">
 
-                Aktive saker
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
 
-              </p>
+        Arbeidsmengde
 
-              <p
-                className={`mt-1 text-2xl font-bold ${
-                  currentTasks.length >= 5
-                    ? "text-amber-600 dark:text-amber-400"
-                    : "text-slate-900 dark:text-white"
-                }`}
-              >
+      </p>
 
-                {currentTasks.length}
+      <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
 
-              </p>
+        Aktive saker
 
-            </div>
+      </p>
+
+    </div>
 
 
-            {highPriorityTasks > 0 && (
+    <WorkloadBar
+      taskCount={currentTasks.length}
+    />
 
-              <div className="rounded-lg bg-red-50 px-3 py-2 text-center dark:bg-red-950/40">
+  </div>
 
-                <p className="text-xs font-medium text-red-600 dark:text-red-400">
 
-                  Høy prioritet
+  {/* LARGE TASK COUNT */}
 
-                </p>
+  <div className="shrink-0 text-right">
 
-                <p className="mt-0.5 text-sm font-bold text-red-700 dark:text-red-300">
+    <p className="text-3xl font-bold leading-none text-slate-900 dark:text-white">
 
-                  {highPriorityTasks}
+      {currentTasks.length}
 
-                </p>
+    </p>
 
-              </div>
+    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
 
-            )}
+      {currentTasks.length === 1
+        ? "aktiv sak"
+        : "aktive saker"}
 
-          </div>
+    </p>
+
+  </div>
+
+
+  {/* HIGH PRIORITY */}
+
+  {highPriorityTasks > 0 && (
+
+    <div className="hidden rounded-lg bg-red-50 px-3 py-2 text-center sm:block dark:bg-red-950/40">
+
+      <p className="text-xs font-medium text-red-600 dark:text-red-400">
+
+        Høy prioritet
+
+      </p>
+
+      <p className="mt-0.5 text-sm font-bold text-red-700 dark:text-red-300">
+
+        {highPriorityTasks}
+
+      </p>
+
+    </div>
+
+  )}
+
+</div>
 
 
           {/* COMPLETED */}
