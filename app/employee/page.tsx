@@ -126,15 +126,7 @@ export default function EmployeeDashboard() {
       const assignedTickets =
         ticketResult.data || [];
 
-      const activeTickets =
-        assignedTickets.filter(
-          (ticket: Ticket) =>
-            ticket.status !== "completed" &&
-            ticket.status !== "finished" &&
-            ticket.status !== "cancelled"
-        );
-
-      setTickets(activeTickets);
+      setTickets(assignedTickets);
     } catch (err) {
       console.error(err);
 
@@ -188,30 +180,16 @@ export default function EmployeeDashboard() {
         // UPDATE THE TICKET LOCALLY
         // --------------------------------------------
 
-        setTickets(current => {
-
-      // If the ticket has been completed,
-      // remove it from the active ticket list.
-      if (
-        status === "completed" ||
-        status === "finished" ||
-        status === "cancelled"
-      ) {
-        return current.filter(
-          ticket => ticket.id !== ticketId
+        setTickets(current =>
+          current.map(ticket =>
+            ticket.id === ticketId
+              ? {
+                  ...ticket,
+                  status,
+                }
+              : ticket
+          )
         );
-      }
-
-      return current.map(ticket =>
-        ticket.id === ticketId
-          ? {
-              ...ticket,
-              status,
-            }
-          : ticket
-      );
-
-    });
 
     } catch (error) {
 
