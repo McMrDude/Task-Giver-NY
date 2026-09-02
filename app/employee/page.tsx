@@ -239,28 +239,42 @@ export default function EmployeeDashboard() {
     router.push("/login");
   }
 
+// ==================================================
+// ACTIVE / COMPLETED TICKETS
+// ==================================================
+
+const activeTickets =
+  tickets.filter(
+    ticket =>
+      ticket.status !== "completed" &&
+      ticket.status !== "finished" &&
+      ticket.status !== "cancelled"
+  );
+
+const completedTickets =
+  tickets.filter(
+    ticket =>
+      ticket.status === "completed" ||
+      ticket.status === "finished"
+  );
+
+
   // ==================================================
   // STATISTICS
   // ==================================================
 
-  const totalTickets = tickets.length;
+  const totalTickets =
+    activeTickets.length;
 
   const inProgressTickets =
-    tickets.filter(
+    activeTickets.filter(
       ticket =>
         ticket.status === "started" ||
         ticket.status === "pågår"
     ).length;
 
-  const completedTickets =
-    tickets.filter(
-      ticket =>
-        ticket.status === "completed" ||
-        ticket.status === "finished"
-    ).length;
-
   const newTickets =
-    tickets.filter(
+    activeTickets.filter(
       ticket =>
         ticket.status === "not_started"
     ).length;
@@ -627,7 +641,7 @@ export default function EmployeeDashboard() {
 
               <StatCard
                 title="Ferdige"
-                value={completedTickets}
+                value={completedTickets.length}
                 description="Ferdigbehandlede saker"
               />
 
@@ -657,7 +671,7 @@ export default function EmployeeDashboard() {
                   EMPTY STATE
               ================================================== */}
 
-              {tickets.length === 0 ? (
+              {activeTickets.length === 0 ? (
 
                 <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
@@ -683,7 +697,7 @@ export default function EmployeeDashboard() {
 
                 <div className="space-y-4">
 
-                  {tickets.map(ticket => (
+                  {activeTickets.map(ticket => (
 
                     <EmployeeTicketCard
                         key={ticket.id}
