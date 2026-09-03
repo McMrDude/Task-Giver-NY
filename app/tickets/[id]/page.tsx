@@ -1248,28 +1248,37 @@ async function sendMessage() {
     </div>
 
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {ticket.attachments.map((attachment, index) => (
-        <button
+      {ticket.attachments.map((attachment) => (
+        <a
           key={attachment.id}
-          type="button"
-          onClick={() => {
-            // Open image / lightbox here later
-          }}
-          className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-slate-700 bg-slate-950 transition hover:border-blue-500 hover:shadow-lg"
+          href={attachment.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
         >
-          <img
-            src={attachment.url}
-            alt={attachment.file_name}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-          />
+          <button
+            key={attachment.id}
+            rel="noopener noreferrer"
+            type="button"
+            onClick={() => {
+              // Open image / lightbox here later
+            }}
+            className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-slate-700 bg-slate-950 transition hover:border-blue-500 hover:shadow-lg"
+          >
+            <img
+              src={attachment.url}
+              alt={attachment.file_name}
+              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            />
 
-          {/* Hover filename */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-left transition-transform duration-200 group-hover:translate-y-0">
-            <p className="truncate text-xs font-medium text-white">
-              {attachment.file_name}
-            </p>
-          </div>
-        </button>
+            {/* Hover filename */}
+            <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-left transition-transform duration-200 group-hover:translate-y-0">
+              <p className="truncate text-xs font-medium text-white">
+                {attachment.file_name}
+              </p>
+            </div>
+          </button>
+        </a>
       ))}
     </div>
   </div>
