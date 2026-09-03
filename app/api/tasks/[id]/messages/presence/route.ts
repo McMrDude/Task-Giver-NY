@@ -210,7 +210,7 @@ export async function POST(
         error: "Kunne ikke oppdatere chat-status.",
       },
       { status: 500 }
-    );
+    ); 
 
   }
 
