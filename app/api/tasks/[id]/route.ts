@@ -52,8 +52,6 @@ export async function GET(
 
     const cookieStore = await cookies();
 
-    // IMPORTANT:
-    // Your login system uses "auth_token"
     const token = cookieStore.get("auth_token")?.value;
 
     if (!token) {
@@ -107,10 +105,6 @@ export async function GET(
     // --------------------------------------------------
     // GET USER ID FROM JWT
     // --------------------------------------------------
-    //
-    // /api/auth/me shows that your JWT stores
-    // the user ID as payload.id.
-    //
 
     const userId = payload.id;
 
@@ -241,18 +235,12 @@ export async function GET(
     // --------------------------------------------------
     // ADMIN
     // --------------------------------------------------
-    //
-    // Admins can view every ticket.
-    //
 
     if (
       currentUser.role === "admin"
     ) {
 
-      return NextResponse.json({
-        success: true,
-        data: ticket,
-      });
+      // Admins are allowed to continue.
 
     }
 
@@ -260,11 +248,8 @@ export async function GET(
     // --------------------------------------------------
     // EMPLOYEE
     // --------------------------------------------------
-    //
-    // Employees can only view tickets assigned to them.
-    //
 
-    if (
+    else if (
       currentUser.role === "employee"
     ) {
 
@@ -285,47 +270,141 @@ export async function GET(
 
       }
 
-
-      return NextResponse.json({
-        success: true,
-        data: ticket,
-      });
-
     }
 
 
     // --------------------------------------------------
     // NORMAL USER
     // --------------------------------------------------
-    //
-    // Normal users can only view tickets they created.
-    //
 
-    if (
-      String(ticket.sender_id) !==
-      String(currentUser.id)
-    ) {
+    else {
+
+      if (
+        String(ticket.sender_id) !==
+        String(currentUser.id)
+      ) {
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Du har ikke tilgang til denne saken.",
+          },
+          {
+            status: 403,
+          }
+        );
+
+      }
+
+    }
+
+
+    // ==================================================
+    // LOAD ATTACHMENTS
+    // ==================================================
+
+    const {
+      data: attachments,
+      error: attachmentsError,
+    } = await supabase
+      .from("task_attachments")
+      .select(`
+        id,
+        file_path,
+        file_name,
+        mime_type,
+        size_bytes,
+        created_at
+      `)
+      .eq(
+        "task_id",
+        ticketId
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true,
+        }
+      );
+
+
+    if (attachmentsError) {
+
+      console.error(
+        "Task attachments lookup error:",
+        attachmentsError
+      );
 
       return NextResponse.json(
         {
           success: false,
-          error: "Du har ikke tilgang til denne saken.",
+          error: "Kunne ikke hente vedleggene.",
         },
         {
-          status: 403,
+          status: 500,
         }
       );
 
     }
 
 
-    // --------------------------------------------------
-    // USER IS ALLOWED
-    // --------------------------------------------------
+    // ==================================================
+    // CREATE SIGNED URLS
+    // ==================================================
+
+    const attachmentsWithUrls = [];
+
+    for (
+      const attachment of attachments ?? []
+    ) {
+
+      const {
+        data: signedData,
+        error: signedError,
+      } = await supabase.storage
+        .from("task-attachments")
+        .createSignedUrl(
+          attachment.file_path,
+          60 * 60
+        );
+
+
+      if (signedError) {
+
+        console.error(
+          "Signed URL error:",
+          signedError
+        );
+
+        continue;
+
+      }
+
+
+      attachmentsWithUrls.push({
+        id: attachment.id,
+        file_name: attachment.file_name,
+        mime_type: attachment.mime_type,
+        size_bytes: attachment.size_bytes,
+        created_at: attachment.created_at,
+        url: signedData.signedUrl,
+      });
+
+    }
+
+
+    // ==================================================
+    // RETURN TICKET
+    // ==================================================
 
     return NextResponse.json({
       success: true,
-      data: ticket,
+
+      data: {
+        ...ticket,
+
+        attachments: attachmentsWithUrls,
+      },
     });
 
 

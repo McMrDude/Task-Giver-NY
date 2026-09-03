@@ -119,6 +119,8 @@ export default function TicketingSystem() {
   const [content, setContent] = useState("");
   const [priority, setPriority] = useState("lav");
   const [dueDate, setDueDate] = useState("");
+  const [images, setImages] =
+    useState<File[]>([]);
 
   const [statusMessage, setStatusMessage] =
     useState("");
@@ -186,64 +188,151 @@ export default function TicketingSystem() {
     setContent("");
     setPriority("lav");
     setDueDate("");
+    setImages([]);
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault();
+const handleSubmit = async (
+  e: React.FormEvent
+) => {
 
-    if (
-      !selectedCategory ||
-      !selectedSubcategory
-    ) {
-      return;
-    }
+  e.preventDefault();
 
-    setStatusMessage(
-      "Oppretter støttesak..."
+
+  if (
+    !selectedCategory ||
+    !selectedSubcategory
+  ) {
+    return;
+  }
+
+
+  setStatusMessage(
+    "Oppretter støttesak..."
+  );
+
+
+  try {
+
+    const formData =
+      new FormData();
+
+
+    // ----------------------------------------------
+    // TASK DATA
+    // ----------------------------------------------
+
+    formData.append(
+      "content",
+      content
     );
 
-    try {
-      const res = await fetch("/api/tickets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content,
-          category: selectedCategory.name,
-          subcategory: selectedSubcategory,
-          priority,
-          due_date: dueDate || null,
-        }),
-      });
+    formData.append(
+      "category",
+      selectedCategory.name
+    );
 
-      const result = await res.json();
+    formData.append(
+      "subcategory",
+      selectedSubcategory
+    );
 
-      if (!result.success) {
-        setStatusMessage(
-          `Databasefeil: ${result.error}`
+    formData.append(
+      "priority",
+      priority
+    );
+
+    formData.append(
+      "due_date",
+      dueDate || ""
+    );
+
+
+    // ----------------------------------------------
+    // IMAGES
+    // ----------------------------------------------
+
+    images.forEach(
+      image => {
+
+        formData.append(
+          "images",
+          image
         );
-        return;
+
       }
+    );
 
-      setStatusMessage(
-        "Støttesaken ble opprettet!"
+
+    // ----------------------------------------------
+    // SEND
+    // ----------------------------------------------
+
+    const res =
+      await fetch(
+        "/api/tickets",
+        {
+          method: "POST",
+          body: formData,
+        }
       );
 
-      setTimeout(() => {
-        resetForm();
-        setStatusMessage("");
-      }, 1500);
-    } catch (err) {
-      console.error(err);
+
+    const result =
+      await res.json();
+
+
+    if (
+      !res.ok ||
+      !result.success
+    ) {
 
       setStatusMessage(
-        "En nettverksfeil oppstod."
+        `Feil: ${
+          result.error ||
+          "Kunne ikke opprette saken."
+        }`
       );
+
+      return;
+
     }
-  };
+
+
+    // ----------------------------------------------
+    // SUCCESS
+    // ----------------------------------------------
+
+    setStatusMessage(
+      images.length > 0
+        ? `Støttesaken ble opprettet med ${images.length} ${
+            images.length === 1
+              ? "bilde"
+              : "bilder"
+          }!`
+        : "Støttesaken ble opprettet!"
+    );
+
+
+    setTimeout(() => {
+
+      resetForm();
+
+      setStatusMessage("");
+
+    }, 1500);
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    setStatusMessage(
+      "En nettverksfeil oppstod."
+    );
+
+  }
+
+};
 
   async function logout() {
     await fetch("/api/auth/logout", {
@@ -838,6 +927,136 @@ export default function TicketingSystem() {
 
                       </div>
 
+                      {/* IMAGES */}
+
+                      <div className="mb-6">
+
+                        <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
+                          Bilder
+
+                          <span className="ml-2 font-normal text-slate-400">
+                            Valgfritt
+                          </span>
+                        </label>
+
+
+                        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+                          Legg gjerne ved skjermbilder eller bilder
+                          som viser problemet.
+                        </p>
+
+
+                        <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center transition hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-blue-600 dark:hover:bg-blue-950/20">
+
+                          <div className="mb-2 text-2xl">
+                            📷
+                          </div>
+
+
+                          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                            Klikk for å velge bilder
+                          </p>
+
+
+                          <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                            JPG, PNG, WEBP eller GIF · Maks 5 bilder
+                          </p>
+
+
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            multiple
+                            className="hidden"
+                            onChange={(e) => {
+
+                              const selected =
+                                Array.from(
+                                  e.target.files || []
+                                );
+
+
+                              if (
+                                selected.length > 5
+                              ) {
+                                alert(
+                                  "Du kan laste opp maksimalt 5 bilder."
+                                );
+
+                                return;
+                              }
+
+
+                              setImages(
+                                selected
+                              );
+
+                            }}
+                          />
+
+                        </label>
+
+
+                        {/* SELECTED IMAGES */}
+
+                        {images.length > 0 && (
+
+                          <div className="mt-4 space-y-2">
+
+                            {images.map(
+                              (file, index) => (
+
+                                <div
+                                  key={`${file.name}-${index}`}
+                                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900"
+                                >
+
+                                  <div className="min-w-0">
+
+                                    <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+                                      {file.name}
+                                    </p>
+
+                                    <p className="text-xs text-slate-400">
+                                      {(
+                                        file.size /
+                                        1024 /
+                                        1024
+                                      ).toFixed(2)}{" "}
+                                      MB
+                                    </p>
+
+                                  </div>
+
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+
+                                      setImages(
+                                        current =>
+                                          current.filter(
+                                            (_, i) =>
+                                              i !== index
+                                          )
+                                      );
+
+                                    }}
+                                    className="ml-4 cursor-pointer rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                  >
+                                    Fjern
+                                  </button>
+
+                                </div>
+
+                              )
+                            )}
+
+                          </div>
+
+                        )}
+
+                      </div>
 
                       {/* PRIORITY */}
 
