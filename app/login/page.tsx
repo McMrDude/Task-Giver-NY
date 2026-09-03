@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 
 export default function LoginPage() {
@@ -152,6 +153,13 @@ export default function LoginPage() {
           >
             {loading ? "Logger inn..." : "Logg inn"}
           </button>
+
+          <Link
+            href="/forgot-password"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Glemt passord?
+          </Link>
 
 
           {/* REGISTER */}
