@@ -22,6 +22,7 @@ async function sendTaskAssignmentEmail({
   dueDate,
   taskContent,
   assignedBy,
+  taskUrl,
 }: {
   employeeEmail: string;
   employeeName: string;
@@ -31,6 +32,7 @@ async function sendTaskAssignmentEmail({
   dueDate?: string | null;
   taskContent?: string | null;
   assignedBy?: string | null;
+  taskUrl?: string;
 }) {
 
   const serviceId =
@@ -84,6 +86,9 @@ async function sendTaskAssignmentEmail({
 
       assigned_by:
         assignedBy ?? "IT Support",
+
+      task_url:
+        taskUrl,
     },
     {
       publicKey,
@@ -666,6 +671,8 @@ export async function PATCH(
           assignedBy:
             user.name,
 
+          taskUrl:
+            `${process.env.NEXT_PUBLIC_APP_URL}/tasks/${id}`,
         });
 
 
