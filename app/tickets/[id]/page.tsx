@@ -1234,35 +1234,45 @@ async function sendMessage() {
               </div>
 
               {ticket.attachments.length > 0 && (
-  <section className="mt-6">
-    <h2 className="mb-3 text-lg font-semibold">
-      Vedlegg
-    </h2>
+  <div className="mt-6 border-t border-slate-800 pt-5">
+    <div className="mb-4 flex items-center justify-center gap-2">
+      <span className="text-sm">📎</span>
 
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {ticket.attachments.map((attachment) => (
-        <a
+      <h3 className="text-sm font-semibold text-slate-200">
+        Vedlegg
+      </h3>
+
+      <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">
+        {ticket.attachments.length}
+      </span>
+    </div>
+
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {ticket.attachments.map((attachment, index) => (
+        <button
           key={attachment.id}
-          href={attachment.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
+          type="button"
+          onClick={() => {
+            // Open image / lightbox here later
+          }}
+          className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-slate-700 bg-slate-950 transition hover:border-blue-500 hover:shadow-lg"
         >
           <img
             src={attachment.url}
             alt={attachment.file_name}
-            className="aspect-video w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
 
-          <div className="p-3">
-            <p className="truncate text-sm font-medium">
+          {/* Hover filename */}
+          <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-left transition-transform duration-200 group-hover:translate-y-0">
+            <p className="truncate text-xs font-medium text-white">
               {attachment.file_name}
             </p>
           </div>
-        </a>
+        </button>
       ))}
     </div>
-  </section>
+  </div>
 )}
 
               <div className="p-5">
