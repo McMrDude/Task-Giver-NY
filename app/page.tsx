@@ -969,28 +969,25 @@ const handleSubmit = async (
                             multiple
                             className="hidden"
                             onChange={(e) => {
+                              const selected = Array.from(e.target.files || []);
 
-                              const selected =
-                                Array.from(
-                                  e.target.files || []
-                                );
-
-
-                              if (
-                                selected.length > 5
-                              ) {
-                                alert(
-                                  "Du kan laste opp maksimalt 5 bilder."
-                                );
-
+                              if (selected.length === 0) {
                                 return;
                               }
 
+                              setImages((current) => {
+                                const combined = [...current, ...selected];
 
-                              setImages(
-                                selected
-                              );
+                                if (combined.length > 5) {
+                                  alert("Du kan laste opp maksimalt 5 bilder.");
+                                  return current;
+                                }
 
+                                return combined;
+                              });
+
+                              // Allows selecting the same file again later
+                              e.target.value = "";
                             }}
                           />
 
