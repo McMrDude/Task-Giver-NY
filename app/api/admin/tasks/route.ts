@@ -672,7 +672,7 @@ export async function PATCH(
             user.name,
 
           taskUrl:
-            `${process.env.NEXT_PUBLIC_APP_URL}/tasks/${id}`,
+            `${process.env.NEXT_PUBLIC_APP_URL}/tickets/${id}`,
         });
 
 
