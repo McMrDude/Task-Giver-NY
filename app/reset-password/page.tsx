@@ -2,6 +2,7 @@
 
 import {
   FormEvent,
+  Suspense,
   useState,
 } from "react";
 
@@ -13,7 +14,11 @@ import {
 import Link from "next/link";
 
 
-export default function ResetPasswordPage() {
+// ====================================================
+// RESET PASSWORD FORM
+// ====================================================
+
+function ResetPasswordForm() {
 
   const searchParams =
     useSearchParams();
@@ -42,6 +47,10 @@ export default function ResetPasswordPage() {
     useState(false);
 
 
+  // ==================================================
+  // SUBMIT
+  // ==================================================
+
   async function handleSubmit(
     event: FormEvent
   ) {
@@ -50,6 +59,10 @@ export default function ResetPasswordPage() {
 
     setError("");
 
+
+    // -----------------------------------------------
+    // Make sure token exists
+    // -----------------------------------------------
 
     if (!token) {
 
@@ -62,7 +75,14 @@ export default function ResetPasswordPage() {
     }
 
 
-    if (password !== confirmPassword) {
+    // -----------------------------------------------
+    // Check passwords
+    // -----------------------------------------------
+
+    if (
+      password !==
+      confirmPassword
+    ) {
 
       setError(
         "Passordene er ikke like."
@@ -73,7 +93,13 @@ export default function ResetPasswordPage() {
     }
 
 
-    if (password.length < 8) {
+    // -----------------------------------------------
+    // Check password length
+    // -----------------------------------------------
+
+    if (
+      password.length < 8
+    ) {
 
       setError(
         "Passordet må være minst 8 tegn."
@@ -86,6 +112,10 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
 
+
+    // =================================================
+    // SEND REQUEST
+    // =================================================
 
     try {
 
@@ -112,6 +142,10 @@ export default function ResetPasswordPage() {
         await response.json();
 
 
+      // -----------------------------------------------
+      // API ERROR
+      // -----------------------------------------------
+
       if (
         !response.ok ||
         !result.success
@@ -127,8 +161,15 @@ export default function ResetPasswordPage() {
       }
 
 
+      // -----------------------------------------------
+      // SUCCESS
+      // -----------------------------------------------
+
       setSuccess(true);
 
+
+      // Send user back to login
+      // after 2 seconds.
 
       setTimeout(() => {
 
@@ -154,6 +195,10 @@ export default function ResetPasswordPage() {
 
   }
 
+
+  // ==================================================
+  // NO TOKEN
+  // ==================================================
 
   if (!token) {
 
@@ -188,6 +233,10 @@ export default function ResetPasswordPage() {
   }
 
 
+  // ==================================================
+  // SUCCESS
+  // ==================================================
+
   if (success) {
 
     return (
@@ -213,6 +262,10 @@ export default function ResetPasswordPage() {
   }
 
 
+  // ==================================================
+  // FORM
+  // ==================================================
+
   return (
 
     <main className="min-h-screen flex items-center justify-center px-4">
@@ -232,6 +285,10 @@ export default function ResetPasswordPage() {
           onSubmit={handleSubmit}
           className="mt-6 space-y-4"
         >
+
+          {/* ----------------------------------------- */}
+          {/* NEW PASSWORD */}
+          {/* ----------------------------------------- */}
 
           <div>
 
@@ -260,6 +317,10 @@ export default function ResetPasswordPage() {
           </div>
 
 
+          {/* ----------------------------------------- */}
+          {/* CONFIRM PASSWORD */}
+          {/* ----------------------------------------- */}
+
           <div>
 
             <label
@@ -287,6 +348,10 @@ export default function ResetPasswordPage() {
           </div>
 
 
+          {/* ----------------------------------------- */}
+          {/* ERROR */}
+          {/* ----------------------------------------- */}
+
           {error && (
 
             <p className="text-sm text-red-600">
@@ -295,6 +360,10 @@ export default function ResetPasswordPage() {
 
           )}
 
+
+          {/* ----------------------------------------- */}
+          {/* SUBMIT */}
+          {/* ----------------------------------------- */}
 
           <button
             type="submit"
@@ -308,11 +377,50 @@ export default function ResetPasswordPage() {
 
           </button>
 
+
+          <Link
+            href="/login"
+            className="block text-center text-sm text-blue-600 hover:underline"
+          >
+            ← Tilbake til innlogging
+          </Link>
+
         </form>
 
       </div>
 
     </main>
+
+  );
+
+}
+
+
+// ====================================================
+// PAGE
+// ====================================================
+
+export default function ResetPasswordPage() {
+
+  return (
+
+    <Suspense
+      fallback={
+
+        <main className="min-h-screen flex items-center justify-center">
+
+          <p className="text-slate-500">
+            Laster...
+          </p>
+
+        </main>
+
+      }
+    >
+
+      <ResetPasswordForm />
+
+    </Suspense>
 
   );
 
