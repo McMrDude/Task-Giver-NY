@@ -156,7 +156,7 @@ export default function LoginPage() {
 
           <Link
             href="/forgot-password"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-blue-600 hover:underline mt-6 text-center text-slate-500 dark:text-slate-400"
           >
             Glemt passord?
           </Link>
