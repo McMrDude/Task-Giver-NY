@@ -975,18 +975,30 @@ const handleSubmit = async (
                                 return;
                               }
 
-                              setImages((current) => {
-                                const combined = [...current, ...selected];
+                              setImages((currentImages) => {
+                                // How many more images are we allowed to add?
+                                const remainingSlots = 5 - currentImages.length;
 
-                                if (combined.length > 5) {
-                                  alert("Du kan laste opp maksimalt 5 bilder.");
-                                  return current;
+                                if (remainingSlots <= 0) {
+                                  alert("Du har allerede valgt 5 bilder.");
+                                  return currentImages;
                                 }
 
-                                return combined;
+                                // Only take as many new images as there are available slots
+                                const newImages = selected.slice(0, remainingSlots);
+
+                                if (selected.length > remainingSlots) {
+                                  alert(
+                                    `Du kan bare legge til ${remainingSlots} bilde${
+                                      remainingSlots === 1 ? "" : "r"
+                                    } til.`
+                                  );
+                                }
+
+                                return [...currentImages, ...newImages];
                               });
 
-                              // Allows selecting the same file again later
+                              // Reset the input so the same file can be selected again
                               e.target.value = "";
                             }}
                           />
