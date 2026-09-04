@@ -752,7 +752,7 @@ if (notificationRecipient) {
           notificationRecipient,
 
         type:
-          "message",
+          "message", 
 
         message:
           `${currentUser.name} har sendt deg en ny melding på en sak.`,
