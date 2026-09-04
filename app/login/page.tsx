@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
+import { supabase } from "../supabaseClient";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,6 +54,22 @@ export default function LoginPage() {
       setError("Kunne ikke kontakte serveren.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      console.error(error);
+      setError("Kunne ikke starte Google-innlogging.");
     }
   };
 
@@ -154,6 +171,30 @@ export default function LoginPage() {
             {loading ? "Logger inn..." : "Logg inn"}
           </button>
 
+          <div className="my-6 flex items-center gap-3">
+
+            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+              ELLER
+            </span>
+
+            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+
+          </div>
+
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+          >
+            <span className="text-base font-bold">
+              G
+            </span>
+
+            Fortsett med Google
+          </button>
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
 
