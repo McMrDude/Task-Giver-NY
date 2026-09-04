@@ -58,8 +58,6 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    setError("");
-
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -68,8 +66,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      console.error(error);
-      setError("Kunne ikke starte Google-innlogging.");
+      setError(error.message);
     }
   };
 
