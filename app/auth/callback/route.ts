@@ -52,6 +52,6 @@ export async function GET(request: Request) {
   console.log("GOOGLE LOGIN SUCCESS:", data.user);
 
   return NextResponse.redirect(
-    new URL("/", requestUrl.origin)
+    "https://task-giver-ny.onrender.com/"
   );
 }
