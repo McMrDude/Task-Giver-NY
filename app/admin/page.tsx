@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "../components/ThemeToggle";
 import NotificationBell from "../components/NotificationBell";
-
 
 // ====================================================
 // TYPES
@@ -20,30 +19,10 @@ type User = {
 type Ticket = {
   id: number;
 
-  sender_id: string;
   receiver_id: string | null;
-
-  content: string;
-  category: string;
-  subcategory: string;
 
   status: string;
   priority: string;
-
-  due_date: string | null;
-  created_at: string;
-
-  sender?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-
-  receiver?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
 };
 
 
@@ -67,15 +46,6 @@ export default function AdminDashboard() {
   const [error, setError] =
     useState("");
 
-  const [search, setSearch] =
-    useState("");
-
-  const [statusFilter, setStatusFilter] =
-    useState("all");
-
-  const [priorityFilter, setPriorityFilter] =
-    useState("all");
-
 
   // ==================================================
   // INITIAL LOAD
@@ -98,6 +68,7 @@ export default function AdminDashboard() {
 
       const meResponse =
         await fetch("/api/auth/me");
+
 
       if (!meResponse.ok) {
 
@@ -143,7 +114,16 @@ export default function AdminDashboard() {
 
 
       // ----------------------------------------------
-      // LOAD ALL TICKETS
+      // LOAD TICKETS
+      // ----------------------------------------------
+      //
+      // The dashboard only needs the ticket data
+      // to calculate its statistics.
+      //
+      // The actual ticket list now lives at:
+      //
+      // /admin/tickets
+      //
       // ----------------------------------------------
 
       const ticketResponse =
@@ -208,68 +188,6 @@ export default function AdminDashboard() {
     router.push("/login");
 
   }
-
-
-  // ==================================================
-  // FILTER TICKETS
-  // ==================================================
-
-  const filteredTickets =
-    useMemo(() => {
-
-      return tickets.filter(ticket => {
-
-        const searchText =
-          search.toLowerCase();
-
-
-        const matchesSearch =
-          !search ||
-          ticket.content
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.category
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.subcategory
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.sender?.name
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.receiver?.name
-            ?.toLowerCase()
-            .includes(searchText) ||
-          String(ticket.id)
-            .includes(searchText);
-
-
-        const matchesStatus =
-          statusFilter === "all" ||
-          ticket.status ===
-            statusFilter;
-
-
-        const matchesPriority =
-          priorityFilter === "all" ||
-          ticket.priority ===
-            priorityFilter;
-
-
-        return (
-          matchesSearch &&
-          matchesStatus &&
-          matchesPriority
-        );
-
-      });
-
-    }, [
-      tickets,
-      search,
-      statusFilter,
-      priorityFilter,
-    ]);
 
 
   // ==================================================
@@ -383,7 +301,9 @@ export default function AdminDashboard() {
         <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
 
 
-          {/* LOGO */}
+          {/* ==================================================
+              LOGO
+          ================================================== */}
 
           <div className="border-b border-slate-200 p-5 dark:border-slate-800">
 
@@ -416,14 +336,21 @@ export default function AdminDashboard() {
           </div>
 
 
-          {/* NAVIGATION */}
+          {/* ==================================================
+              NAVIGATION
+          ================================================== */}
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-3">
 
 
-            {/* DASHBOARD */}
+            {/* ==================================================
+                DASHBOARD
+            ================================================== */}
 
             <button
+              onClick={() =>
+                router.push("/admin")
+              }
               className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
             >
 
@@ -432,7 +359,9 @@ export default function AdminDashboard() {
             </button>
 
 
-            {/* USER TICKETS */}
+            {/* ==================================================
+                USER TICKETS
+            ================================================== */}
 
             <button
               onClick={() =>
@@ -446,7 +375,9 @@ export default function AdminDashboard() {
             </button>
 
 
-            {/* ADMIN SECTION */}
+            {/* ==================================================
+                ADMIN SECTION
+            ================================================== */}
 
             <div className="px-3 pb-2 pt-6">
 
@@ -459,18 +390,15 @@ export default function AdminDashboard() {
             </div>
 
 
-            {/* ALL TICKETS */}
+            {/* ==================================================
+                ALL TICKETS
+            ================================================== */}
 
             <button
-              onClick={() => {
-
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-
-              }}
-              className="w-full cursor-pointer rounded-lg bg-slate-100 px-3 py-2.5 text-left text-sm font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              onClick={() =>
+                router.push("/admin/tickets")
+              }
+              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
 
               Alle saker
@@ -478,7 +406,9 @@ export default function AdminDashboard() {
             </button>
 
 
-            {/* EMPLOYEES */}
+            {/* ==================================================
+                EMPLOYEES
+            ================================================== */}
 
             <button
               onClick={() =>
@@ -494,7 +424,9 @@ export default function AdminDashboard() {
           </nav>
 
 
-          {/* THEME */}
+          {/* ==================================================
+              THEME
+          ================================================== */}
 
           <div className="border-t border-slate-200 p-3 dark:border-slate-800">
 
@@ -503,7 +435,9 @@ export default function AdminDashboard() {
           </div>
 
 
-          {/* ACCOUNT */}
+          {/* ==================================================
+              ACCOUNT
+          ================================================== */}
 
           <div className="border-t border-slate-200 p-4 dark:border-slate-800">
 
@@ -537,7 +471,9 @@ export default function AdminDashboard() {
             </div>
 
 
-            {/* LOGOUT */}
+            {/* ==================================================
+                LOGOUT
+            ================================================== */}
 
             <button
               onClick={logout}
@@ -566,32 +502,40 @@ export default function AdminDashboard() {
 
           <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-        <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
 
-          <div>
+              <div>
 
-            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              Administrasjon
-            </p>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Dashboard
-            </h1>
+                  Administrasjon
 
-            <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
-              Oversikt over alle støttesaker og deres status.
-            </p>
+                </p>
 
-          </div>
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+
+                  Dashboard
+
+                </h1>
+
+                <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+
+                  Oversikt over støttesaker og systemets status.
+
+                </p>
+
+              </div>
 
 
-          {/* NOTIFICATIONS */}
+              {/* ==================================================
+                  NOTIFICATIONS
+              ================================================== */}
 
-          <NotificationBell />
+              <NotificationBell />
 
-        </div>
+            </div>
 
-      </header>
+          </header>
 
 
           {/* ==================================================
@@ -607,7 +551,7 @@ export default function AdminDashboard() {
 
             <section>
 
-              <div className="mb-4">
+              <div className="mb-5">
 
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
 
@@ -630,7 +574,7 @@ export default function AdminDashboard() {
                 <StatCard
                   title="Totale saker"
                   value={totalTickets}
-                  description="Alle saker"
+                  description="Alle registrerte saker"
                 />
 
 
@@ -675,194 +619,107 @@ export default function AdminDashboard() {
 
 
             {/* ==================================================
-                TICKETS
+                QUICK ACCESS
             ================================================== */}
 
             <section>
-
 
               <div className="mb-5">
 
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
 
-                  Alle saker
+                  Hurtigtilgang
 
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
 
-                  Velg en sak for å se detaljer og administrere den.
+                  Gå direkte til administrasjonssidene.
 
                 </p>
 
               </div>
 
 
-              {/* ==================================================
-                  FILTERS
-              ================================================== */}
-
-              <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
 
-                {/* SEARCH */}
+                {/* ALL TICKETS */}
 
-                <div className="relative min-w-0 flex-1">
-
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={e =>
-                      setSearch(
-                        e.target.value
-                      )
-                    }
-                    placeholder="Søk etter sak, bruker eller problem..."
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
-                  />
-
-                </div>
-
-
-                {/* STATUS */}
-
-                <select
-                  value={statusFilter}
-                  onChange={e =>
-                    setStatusFilter(
-                      e.target.value
-                    )
+                <button
+                  onClick={() =>
+                    router.push("/admin/tickets")
                   }
-                  className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  className="group rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
                 >
 
-                  <option value="all">
-                    Alle statuser
-                  </option>
+                  <div className="flex items-center justify-between">
 
-                  <option value="not_started">
-                    Nye
-                  </option>
+                    <div>
 
-                  <option value="started">
-                    Pågår
-                  </option>
+                      <p className="font-semibold text-slate-900 dark:text-white">
 
-                  <option value="completed">
-                    Ferdige
-                  </option>
+                        Alle saker
 
-                  <option value="cancelled">
-                    Avbrutte
-                  </option>
+                      </p>
 
-                </select>
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                        Se, søk og administrer alle støttesaker.
+
+                      </p>
+
+                    </div>
 
 
-                {/* PRIORITY */}
+                    <span className="text-lg text-blue-600 transition group-hover:translate-x-1 dark:text-blue-400">
 
-                <select
-                  value={priorityFilter}
-                  onChange={e =>
-                    setPriorityFilter(
-                      e.target.value
-                    )
-                  }
-                  className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                >
+                      →
 
-                  <option value="all">
-                    Alle prioriteter
-                  </option>
-
-                  <option value="høy">
-                    Høy
-                  </option>
-
-                  <option value="medium">
-                    Medium
-                  </option>
-
-                  <option value="lav">
-                    Lav
-                  </option>
-
-                </select>
-
-              </div>
-
-
-              {/* ==================================================
-                  RESULT COUNT
-              ================================================== */}
-
-              <div className="mb-3 flex items-center justify-between px-1">
-
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-
-                  Viser{" "}
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    {filteredTickets.length}
-                  </span>{" "}
-                  av{" "}
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    {tickets.length}
-                  </span>{" "}
-                  saker
-
-                </p>
-
-              </div>
-
-
-              {/* ==================================================
-                  TICKET LIST
-              ================================================== */}
-
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-
-
-                {filteredTickets.length === 0 ? (
-
-                  <div className="p-10 text-center">
-
-                    <p className="font-medium text-slate-700 dark:text-slate-200">
-
-                      Ingen saker funnet
-
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-
-                      Prøv å endre søket eller filtrene.
-
-                    </p>
+                    </span>
 
                   </div>
 
-                ) : (
+                </button>
 
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
 
-                    {filteredTickets.map(
-                      ticket => (
+                {/* EMPLOYEES */}
 
-                        <TicketRow
-                          key={ticket.id}
-                          ticket={ticket}
-                          onOpen={() =>
-                            router.push(
-                              `/tickets/${ticket.id}`
-                            )
-                          }
-                        />
+                <button
+                  onClick={() =>
+                    router.push("/admin/employees")
+                  }
+                  className="group rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
+                >
 
-                      )
-                    )}
+                  <div className="flex items-center justify-between">
+
+                    <div>
+
+                      <p className="font-semibold text-slate-900 dark:text-white">
+
+                        Ansatte
+
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                        Se og administrer ansatte.
+
+                      </p>
+
+                    </div>
+
+
+                    <span className="text-lg text-blue-600 transition group-hover:translate-x-1 dark:text-blue-400">
+
+                      →
+
+                    </span>
 
                   </div>
 
-                )}
+                </button>
 
               </div>
 
@@ -929,330 +786,6 @@ function StatCard({
 
     </div>
 
-  );
-
-}
-
-
-// ====================================================
-// TICKET ROW
-// ====================================================
-
-function TicketRow({
-  ticket,
-  onOpen,
-}: {
-  ticket: Ticket;
-  onOpen: () => void;
-}) {
-
-  return (
-
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group block w-full cursor-pointer p-5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
-    >
-
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
-
-
-        {/* ==================================================
-            TICKET ID
-        ================================================== */}
-
-        <div className="shrink-0 lg:w-20">
-
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-
-            Sak
-
-          </p>
-
-          <p className="mt-1 font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
-
-            #{ticket.id}
-
-          </p>
-
-        </div>
-
-
-        {/* ==================================================
-            MAIN INFORMATION
-        ================================================== */}
-
-        <div className="min-w-0 flex-1">
-
-
-          {/* BADGES */}
-
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
-              {ticket.category}
-
-            </span>
-
-
-            {ticket.subcategory && (
-
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
-                {ticket.subcategory}
-
-              </span>
-
-            )}
-
-
-            <PriorityBadge
-              priority={ticket.priority}
-            />
-
-          </div>
-
-
-          {/* DESCRIPTION */}
-
-          <p className="line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-200">
-
-            {ticket.content}
-
-          </p>
-
-
-          {/* META */}
-
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400 dark:text-slate-500">
-
-
-            <span>
-
-              Opprettet{" "}
-
-              {formatDate(
-                ticket.created_at
-              )}
-
-            </span>
-
-
-            {ticket.sender && (
-
-              <span>
-
-                Fra:{" "}
-
-                <span className="font-medium text-slate-500 dark:text-slate-300">
-
-                  {ticket.sender.name}
-
-                </span>
-
-              </span>
-
-            )}
-
-
-            <span>
-
-              {ticket.receiver
-                ? `Ansvarlig: ${ticket.receiver.name}`
-                : "Ikke tildelt"}
-
-            </span>
-
-          </div>
-
-        </div>
-
-
-        {/* ==================================================
-            RIGHT SIDE
-        ================================================== */}
-
-        <div className="flex shrink-0 items-center justify-between gap-4 lg:w-36 lg:flex-col lg:items-end">
-
-
-          {/* STATUS */}
-
-          <StatusBadge
-            status={ticket.status}
-          />
-
-
-          {/* OPEN */}
-
-          <span className="text-sm font-semibold text-blue-600 transition group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-300">
-
-            Åpne sak →
-
-          </span>
-
-        </div>
-
-      </div>
-
-    </button>
-
-  );
-
-}
-
-
-// ====================================================
-// PRIORITY BADGE
-// ====================================================
-
-function PriorityBadge({
-  priority,
-}: {
-  priority: string;
-}) {
-
-  if (
-    priority === "høy" ||
-    priority === "high"
-  ) {
-
-    return (
-
-      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
-        Høy
-
-      </span>
-
-    );
-
-  }
-
-
-  if (
-    priority === "medium"
-  ) {
-
-    return (
-
-      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
-
-        Medium
-
-      </span>
-
-    );
-
-  }
-
-
-  return (
-
-    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
-      Lav
-
-    </span>
-
-  );
-
-}
-
-
-// ====================================================
-// STATUS BADGE
-// ====================================================
-
-function StatusBadge({
-  status,
-}: {
-  status: string;
-}) {
-
-  if (
-    status === "started" ||
-    status === "pågår"
-  ) {
-
-    return (
-
-      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
-        Pågår
-
-      </span>
-
-    );
-
-  }
-
-
-  if (
-    status === "completed" ||
-    status === "finished"
-  ) {
-
-    return (
-
-      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
-
-        Ferdig
-
-      </span>
-
-    );
-
-  }
-
-
-  if (
-    status === "cancelled"
-  ) {
-
-    return (
-
-      <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
-        Avbrutt
-
-      </span>
-
-    );
-
-  }
-
-
-  return (
-
-    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
-      Ny
-
-    </span>
-
-  );
-
-}
-
-
-// ====================================================
-// DATE
-// ====================================================
-
-function formatDate(
-  value: string
-) {
-
-  return new Date(
-    value
-  ).toLocaleDateString(
-    "nb-NO",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }
   );
 
 }
