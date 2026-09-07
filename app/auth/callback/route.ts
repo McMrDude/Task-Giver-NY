@@ -4,6 +4,9 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
+
+  console.log("GOOGLE CALLBACK REQUEST URL:", request.url);
+
   const code = requestUrl.searchParams.get("code");
 
   if (!code) {
