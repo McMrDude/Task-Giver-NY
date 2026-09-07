@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { supabase } from "../../api/supabaseClient";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -17,7 +18,8 @@ export async function GET(request: Request) {
 
   const cookieStore = await cookies();
 
-  const supabase = createServerClient(
+  // Supabase Auth client
+  const authSupabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -39,7 +41,9 @@ export async function GET(request: Request) {
     }
   );
 
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  // Exchange Google's code for a Supabase session
+  const { data, error } =
+    await authSupabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.session) {
     console.error("GOOGLE CALLBACK ERROR:", error);
@@ -49,9 +53,105 @@ export async function GET(request: Request) {
     );
   }
 
-  console.log("GOOGLE LOGIN SUCCESS:", data.user);
+  const googleUser = data.session.user;
+
+  console.log("GOOGLE LOGIN SUCCESS:", googleUser);
+
+  const email = googleUser.email?.trim().toLowerCase();
+
+  if (!email) {
+    console.error("GOOGLE LOGIN ERROR: Google account has no email");
+
+    return NextResponse.redirect(
+      new URL("/login?error=google_login_failed", requestUrl.origin)
+    );
+  }
+
+  // Check if this email already exists in our users table
+  const { data: existingUser, error: userLookupError } = await supabase
+    .from("users")
+    .select("id, name, email, role, auth_user_id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (userLookupError) {
+    console.error("USER LOOKUP ERROR:", userLookupError);
+
+    return NextResponse.redirect(
+      new URL("/login?error=google_login_failed", requestUrl.origin)
+    );
+  }
+
+  let user = existingUser;
+
+  // If no Task Giver account exists yet, create one
+  if (!user) {
+    const name =
+      googleUser.user_metadata?.full_name ||
+      googleUser.user_metadata?.name ||
+      email.split("@")[0];
+
+    const { data: newUser, error: createUserError } = await supabase
+      .from("users")
+      .insert({
+        name,
+        email,
+        password_hash: null,
+        auth_user_id: googleUser.id,
+        role: "user",
+      })
+      .select("id, name, email, role, auth_user_id")
+      .single();
+
+    if (createUserError) {
+      console.error("GOOGLE USER CREATION ERROR:", createUserError);
+
+      return NextResponse.redirect(
+        new URL("/login?error=google_login_failed", requestUrl.origin)
+      );
+    }
+
+    user = newUser;
+
+    console.log("GOOGLE TASK GIVER USER CREATED:", user);
+  } else {
+    // Existing Task Giver account.
+    // Connect it to the Supabase Auth user if it isn't connected yet.
+    if (!user.auth_user_id) {
+      const { data: updatedUser, error: updateUserError } = await supabase
+        .from("users")
+        .update({
+          auth_user_id: googleUser.id,
+        })
+        .eq("id", user.id)
+        .select("id, name, email, role, auth_user_id")
+        .single();
+
+      if (updateUserError) {
+        console.error("GOOGLE USER LINK ERROR:", updateUserError);
+
+        return NextResponse.redirect(
+          new URL("/login?error=google_login_failed", requestUrl.origin)
+        );
+      }
+
+      user = updatedUser;
+
+      console.log("EXISTING USER LINKED TO GOOGLE:", user);
+    }
+  }
+
+  /*
+   * At this point:
+   *
+   * Supabase knows the Google user
+   * AND
+   * our users table knows the Task Giver user.
+   *
+   * The next step will be creating your normal auth_token.
+   */
 
   return NextResponse.redirect(
-    "https://task-giver-ny.onrender.com/"
+    new URL("/", requestUrl.origin)
   );
 }
