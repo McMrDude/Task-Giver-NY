@@ -489,18 +489,6 @@ export default function EmployeesPage() {
 
             {/* USER TICKETS */}
 
-            <button
-              onClick={() =>
-                router.push("/my-tickets")
-              }
-              className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-
-              Mine saker
-
-            </button>
-
-
             {/* ADMIN SECTION */}
 
             <div className="px-3 pb-2 pt-6">
