@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { supabase } from "../../api/supabaseClient";
+import { SignJWT } from "jose";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -148,10 +149,46 @@ export async function GET(request: Request) {
    * AND
    * our users table knows the Task Giver user.
    *
-   * The next step will be creating your normal auth_token.
+   * Now create the same auth_token that normal
+   * email/password login uses.
    */
 
-  return NextResponse.redirect(
+  if (!process.env.AUTH_SECRET) {
+    console.error("GOOGLE LOGIN ERROR: AUTH_SECRET is missing");
+
+    return NextResponse.redirect(
+      new URL("/login?error=google_login_failed", requestUrl.origin)
+    );
+  }
+
+  const secret = new TextEncoder().encode(
+    process.env.AUTH_SECRET
+  );
+
+  const token = await new SignJWT({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  })
+    .setProtectedHeader({
+      alg: "HS256",
+    })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(secret);
+
+  const response = NextResponse.redirect(
     "https://task-giver-ny.onrender.com/"
   );
+
+  response.cookies.set("auth_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  return response;
 }
