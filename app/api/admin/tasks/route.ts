@@ -174,9 +174,13 @@ export async function GET() {
     }
 
 
+    // ------------------------------------------------
+    // GET ALL TASKS
+    // ------------------------------------------------
+
     const {
-      data,
-      error,
+      data: tasks,
+      error: tasksError,
     } = await supabase
       .from("tasks")
       .select("*")
@@ -185,18 +189,103 @@ export async function GET() {
       });
 
 
-    if (error) {
+    if (tasksError) {
 
-      console.error(error);
+      console.error(
+        "ADMIN TASK FETCH ERROR:",
+        tasksError
+      );
 
-      throw error;
+      throw tasksError;
 
     }
 
 
+    // ------------------------------------------------
+    // GET USERS
+    // ------------------------------------------------
+
+    const {
+      data: users,
+      error: usersError,
+    } = await supabase
+      .from("users")
+      .select("id, name, email, role");
+
+
+    if (usersError) {
+
+      console.error(
+        "ADMIN USER FETCH ERROR:",
+        usersError
+      );
+
+      throw usersError;
+
+    }
+
+
+    // ------------------------------------------------
+    // CREATE USER LOOKUP
+    // ------------------------------------------------
+
+    const userMap = new Map(
+      (users || []).map(user => [
+        String(user.id),
+        user,
+      ])
+    );
+
+
+    // ------------------------------------------------
+    // ADD SENDER + RECEIVER INFORMATION
+    // ------------------------------------------------
+
+    const enrichedTasks =
+      (tasks || []).map(task => {
+
+        const sender =
+          task.sender_id
+            ? userMap.get(
+                String(task.sender_id)
+              )
+            : null;
+
+
+        const receiver =
+          task.receiver_id
+            ? userMap.get(
+                String(task.receiver_id)
+              )
+            : null;
+
+
+        return {
+          ...task,
+
+          sender: sender
+            ? {
+                id: sender.id,
+                name: sender.name,
+                email: sender.email,
+              }
+            : null,
+
+          receiver: receiver
+            ? {
+                id: receiver.id,
+                name: receiver.name,
+                email: receiver.email,
+              }
+            : null,
+        };
+
+      });
+
+
     return NextResponse.json({
       success: true,
-      data,
+      data: enrichedTasks,
     });
 
 
