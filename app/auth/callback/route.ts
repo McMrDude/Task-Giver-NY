@@ -178,8 +178,16 @@ export async function GET(request: Request) {
     .setExpirationTime("7d")
     .sign(secret);
 
+  let redirectPath = "/";
+
+  if (user.role === "admin") {
+    redirectPath = "/admin";
+  } else if (user.role === "employee") {
+    redirectPath = "/employee";
+  }
+
   const response = NextResponse.redirect(
-    "https://task-giver-ny.onrender.com/"
+    `https://task-giver-ny.onrender.com${redirectPath}`
   );
 
   response.cookies.set("auth_token", token, {
