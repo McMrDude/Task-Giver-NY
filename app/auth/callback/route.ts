@@ -152,6 +152,6 @@ export async function GET(request: Request) {
    */
 
   return NextResponse.redirect(
-    new URL("/", requestUrl.origin)
+    "https://task-giver-ny.onrender.com/"
   );
 }
