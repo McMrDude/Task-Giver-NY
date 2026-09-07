@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
-
   const code = requestUrl.searchParams.get("code");
 
   if (!code) {
@@ -13,13 +12,31 @@ export async function GET(request: Request) {
     );
   }
 
-  const supabase = createClient(
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // Cookies may already have been set by the framework.
+          }
+        },
+      },
+    }
   );
 
-  const { data, error } =
-    await supabase.auth.exchangeCodeForSession(code);
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.session) {
     console.error("GOOGLE CALLBACK ERROR:", error);
@@ -29,9 +46,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const googleUser = data.session.user;
-
-  console.log("GOOGLE USER:", googleUser);
+  console.log("GOOGLE LOGIN SUCCESS:", data.user);
 
   return NextResponse.redirect(
     new URL("/", requestUrl.origin)
