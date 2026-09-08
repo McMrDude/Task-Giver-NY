@@ -146,25 +146,6 @@ export default function EmployeeDashboard() {
     [tickets]
   );
 
-  const newTickets = useMemo(
-    () =>
-      activeTickets.filter(
-        ticket =>
-          ticket.status === "not_started"
-      ),
-    [activeTickets]
-  );
-
-  const inProgressTickets = useMemo(
-    () =>
-      activeTickets.filter(
-        ticket =>
-          ticket.status === "started" ||
-          ticket.status === "pågår"
-      ),
-    [activeTickets]
-  );
-
   const completedTickets = useMemo(
     () =>
       tickets.filter(
@@ -176,7 +157,92 @@ export default function EmployeeDashboard() {
   );
 
   // ==================================================
-  // PRIORITY
+  // DASHBOARD CARD DATA
+  // ==================================================
+
+  // High-priority active tickets
+  const highPriorityTickets = useMemo(
+    () =>
+      activeTickets.filter(
+        ticket =>
+          ticket.priority === "høy" ||
+          ticket.priority === "high"
+      ),
+    [activeTickets]
+  );
+
+  // Tickets with a deadline within the next 7 days
+  const upcomingDeadlineTickets = useMemo(() => {
+    const now = new Date();
+
+    const sevenDaysFromNow = new Date(
+      now.getTime() +
+        7 * 24 * 60 * 60 * 1000
+    );
+
+    return activeTickets.filter(ticket => {
+      if (!ticket.due_date) {
+        return false;
+      }
+
+      const dueDate =
+        new Date(ticket.due_date);
+
+      return (
+        dueDate >= now &&
+        dueDate <= sevenDaysFromNow
+      );
+    });
+  }, [activeTickets]);
+
+  // Overdue active tickets
+  const overdueTickets = useMemo(() => {
+    const now = new Date();
+
+    return activeTickets.filter(ticket => {
+      if (!ticket.due_date) {
+        return false;
+      }
+
+      return (
+        new Date(ticket.due_date) < now
+      );
+    });
+  }, [activeTickets]);
+
+  // Completed during the current week
+  const completedThisWeek = useMemo(() => {
+    const now = new Date();
+
+    // Monday = 1, Sunday = 0
+    const day = now.getDay();
+
+    const daysSinceMonday =
+      day === 0 ? 6 : day - 1;
+
+    const startOfWeek = new Date(now);
+
+    startOfWeek.setDate(
+      now.getDate() - daysSinceMonday
+    );
+
+    startOfWeek.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+    return completedTickets.filter(ticket => {
+      const createdDate =
+        new Date(ticket.created_at);
+
+      return createdDate >= startOfWeek;
+    });
+  }, [completedTickets]);
+
+  // ==================================================
+  // PRIORITY TICKETS
   // ==================================================
 
   const priorityTickets = useMemo(
@@ -514,36 +580,39 @@ export default function EmployeeDashboard() {
           <div className="space-y-8 p-5 lg:p-8">
 
             {/* ==================================================
-                OVERVIEW CARDS
+                DASHBOARD CARDS
             ================================================== */}
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
               <DashboardStat
-                title="Åpne saker"
-                value={activeTickets.length}
-                description="Saker som krever oppfølging"
-                icon="📋"
+                title="Høy prioritet"
+                value={highPriorityTickets.length}
+                description="Saker som bør prioriteres"
+                icon="!"
               />
 
               <DashboardStat
-                title="Nye"
-                value={newTickets.length}
-                description="Venter på behandling"
-                icon="●"
+                title="Frister snart"
+                value={upcomingDeadlineTickets.length}
+                description="Frist innen 7 dager"
+                icon="◷"
               />
 
               <DashboardStat
-                title="Pågår"
-                value={inProgressTickets.length}
-                description="Under behandling"
-                icon="↻"
+                title="Forfalte"
+                value={overdueTickets.length}
+                description="Saker med utgått frist"
+                icon="!"
+                danger={
+                  overdueTickets.length > 0
+                }
               />
 
               <DashboardStat
-                title="Ferdige"
-                value={completedTickets.length}
-                description="Ferdigbehandlede saker"
+                title="Fullført denne uken"
+                value={completedThisWeek.length}
+                description="Saker ferdigbehandlet"
                 icon="✓"
               />
 
@@ -745,14 +814,22 @@ function DashboardStat({
   value,
   description,
   icon,
+  danger = false,
 }: {
   title: string;
   value: number;
   description: string;
   icon: string;
+  danger?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div
+      className={`rounded-xl border bg-white p-5 shadow-sm dark:bg-slate-900 ${
+        danger
+          ? "border-red-200 dark:border-red-900/70"
+          : "border-slate-200 dark:border-slate-800"
+      }`}
+    >
 
       <div className="flex items-start justify-between">
 
@@ -762,13 +839,27 @@ function DashboardStat({
             {title}
           </p>
 
-          <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+          <p
+            className={`mt-2 text-3xl font-bold ${
+              danger &&
+              value > 0
+                ? "text-red-600 dark:text-red-400"
+                : "text-slate-900 dark:text-white"
+            }`}
+          >
             {value}
           </p>
 
         </div>
 
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <div
+          className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm ${
+            danger &&
+            value > 0
+              ? "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400"
+              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+          }`}
+        >
           {icon}
         </div>
 
