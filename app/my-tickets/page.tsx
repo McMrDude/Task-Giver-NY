@@ -199,7 +199,7 @@ export default function MyTicketsPage() {
 
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
-      <div className="min-h-screen">
+      <div className="flex min-h-screen">
 
 
         {/* SIDEBAR */}
@@ -349,7 +349,7 @@ export default function MyTicketsPage() {
             MAIN
         ========================================== */}
 
-        <section className="min-w-0 flex-1">
+        <section className="min-w-0 flex-1 lg:pl-64">
 
 
           {/* MOBILE HEADER */}
