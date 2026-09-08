@@ -226,7 +226,7 @@ export default function HelpPage() {
                   {/* Oversikt */}
       
                   <button
-                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
                   >
                     <span>⌂</span>
                     Oversikt
@@ -250,7 +250,7 @@ export default function HelpPage() {
                     onClick={() => {
                       window.location.href = "/help";
                     }}
-                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
                   >
                     <span>❓</span>
                     Hjelp
