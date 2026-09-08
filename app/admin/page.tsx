@@ -607,7 +607,7 @@ export default function AdminDashboard() {
                     value={highPriorityTickets}
                     type="danger"
                     onClick={() =>
-                      router.push("/admin/tickets")
+                      router.push("/admin/tickets?priority=high")
                     }
                   />
 
@@ -620,22 +620,12 @@ export default function AdminDashboard() {
                     value={unassignedTickets}
                     type="warning"
                     onClick={() =>
-                      router.push("/admin/tickets")
+                      router.push("/admin/tickets?unassigned=true")
                     }
                   />
 
 
-                  {/* NEW */}
-
-                  <AttentionItem
-                    title="Nye saker"
-                    description="Saker som venter på behandling."
-                    value={openTickets}
-                    type="info"
-                    onClick={() =>
-                      router.push("/admin/tickets")
-                    }
-                  />
+                  
 
                 </div>
 

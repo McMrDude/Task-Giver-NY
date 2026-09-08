@@ -81,12 +81,48 @@ export default function AdminTicketsPage() {
   const [priorityFilter, setPriorityFilter] =
     useState("all");
 
+  // NEW
+  const [assignmentFilter, setAssignmentFilter] =
+    useState("all");
+
 
   // ==================================================
   // INITIAL LOAD
   // ==================================================
 
   useEffect(() => {
+
+    // NEW
+    // Read filters from the URL before loading the page.
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const priority =
+      params.get("priority");
+
+    const unassigned =
+      params.get("unassigned");
+
+
+    // NEW
+    // /admin/tickets?priority=high
+    if (priority === "high") {
+
+      setPriorityFilter("høy");
+
+    }
+
+
+    // NEW
+    // /admin/tickets?unassigned=true
+    if (unassigned === "true") {
+
+      setAssignmentFilter("unassigned");
+
+    }
+
 
     loadAdmin();
 
@@ -229,6 +265,10 @@ export default function AdminTicketsPage() {
           search.toLowerCase();
 
 
+        // --------------------------------------------
+        // SEARCH
+        // --------------------------------------------
+
         const matchesSearch =
           !search ||
           ticket.content
@@ -250,11 +290,19 @@ export default function AdminTicketsPage() {
             .includes(searchText);
 
 
+        // --------------------------------------------
+        // STATUS
+        // --------------------------------------------
+
         const matchesStatus =
           statusFilter === "all" ||
           ticket.status ===
             statusFilter;
 
+
+        // --------------------------------------------
+        // PRIORITY
+        // --------------------------------------------
 
         const matchesPriority =
           priorityFilter === "all" ||
@@ -262,10 +310,27 @@ export default function AdminTicketsPage() {
             priorityFilter;
 
 
+        // --------------------------------------------
+        // ASSIGNMENT
+        // --------------------------------------------
+
+        const matchesAssignment =
+          assignmentFilter === "all" ||
+          (
+            assignmentFilter === "unassigned" &&
+            !ticket.receiver_id
+          ) ||
+          (
+            assignmentFilter === "assigned" &&
+            !!ticket.receiver_id
+          );
+
+
         return (
           matchesSearch &&
           matchesStatus &&
-          matchesPriority
+          matchesPriority &&
+          matchesAssignment
         );
 
       });
@@ -275,7 +340,26 @@ export default function AdminTicketsPage() {
       search,
       statusFilter,
       priorityFilter,
+      assignmentFilter,
     ]);
+
+
+  // ==================================================
+  // CLEAR FILTERS
+  // ==================================================
+
+  function clearFilters() {
+
+    setSearch("");
+    setStatusFilter("all");
+    setPriorityFilter("all");
+    setAssignmentFilter("all");
+
+    // NEW
+    // Remove URL filters as well.
+    router.replace("/admin/tickets");
+
+  }
 
 
   // ==================================================
@@ -392,6 +476,7 @@ export default function AdminTicketsPage() {
               Dashboard
 
             </button>
+
 
             {/* ADMIN SECTION */}
 
@@ -533,8 +618,6 @@ export default function AdminTicketsPage() {
               </div>
 
 
-              {/* NOTIFICATIONS */}
-
               <NotificationBell />
 
             </div>
@@ -574,7 +657,7 @@ export default function AdminTicketsPage() {
 
               {/* FILTER BAR */}
 
-              <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row">
+              <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
 
                 {/* SEARCH */}
@@ -596,70 +679,128 @@ export default function AdminTicketsPage() {
                 </div>
 
 
-                {/* STATUS */}
+                {/* SELECTS */}
 
-                <select
-                  value={statusFilter}
-                  onChange={e =>
-                    setStatusFilter(
-                      e.target.value
-                    )
-                  }
-                  className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                >
-
-                  <option value="all">
-                    Alle statuser
-                  </option>
-
-                  <option value="not_started">
-                    Nye
-                  </option>
-
-                  <option value="started">
-                    Pågår
-                  </option>
-
-                  <option value="completed">
-                    Ferdige
-                  </option>
-
-                  <option value="cancelled">
-                    Avbrutte
-                  </option>
-
-                </select>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 
 
-                {/* PRIORITY */}
+                  {/* STATUS */}
 
-                <select
-                  value={priorityFilter}
-                  onChange={e =>
-                    setPriorityFilter(
-                      e.target.value
-                    )
-                  }
-                  className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                >
+                  <select
+                    value={statusFilter}
+                    onChange={e =>
+                      setStatusFilter(
+                        e.target.value
+                      )
+                    }
+                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
 
-                  <option value="all">
-                    Alle prioriteter
-                  </option>
+                    <option value="all">
+                      Alle statuser
+                    </option>
 
-                  <option value="høy">
-                    Høy
-                  </option>
+                    <option value="not_started">
+                      Nye
+                    </option>
 
-                  <option value="medium">
-                    Medium
-                  </option>
+                    <option value="started">
+                      Pågår
+                    </option>
 
-                  <option value="lav">
-                    Lav
-                  </option>
+                    <option value="completed">
+                      Ferdige
+                    </option>
 
-                </select>
+                    <option value="cancelled">
+                      Avbrutte
+                    </option>
+
+                  </select>
+
+
+                  {/* PRIORITY */}
+
+                  <select
+                    value={priorityFilter}
+                    onChange={e =>
+                      setPriorityFilter(
+                        e.target.value
+                      )
+                    }
+                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
+
+                    <option value="all">
+                      Alle prioriteter
+                    </option>
+
+                    <option value="høy">
+                      Høy
+                    </option>
+
+                    <option value="medium">
+                      Medium
+                    </option>
+
+                    <option value="lav">
+                      Lav
+                    </option>
+
+                  </select>
+
+
+                  {/* NEW: ASSIGNMENT */}
+
+                  <select
+                    value={assignmentFilter}
+                    onChange={e =>
+                      setAssignmentFilter(
+                        e.target.value
+                      )
+                    }
+                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
+
+                    <option value="all">
+                      Alle tildelinger
+                    </option>
+
+                    <option value="unassigned">
+                      Ikke tildelte
+                    </option>
+
+                    <option value="assigned">
+                      Tildelte
+                    </option>
+
+                  </select>
+
+                </div>
+
+
+                {/* CLEAR FILTERS */}
+
+                {(search ||
+                  statusFilter !== "all" ||
+                  priorityFilter !== "all" ||
+                  assignmentFilter !== "all") && (
+
+                  <div className="flex justify-end">
+
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+
+                      Nullstill filtre
+
+                    </button>
+
+                  </div>
+
+                )}
 
               </div>
 
@@ -784,9 +925,7 @@ function TicketRow({
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
 
 
-        {/* ==================================================
-            TICKET ID
-        ================================================== */}
+        {/* TICKET ID */}
 
         <div className="shrink-0 lg:w-20">
 
@@ -805,9 +944,7 @@ function TicketRow({
         </div>
 
 
-        {/* ==================================================
-            MAIN INFORMATION
-        ================================================== */}
+        {/* MAIN INFORMATION */}
 
         <div className="min-w-0 flex-1">
 
@@ -895,9 +1032,7 @@ function TicketRow({
         </div>
 
 
-        {/* ==================================================
-            RIGHT SIDE
-        ================================================== */}
+        {/* RIGHT SIDE */}
 
         <div className="flex shrink-0 items-center justify-between gap-4 lg:w-36 lg:flex-col lg:items-end">
 
