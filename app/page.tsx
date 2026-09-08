@@ -486,6 +486,9 @@ const handleSubmit = async (
             {/* Hjelp */}
 
             <button
+              onClick={() => {
+                window.location.href = "/help";
+              }}
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               <span>❓</span>
