@@ -840,49 +840,49 @@ export default function AdminTicketsPage() {
                   TICKET LIST
               ================================================== */}
 
-              <div>
+                <div>
 
-                {filteredTickets.length === 0 ? (
+                    {filteredTickets.length === 0 ? (
 
-                    <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                    <p className="font-medium text-slate-700 dark:text-slate-200">
-                        Ingen saker funnet
-                    </p>
+                        <p className="font-medium text-slate-700 dark:text-slate-200">
+                            Ingen saker funnet
+                        </p>
 
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Prøv å endre søket eller filtrene.
-                    </p>
-
-                    </div>
-
-                ) : (
-
-                    <div className="space-y-3">
-
-                    {filteredTickets.map(ticket => (
-
-                        <div
-                        key={ticket.id}
-                        className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
-                        >
-
-                        <TicketRow
-                            ticket={ticket}
-                            onOpen={() =>
-                            router.push(
-                                `/tickets/${ticket.id}`
-                            )
-                            }
-                        />
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Prøv å endre søket eller filtrene.
+                        </p>
 
                         </div>
 
-                    ))}
+                    ) : (
 
-                    </div>
+                        <div className="space-y-3">
 
-                )}
+                        {filteredTickets.map(ticket => (
+
+                            <div
+                            key={ticket.id}
+                            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                            >
+
+                            <TicketRow
+                                ticket={ticket}
+                                onOpen={() =>
+                                router.push(
+                                    `/tickets/${ticket.id}`
+                                )
+                                }
+                            />
+
+                            </div>
+
+                        ))}
+
+                        </div>
+
+                    )}
 
                 </div>
 

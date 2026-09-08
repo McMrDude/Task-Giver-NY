@@ -142,6 +142,19 @@ export default function MyTicketsPage() {
   }
 
 
+  const openTickets = tickets.filter(
+    ticket =>
+      ticket.status !== "completed" &&
+      ticket.status !== "cancelled"
+  );
+
+  const closedTickets = tickets.filter(
+    ticket =>
+      ticket.status === "completed" ||
+      ticket.status === "cancelled"
+  );
+
+
   // ------------------------------------------------
   // LOGOUT
   // ------------------------------------------------
@@ -371,50 +384,140 @@ export default function MyTicketsPage() {
 
             {tickets.length === 0 ? (
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-xl dark:bg-slate-800">
-                  📋
-                </div>
+    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-xl dark:bg-slate-800">
+      📋
+    </div>
 
-                <h2 className="mt-4 font-semibold">
-                  Du har ingen støttesaker
-                </h2>
+    <h2 className="mt-4 font-semibold">
+      Du har ingen støttesaker
+    </h2>
 
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Når du sender inn en sak vil den vises her.
-                </p>
+    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      Når du sender inn en sak vil den vises her.
+    </p>
 
-                <button
-                  onClick={() => router.push("/")}
-                  className="mt-5 cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-                >
-                  Opprett støttesak
-                </button>
+    <button
+      onClick={() => router.push("/")}
+      className="mt-5 cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+    >
+      Opprett støttesak
+    </button>
 
-              </div>
+  </div>
 
-            ) : (
+) : (
 
-              <div className="space-y-4">
+  <div className="space-y-10">
 
-                {tickets.map(ticket => (
 
-                  <TicketCard
-                    key={ticket.id}
-                    ticket={ticket}
-                    onOpen={() =>
-                      router.push(
-                        `/tickets/${ticket.id}`
-                      )
-                    }
-                  />
+    {/* ==========================================
+        OPEN TICKETS
+    ========================================== */}
 
-                ))}
+    {openTickets.length > 0 && (
 
-              </div>
+      <section>
 
-            )}
+        <div className="mb-4">
+
+          <div className="flex items-center justify-between gap-3">
+
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Åpne saker
+            </h2>
+
+            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+              {openTickets.length}
+            </span>
+
+          </div>
+
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Saker som fortsatt behandles.
+          </p>
+
+        </div>
+
+
+        <div className="space-y-3">
+
+          {openTickets.map(ticket => (
+
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              onOpen={() =>
+                router.push(
+                  `/tickets/${ticket.id}`
+                )
+              }
+            />
+
+          ))}
+
+        </div>
+
+      </section>
+
+    )}
+
+
+    {/* ==========================================
+        CLOSED TICKETS
+    ========================================== */}
+
+    {closedTickets.length > 0 && (
+
+      <section>
+
+        <div className="mb-4">
+
+          <div className="flex items-center justify-between gap-3">
+
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Avsluttede saker
+            </h2>
+
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              {closedTickets.length}
+            </span>
+
+          </div>
+
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Saker som er ferdig behandlet eller avsluttet.
+          </p>
+
+        </div>
+
+
+        <div className="space-y-3">
+
+          {closedTickets.map(ticket => (
+
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              onOpen={() =>
+                router.push(
+                  `/tickets/${ticket.id}`
+                )
+              }
+            />
+
+          ))}
+
+        </div>
+
+      </section>
+
+    )}
+
+  </div>
+
+)}
 
           </div>
 
