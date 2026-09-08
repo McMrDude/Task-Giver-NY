@@ -192,81 +192,146 @@ export default function HelpPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-white lg:flex lg:flex-col dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex h-full flex-col">
-          {/* Logo / header */}
-          <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-            <div className="text-lg font-bold tracking-tight">
-              IT Support
-            </div>
-            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Støttesystem
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-3 py-5">
-            <Link
-              href="/"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-            >
-              <span className="text-base">⌂</span>
-              <span>Oversikt</span>
-            </Link>
-
-            <Link
-              href="/my-tickets"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-            >
-              <span className="text-base">▤</span>
-              <span>Mine saker</span>
-            </Link>
-
-            <Link
-              href="/help"
-              className="flex items-center gap-3 rounded-lg bg-blue-50 px-3 py-2.5 text-sm font-semibold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
-            >
-              <span className="text-base">?</span>
-              <span>Hjelp</span>
-            </Link>
-          </nav>
-
-          {/* Bottom area */}
-          <div className="border-t border-slate-200 p-4 dark:border-slate-800">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {user.name}
-                </p>
-                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                  {user.email}
-                </p>
-              </div>
-
-              <NotificationBell />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <ThemeToggle />
-
-              <button
-                onClick={async () => {
-                  try {
-                    await fetch("/api/auth/logout", {
-                      method: "POST",
-                    });
-                  } finally {
-                    router.push("/login");
-                  }
-                }}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-              >
-                Logg ut
-              </button>
-            </div>
-          </div>
-        </div>
-      </aside>
+      {/* SIDEBAR */}
+      
+              <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+      
+                {/* LOGO / HEADER */}
+      
+                <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
+      
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+                    IT
+                  </div>
+      
+                  <div>
+      
+                    <p className="font-bold text-slate-900 dark:text-white">
+                      IT Support
+                    </p>
+      
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Støttesystem
+                    </p>
+      
+                  </div>
+      
+                </div>
+      
+      
+                {/* NAVIGATION */}
+      
+                <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+      
+                  {/* Oversikt */}
+      
+                  <button
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                  >
+                    <span>⌂</span>
+                    Oversikt
+                  </button>
+      
+      
+                  <button
+                    onClick={() => {
+                      window.location.href = "/my-tickets";
+                    }}
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                  >
+                    <span>📋</span>
+                    Mine saker
+                  </button>
+      
+      
+                  {/* Hjelp */}
+      
+                  <button
+                    onClick={() => {
+                      window.location.href = "/help";
+                    }}
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                  >
+                    <span>❓</span>
+                    Hjelp
+                  </button>
+      
+                </nav>
+      
+      
+                {/* THEME TOGGLE */}
+      
+                <div className="border-t border-slate-200 p-3 dark:border-slate-800">
+      
+                  <ThemeToggle />
+      
+                </div>
+      
+      
+                {/* ACCOUNT */}
+      
+                <div className="border-t border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+      
+                  {user ? (
+      
+                    <>
+      
+                      <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
+      
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+      
+                        <div className="min-w-0 flex-1">
+      
+                          <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                            {user.name}
+                          </p>
+      
+                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                            {user.email}
+                          </p>
+      
+                        </div>
+      
+                      </div>
+      
+      
+                      {/* LOGOUT */}
+      
+                      <button
+                        onClick={async () => {
+      
+                          await fetch("/api/auth/logout", {
+                            method: "POST",
+                          });
+      
+                          window.location.href = "/login";
+      
+                        }}
+                        className="mt-3 w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        Logg ut
+                      </button>
+      
+                    </>
+      
+                  ) : (
+      
+                    <button
+                      onClick={() => {
+                        window.location.href = "/login";
+                      }}
+                      className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      Logg inn
+                    </button>
+      
+                  )}
+      
+                </div>
+      
+              </aside>
 
       {/* Main content */}
       <div className="lg:pl-64">
