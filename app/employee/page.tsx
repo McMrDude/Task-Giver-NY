@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "../components/ThemeToggle";
 import NotificationBell from "../components/NotificationBell";
@@ -40,40 +40,29 @@ type Ticket = {
 };
 
 // ====================================================
-// EMPLOYEE DASHBOARD
+// DASHBOARD
 // ====================================================
 
 export default function EmployeeDashboard() {
   const router = useRouter();
 
   const [user, setUser] = useState<User | null>(null);
-
   const [tickets, setTickets] = useState<Ticket[]>([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
-
-  const [mobileMenuOpen, setMobileMenuOpen] =
-    useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // ==================================================
-  // INITIAL LOAD
+  // LOAD
   // ==================================================
 
   useEffect(() => {
-    loadEmployee();
+    loadDashboard();
   }, []);
 
-  async function loadEmployee() {
+  async function loadDashboard() {
     try {
-      // ----------------------------------------------
-      // CHECK LOGIN
-      // ----------------------------------------------
-
-      const meResponse = await fetch(
-        "/api/auth/me"
-      );
+      const meResponse = await fetch("/api/auth/me");
 
       if (!meResponse.ok) {
         router.push("/login");
@@ -87,10 +76,6 @@ export default function EmployeeDashboard() {
         return;
       }
 
-      // ----------------------------------------------
-      // CHECK ROLE
-      // ----------------------------------------------
-
       if (me.user.role === "admin") {
         router.push("/admin");
         return;
@@ -103,10 +88,6 @@ export default function EmployeeDashboard() {
 
       setUser(me.user);
 
-      // ----------------------------------------------
-      // LOAD ASSIGNED TICKETS
-      // ----------------------------------------------
-
       const ticketResponse = await fetch(
         "/api/employee/tasks"
       );
@@ -114,19 +95,19 @@ export default function EmployeeDashboard() {
       const ticketResult =
         await ticketResponse.json();
 
-      if (!ticketResponse.ok || !ticketResult.success) {
+      if (
+        !ticketResponse.ok ||
+        !ticketResult.success
+      ) {
         setError(
           ticketResult.error ||
-            "Kunne ikke hente dine tildelte saker."
+            "Kunne ikke hente dine saker."
         );
 
         return;
       }
 
-      const assignedTickets =
-        ticketResult.data || [];
-
-      setTickets(assignedTickets);
+      setTickets(ticketResult.data || []);
     } catch (err) {
       console.error(err);
 
@@ -138,124 +119,107 @@ export default function EmployeeDashboard() {
     }
   }
 
-  async function updateTicketStatus(
-    ticketId: number,
-    status: string
-    ) {
-    try {
-
-        const response = await fetch(
-        "/api/employee/tasks",
-        {
-            method: "PATCH",
-
-            headers: {
-            "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-            id: ticketId,
-            status,
-            }),
-        }
-        );
-
-
-        const result =
-        await response.json();
-
-
-        if (!response.ok || !result.success) {
-
-        alert(
-            result.error ||
-            "Kunne ikke oppdatere saken."
-        );
-
-        return;
-        }
-
-
-        // --------------------------------------------
-        // UPDATE THE TICKET LOCALLY
-        // --------------------------------------------
-
-        setTickets(current =>
-          current.map(ticket =>
-            ticket.id === ticketId
-              ? {
-                  ...ticket,
-                  status,
-                }
-              : ticket
-          )
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-        "En nettverksfeil oppstod."
-        );
-
-    }
-    }
-
   // ==================================================
   // LOGOUT
   // ==================================================
 
   async function logout() {
-    await fetch(
-      "/api/auth/logout",
-      {
-        method: "POST",
-      }
-    );
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
 
     router.push("/login");
   }
 
-// ==================================================
-// ACTIVE / COMPLETED TICKETS
-// ==================================================
-
-const activeTickets =
-  tickets.filter(
-    ticket =>
-      ticket.status !== "completed" &&
-      ticket.status !== "finished" &&
-      ticket.status !== "cancelled"
-  );
-
-const completedTickets =
-  tickets.filter(
-    ticket =>
-      ticket.status === "completed" ||
-      ticket.status === "finished"
-  );
-
-
   // ==================================================
-  // STATISTICS
+  // TICKET FILTERING
   // ==================================================
 
-  const totalTickets =
-    activeTickets.length;
+  const activeTickets = useMemo(
+    () =>
+      tickets.filter(
+        ticket =>
+          ticket.status !== "completed" &&
+          ticket.status !== "finished" &&
+          ticket.status !== "cancelled"
+      ),
+    [tickets]
+  );
 
-  const inProgressTickets =
-    activeTickets.filter(
-      ticket =>
-        ticket.status === "started" ||
-        ticket.status === "pågår"
-    ).length;
+  const newTickets = useMemo(
+    () =>
+      activeTickets.filter(
+        ticket =>
+          ticket.status === "not_started"
+      ),
+    [activeTickets]
+  );
 
-  const newTickets =
-    activeTickets.filter(
-      ticket =>
-        ticket.status === "not_started"
-    ).length;
+  const inProgressTickets = useMemo(
+    () =>
+      activeTickets.filter(
+        ticket =>
+          ticket.status === "started" ||
+          ticket.status === "pågår"
+      ),
+    [activeTickets]
+  );
+
+  const completedTickets = useMemo(
+    () =>
+      tickets.filter(
+        ticket =>
+          ticket.status === "completed" ||
+          ticket.status === "finished"
+      ),
+    [tickets]
+  );
+
+  // ==================================================
+  // PRIORITY
+  // ==================================================
+
+  const priorityTickets = useMemo(
+    () =>
+      [...activeTickets]
+        .sort((a, b) => {
+          const priorityA =
+            getPriorityWeight(a.priority);
+
+          const priorityB =
+            getPriorityWeight(b.priority);
+
+          return priorityB - priorityA;
+        })
+        .slice(0, 3),
+    [activeTickets]
+  );
+
+  // ==================================================
+  // UPCOMING DEADLINES
+  // ==================================================
+
+  const upcomingTickets = useMemo(() => {
+    const now = new Date();
+
+    return [...activeTickets]
+      .filter(ticket => {
+        if (!ticket.due_date) {
+          return false;
+        }
+
+        const dueDate =
+          new Date(ticket.due_date);
+
+        return dueDate >= now;
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.due_date!).getTime() -
+          new Date(b.due_date!).getTime()
+      )
+      .slice(0, 4);
+  }, [activeTickets]);
 
   // ==================================================
   // LOADING
@@ -295,12 +259,12 @@ const completedTickets =
       <div className="flex min-h-screen">
 
         {/* ==================================================
-            DESKTOP SIDEBAR
+            SIDEBAR
         ================================================== */}
 
         <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
 
-          {/* LOGO / HEADER */}
+          {/* LOGO */}
 
           <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
 
@@ -320,28 +284,35 @@ const completedTickets =
 
           </div>
 
-
           {/* NAVIGATION */}
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
-            {/* MINE SAKER */}
+            {/* DASHBOARD */}
 
             <button
-              onClick={() => {
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }}
+              onClick={() =>
+                router.push("/employee")
+              }
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
             >
-              <span>📋</span>
+              <span>▦</span>
+              Oversikt
+            </button>
 
+            {/* TASKS */}
+
+            <button
+              onClick={() =>
+                router.push("/employee/tasks")
+              }
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+            >
+              <span>📋</span>
               Mine tildelte saker
             </button>
 
-            {/* FULLFØRTE SAKER */}
+            {/* COMPLETED */}
 
             <button
               onClick={() =>
@@ -350,39 +321,34 @@ const completedTickets =
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               <span>✓</span>
-
               Fullførte saker
             </button>
 
-
-            {/* HJELP */}
+            {/* HELP */}
 
             <button
-              onClick={() => {
-                router.push("/help");
-              }}
+              onClick={() =>
+                router.push("/help")
+              }
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               <span>❓</span>
-
               Hjelp
             </button>
 
           </nav>
 
-
-          {/* THEME TOGGLE */}
+          {/* THEME */}
 
           <div className="border-t border-slate-200 p-3 dark:border-slate-800">
             <ThemeToggle />
           </div>
 
-
           {/* ACCOUNT */}
 
           <div className="border-t border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
 
-            {user ? (
+            {user && (
               <>
                 <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
 
@@ -406,33 +372,21 @@ const completedTickets =
 
                 </div>
 
-
                 <button
                   onClick={logout}
                   className="mt-3 w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   Logg ut
                 </button>
-
               </>
-            ) : (
-              <button
-                onClick={() => {
-                  router.push("/login");
-                }}
-                className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-              >
-                Logg inn
-              </button>
             )}
 
           </div>
 
         </aside>
 
-
         {/* ==================================================
-            MOBILE HEADER
+            MOBILE
         ================================================== */}
 
         <div className="w-full lg:hidden">
@@ -448,7 +402,6 @@ const completedTickets =
                 </div>
 
                 <div>
-
                   <p className="text-sm font-bold text-slate-900 dark:text-white">
                     IT Support
                   </p>
@@ -456,13 +409,9 @@ const completedTickets =
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Ansattportal
                   </p>
-
                 </div>
 
               </div>
-
-
-              {/* HAMBURGER */}
 
               <button
                 onClick={() =>
@@ -470,7 +419,7 @@ const completedTickets =
                     !mobileMenuOpen
                   )
                 }
-                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 aria-label="Åpne meny"
               >
                 ☰
@@ -478,20 +427,23 @@ const completedTickets =
 
             </div>
 
-
-            {/* MOBILE MENU */}
-
             {mobileMenuOpen && (
-
               <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
 
-                {/* CURRENT PAGE */}
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+                  ▦ Oversikt
+                </button>
 
                 <button
                   onClick={() =>
-                    setMobileMenuOpen(false)
+                    router.push("/employee/tasks")
                   }
-                  className="w-full cursor-pointer rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   📋 Mine tildelte saker
                 </button>
@@ -500,36 +452,28 @@ const completedTickets =
                   onClick={() =>
                     router.push("/completed-tasks")
                   }
-                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   ✓ Fullførte saker
                 </button>
-
-
-                {/* HELP */}
 
                 <button
                   onClick={() =>
                     router.push("/help")
                   }
-                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   ❓ Hjelp
                 </button>
 
-
-                {/* THEME */}
-
                 <ThemeToggle />
 
               </div>
-
             )}
 
           </header>
 
         </div>
-
 
         {/* ==================================================
             MAIN
@@ -537,8 +481,7 @@ const completedTickets =
 
         <section className="min-w-0 flex-1 lg:ml-64">
 
-
-          {/* DESKTOP HEADER */}
+          {/* HEADER */}
 
           <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
@@ -551,139 +494,235 @@ const completedTickets =
                 </p>
 
                 <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  Mine tildelte saker
+                  Hei, {user?.name}
                 </h1>
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Her finner du støttesakene som er tildelt til deg.
+                  Her får du en rask oversikt over arbeidssakene dine.
                 </p>
 
               </div>
 
-              {/* NOTIFICATIONS */}
-    
               <NotificationBell />
 
             </div>
 
           </header>
 
-
-          {/* MOBILE PAGE HEADER */}
-
-          <div className="border-b border-slate-200 bg-white px-5 py-6 dark:border-slate-800 dark:bg-slate-900 lg:hidden">
-
-            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              Ansattportal
-            </p>
-
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Mine tildelte saker
-            </h1>
-
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Støttesaker som er tildelt til deg.
-            </p>
-
-          </div>
-
-
           {/* CONTENT */}
 
           <div className="space-y-8 p-5 lg:p-8">
 
-
             {/* ==================================================
-                STATISTICS
+                OVERVIEW CARDS
             ================================================== */}
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-              <StatCard
-                title="Tildelte saker"
-                value={totalTickets}
-                description="Totalt tildelt til deg"
+              <DashboardStat
+                title="Åpne saker"
+                value={activeTickets.length}
+                description="Saker som krever oppfølging"
+                icon="📋"
               />
 
-              <StatCard
+              <DashboardStat
                 title="Nye"
-                value={newTickets}
+                value={newTickets.length}
                 description="Venter på behandling"
+                icon="●"
               />
 
-              <StatCard
+              <DashboardStat
                 title="Pågår"
-                value={inProgressTickets}
+                value={inProgressTickets.length}
                 description="Under behandling"
+                icon="↻"
               />
 
-              <StatCard
+              <DashboardStat
                 title="Ferdige"
                 value={completedTickets.length}
                 description="Ferdigbehandlede saker"
+                icon="✓"
               />
 
             </div>
 
-
             {/* ==================================================
-                TICKET SECTION
+                QUICK OVERVIEW
             ================================================== */}
 
-            <section>
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
-              <div className="mb-5">
+              {/* PRIORITY */}
 
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Tildelte saker
-                </h2>
+              <section className="xl:col-span-2">
 
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Her ser du alle sakene du har fått ansvar for.
-                </p>
+                <div className="mb-5 flex items-end justify-between gap-4">
+
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Krever oppmerksomhet
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Saker du bør prioritere først.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      router.push("/employee/tasks")
+                    }
+                    className="hidden cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 sm:block"
+                  >
+                    Se alle →
+                  </button>
+
+                </div>
+
+                {priorityTickets.length === 0 ? (
+
+                  <EmptyDashboardCard />
+
+                ) : (
+
+                  <div className="space-y-3">
+
+                    {priorityTickets.map(
+                      ticket => (
+                        <DashboardTicket
+                          key={ticket.id}
+                          ticket={ticket}
+                        />
+                      )
+                    )}
+
+                  </div>
+
+                )}
+
+              </section>
+
+              {/* DEADLINES */}
+
+              <section>
+
+                <div className="mb-5">
+
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Kommende frister
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Saker med registrert frist.
+                  </p>
+
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+
+                  {upcomingTickets.length === 0 ? (
+
+                    <div className="py-6 text-center">
+
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-xl dark:bg-slate-800">
+                        ✓
+                      </div>
+
+                      <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Ingen kommende frister
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        Du ligger godt an.
+                      </p>
+
+                    </div>
+
+                  ) : (
+
+                    <div className="space-y-4">
+
+                      {upcomingTickets.map(
+                        ticket => (
+                          <button
+                            key={ticket.id}
+                            onClick={() =>
+                              router.push(
+                                `/tickets/${ticket.id}`
+                              )
+                            }
+                            className="w-full cursor-pointer text-left"
+                          >
+
+                            <div className="flex items-center justify-between gap-3">
+
+                              <div className="min-w-0">
+
+                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                  Sak #{ticket.id}
+                                </p>
+
+                                <p className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">
+                                  {ticket.category}
+                                </p>
+
+                              </div>
+
+                              <p className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                {formatDate(
+                                  ticket.due_date
+                                )}
+                              </p>
+
+                            </div>
+
+                          </button>
+                        )
+                      )}
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              </section>
+
+            </div>
+
+            {/* ==================================================
+                QUICK ACTION
+            ================================================== */}
+
+            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
+                <div>
+
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Klar for å jobbe?
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Se alle sakene som er tildelt til deg.
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={() =>
+                    router.push("/employee/tasks")
+                  }
+                  className="cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                  Se mine saker
+                </button>
 
               </div>
-
-
-              {/* ==================================================
-                  EMPTY STATE
-              ================================================== */}
-
-              {activeTickets.length === 0 ? (
-
-  <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-
-    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
-      📋
-    </div>
-
-    <p className="mt-4 font-semibold text-slate-700 dark:text-slate-200">
-      Ingen aktive saker
-    </p>
-
-    <p className="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
-      Du har ingen støttesaker å behandle akkurat nå.
-    </p>
-
-  </div>
-
-) : (
-
-  <div className="space-y-4">
-
-    {activeTickets.map(ticket => (
-
-      <EmployeeTicketCard
-        key={ticket.id}
-        ticket={ticket}
-        onUpdateStatus={updateTicketStatus}
-      />
-
-    ))}
-
-  </div>
-
-)}
 
             </section>
 
@@ -697,32 +736,45 @@ const completedTickets =
   );
 }
 
-
 // ====================================================
-// STAT CARD
+// DASHBOARD STAT
 // ====================================================
 
-function StatCard({
+function DashboardStat({
   title,
   value,
   description,
+  icon,
 }: {
   title: string;
   value: number;
   description: string;
+  icon: string;
 }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-        {title}
-      </p>
+      <div className="flex items-start justify-between">
 
-      <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
-        {value}
-      </p>
+        <div>
 
-      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {title}
+          </p>
+
+          <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+            {value}
+          </p>
+
+        </div>
+
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          {icon}
+        </div>
+
+      </div>
+
+      <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
         {description}
       </p>
 
@@ -730,71 +782,51 @@ function StatCard({
   );
 }
 
-
 // ====================================================
-// EMPLOYEE TICKET CARD
+// DASHBOARD TICKET
 // ====================================================
 
-function EmployeeTicketCard({
+function DashboardTicket({
   ticket,
-  onUpdateStatus,
 }: {
   ticket: Ticket;
-
-  onUpdateStatus: (
-    ticketId: number,
-    status: string
-  ) => void;
 }) {
   const router = useRouter();
 
   return (
-    <article 
+    <button
       onClick={() =>
         router.push(`/tickets/${ticket.id}`)
       }
-      className="cursor-pointer rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 sm:p-6"
+      className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
     >
 
-      {/* ==================================================
-          TOP
-      ================================================== */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-
-        {/* ID */}
-
-        <div className="w-16 shrink-0">
+        <div className="shrink-0">
 
           <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
             SAK
           </p>
 
-          <p className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <p className="font-mono text-sm font-semibold text-slate-900 dark:text-white">
             #{ticket.id}
           </p>
 
         </div>
 
-
-        {/* CONTENT */}
-
         <div className="min-w-0 flex-1">
 
-          {/* BADGES */}
-
-          <div className="mb-3 flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
 
             <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
               {ticket.category}
             </span>
 
             {ticket.subcategory && (
-
               <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 {ticket.subcategory}
               </span>
-
             )}
 
             <PriorityBadge
@@ -803,155 +835,64 @@ function EmployeeTicketCard({
 
           </div>
 
-
-          {/* DESCRIPTION */}
-
-          <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800 dark:text-slate-200">
+          <p className="mt-2 truncate text-sm font-medium text-slate-800 dark:text-slate-200">
             {ticket.content}
           </p>
 
-
-          {/* META */}
-
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-400 dark:text-slate-500">
-
-            <span>
-              Opprettet{" "}
-              {new Date(
-                ticket.created_at
-              ).toLocaleDateString(
-                "nb-NO"
-              )}
-            </span>
-
-
-            {ticket.sender && (
-
-              <span>
-                Fra:{" "}
-                <span className="font-medium text-slate-500 dark:text-slate-300">
-                  {ticket.sender.name}
-                </span>
-              </span>
-
-            )}
-
-          </div>
-
         </div>
 
-
-        {/* STATUS */}
-
-        <div className="shrink-0">
-
-          <StatusBadge
-            status={ticket.status}
-          />
-
-        </div>
+        <StatusBadge
+          status={ticket.status}
+        />
 
       </div>
 
-
-      {/* ==================================================
-          FOOTER INFORMATION
-      ================================================== */}
-
-      <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-
-        <div className="flex flex-wrap gap-4">
-
-          {/* PRIORITY */}
-
-          <div>
-
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
-              Prioritet
-            </p>
-
-            <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-              {getPriorityLabel(
-                ticket.priority
-              )}
-            </p>
-
-          </div>
-
-
-          {/* DUE DATE */}
-
-          <div>
-
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
-              Frist
-            </p>
-
-            <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-
-              {ticket.due_date
-                ? new Date(
-                    ticket.due_date
-                  ).toLocaleDateString(
-                    "nb-NO"
-                  )
-                : "Ingen frist"}
-
-            </p>
-
-          </div>
-
-        </div>
-
-
-        {/* STATUS */}
-
-<div className="text-left sm:text-right">
-
-  <p className="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-    Status
-  </p>
-
-  <select
-    onClick={e =>
-      e.stopPropagation()
-    }
-    value={ticket.status}
-    onChange={e =>
-      onUpdateStatus(
-        ticket.id,
-        e.target.value
-      )
-    }
-    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
-  >
-
-    <option value="not_started">
-      Ny
-    </option>
-
-    <option value="started">
-      Pågår
-    </option>
-
-    <option value="completed">
-      Ferdig
-    </option>
-
-  </select>
-
-</div>
-
-      </div>
-
-    </article>
+    </button>
   );
 }
 
+// ====================================================
+// EMPTY STATE
+// ====================================================
+
+function EmptyDashboardCard() {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-xl dark:bg-slate-800">
+        ✓
+      </div>
+
+      <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        Ingen saker krever oppmerksomhet
+      </p>
+
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Du har kontroll på sakene dine.
+      </p>
+
+    </div>
+  );
+}
 
 // ====================================================
-// PRIORITY BADGE
+// PRIORITY
 // ====================================================
+
+function getPriorityWeight(priority: string) {
+  if (
+    priority === "høy" ||
+    priority === "high"
+  ) {
+    return 3;
+  }
+
+  if (priority === "medium") {
+    return 2;
+  }
+
+  return 1;
+}
 
 function PriorityBadge({
   priority,
@@ -984,31 +925,8 @@ function PriorityBadge({
   );
 }
 
-
 // ====================================================
-// PRIORITY LABEL
-// ====================================================
-
-function getPriorityLabel(
-  priority: string
-) {
-  if (
-    priority === "høy" ||
-    priority === "high"
-  ) {
-    return "Høy";
-  }
-
-  if (priority === "medium") {
-    return "Medium";
-  }
-
-  return "Lav";
-}
-
-
-// ====================================================
-// STATUS BADGE
+// STATUS
 // ====================================================
 
 function StatusBadge({
@@ -1021,7 +939,7 @@ function StatusBadge({
     status === "pågår"
   ) {
     return (
-      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+      <span className="inline-flex shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
       </span>
     );
@@ -1032,7 +950,7 @@ function StatusBadge({
     status === "finished"
   ) {
     return (
-      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
+      <span className="inline-flex shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
       </span>
     );
@@ -1040,15 +958,29 @@ function StatusBadge({
 
   if (status === "cancelled") {
     return (
-      <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
+      <span className="inline-flex shrink-0 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Avbrutt
       </span>
     );
   }
 
   return (
-    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+    <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Ny
     </span>
+  );
+}
+
+// ====================================================
+// DATE
+// ====================================================
+
+function formatDate(date: string | null) {
+  if (!date) {
+    return "Ingen frist";
+  }
+
+  return new Date(date).toLocaleDateString(
+    "nb-NO"
   );
 }
