@@ -914,55 +914,55 @@ function TicketRow({
   onOpen: () => void;
 }) {
 
+  const isUnassigned =
+    !ticket.receiver_id;
+
+
   return (
 
     <button
       type="button"
       onClick={onOpen}
-      className="group block w-full cursor-pointer p-5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
+      className="group block w-full cursor-pointer text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
     >
 
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+      <div className="p-5 sm:p-6">
 
 
-        {/* TICKET ID */}
+        {/* ==================================================
+            TOP ROW
+        ================================================== */}
 
-        <div className="shrink-0 lg:w-20">
-
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-
-            Sak
-
-          </p>
-
-          <p className="mt-1 font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
-
-            #{ticket.id}
-
-          </p>
-
-        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
 
 
-        {/* MAIN INFORMATION */}
+          {/* LEFT: ID + CATEGORY */}
 
-        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-3">
+
+            {/* TICKET ID */}
+
+            <span className="font-mono text-lg font-bold text-slate-900 dark:text-white">
+
+              #{ticket.id}
+
+            </span>
 
 
-          {/* BADGES */}
+            {/* CATEGORY */}
 
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+            <span className="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
 
               {ticket.category}
 
             </span>
 
 
+            {/* SUBCATEGORY */}
+
             {ticket.subcategory && (
 
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <span className="hidden rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600 sm:inline-block dark:bg-slate-800 dark:text-slate-300">
 
                 {ticket.subcategory}
 
@@ -970,34 +970,145 @@ function TicketRow({
 
             )}
 
-
-            <PriorityBadge
-              priority={ticket.priority}
-            />
-
           </div>
 
 
-          {/* DESCRIPTION */}
+          {/* PRIORITY */}
 
-          <p className="line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+          <PriorityBadge
+            priority={ticket.priority}
+          />
+
+        </div>
+
+
+        {/* ==================================================
+            TITLE / DESCRIPTION
+        ================================================== */}
+
+        <div className="mt-4">
+
+          <p className="line-clamp-2 text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg">
 
             {ticket.content}
 
           </p>
 
+        </div>
 
-          {/* META */}
 
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400 dark:text-slate-500">
+        {/* ==================================================
+            ASSIGNMENT + STATUS
+        ================================================== */}
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+
+          {/* ASSIGNMENT */}
+
+          <div
+            className={`flex items-center gap-3 rounded-lg border px-3.5 py-3 ${
+              isUnassigned
+                ? "border-amber-200 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/20"
+                : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+            }`}
+          >
+
+            {/* AVATAR / ICON */}
+
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                isUnassigned
+                  ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
+                  : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
+              }`}
+            >
+
+              {isUnassigned
+                ? "?"
+                : ticket.receiver?.name
+                    ?.charAt(0)
+                    .toUpperCase()}
+
+            </div>
+
+
+            {/* ASSIGNMENT TEXT */}
+
+            <div className="min-w-0">
+
+              <p
+                className={`text-xs font-semibold uppercase tracking-wide ${
+                  isUnassigned
+                    ? "text-amber-700 dark:text-amber-400"
+                    : "text-slate-500 dark:text-slate-400"
+                }`}
+              >
+
+                {isUnassigned
+                  ? "Ikke tildelt"
+                  : "Ansvarlig"}
+
+              </p>
+
+
+              <p
+                className={`truncate text-sm font-semibold ${
+                  isUnassigned
+                    ? "text-amber-900 dark:text-amber-300"
+                    : "text-slate-800 dark:text-slate-200"
+                }`}
+              >
+
+                {isUnassigned
+                  ? "Mangler ansvarlig"
+                  : ticket.receiver?.name}
+
+              </p>
+
+            </div>
+
+          </div>
+
+
+          {/* STATUS */}
+
+          <div className="flex items-center gap-2">
+
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+
+              Status
+
+            </span>
+
+            <StatusBadge
+              status={ticket.status}
+            />
+
+          </div>
+
+        </div>
+
+
+        {/* ==================================================
+            METADATA
+        ================================================== */}
+
+        <div className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
 
             <span>
 
               Opprettet{" "}
 
-              {formatDate(
-                ticket.created_at
-              )}
+              <span className="font-medium text-slate-600 dark:text-slate-300">
+
+                {formatDate(
+                  ticket.created_at
+                )}
+
+              </span>
 
             </span>
 
@@ -1006,9 +1117,9 @@ function TicketRow({
 
               <span>
 
-                Fra:{" "}
+                Fra{" "}
 
-                <span className="font-medium text-slate-500 dark:text-slate-300">
+                <span className="font-medium text-slate-600 dark:text-slate-300">
 
                   {ticket.sender.name}
 
@@ -1018,35 +1129,12 @@ function TicketRow({
 
             )}
 
-
-            <span>
-
-              {ticket.receiver
-                ? `Ansvarlig: ${ticket.receiver.name}`
-                : "Ikke tildelt"}
-
-            </span>
-
           </div>
-
-        </div>
-
-
-        {/* RIGHT SIDE */}
-
-        <div className="flex shrink-0 items-center justify-between gap-4 lg:w-36 lg:flex-col lg:items-end">
-
-
-          {/* STATUS */}
-
-          <StatusBadge
-            status={ticket.status}
-          />
 
 
           {/* OPEN */}
 
-          <span className="text-sm font-semibold text-blue-600 transition group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-300">
+          <span className="shrink-0 font-semibold text-blue-600 transition group-hover:translate-x-0.5 dark:text-blue-400">
 
             Åpne sak →
 
@@ -1061,7 +1149,6 @@ function TicketRow({
   );
 
 }
-
 
 // ====================================================
 // PRIORITY BADGE
