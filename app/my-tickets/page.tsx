@@ -545,80 +545,171 @@ function TicketCard({
 
   return (
 
-    <div 
+    <button
+      type="button"
       onClick={onOpen}
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      className="
+        group
+        w-full
+        cursor-pointer
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        p-5
+        text-left
+        shadow-sm
+        transition
+        hover:border-blue-300
+        hover:shadow-md
+        dark:border-slate-800
+        dark:bg-slate-900
+        dark:hover:border-blue-800
+        sm:p-6
+      "
     >
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-5">
 
 
-        {/* LEFT */}
+        {/* ==========================================
+            TOP ROW
+        ========================================== */}
 
-        <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-4">
 
-          <div className="flex flex-wrap items-center gap-2">
+          {/* LEFT */}
 
-            <span className="font-mono text-xs font-semibold text-slate-400">
-              #{ticket.id}
-            </span>
+          <div className="min-w-0">
 
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-              {ticket.category}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
 
-            {ticket.subcategory && (
+              {/* TICKET ID */}
 
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                {ticket.subcategory}
+              <span className="font-mono text-base font-bold text-slate-500 dark:text-slate-400">
+
+                #{ticket.id}
+
               </span>
 
-            )}
+
+              {/* CATEGORY */}
+
+              <span className="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+
+                {ticket.category}
+
+              </span>
+
+
+              {/* SUBCATEGORY */}
+
+              {ticket.subcategory && (
+
+                <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+
+                  {ticket.subcategory}
+
+                </span>
+
+              )}
+
+            </div>
 
           </div>
 
 
-          <p className="mt-3 text-sm font-medium leading-6 text-slate-800 dark:text-slate-200">
-            {ticket.content}
-          </p>
+          {/* STATUS */}
 
-
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-400">
-
-            <span>
-              Opprettet{" "}
-              {new Date(
-                ticket.created_at
-              ).toLocaleDateString("nb-NO")}
-            </span>
-
-            {ticket.due_date && (
-
-              <span>
-                Frist{" "}
-                {new Date(
-                  ticket.due_date
-                ).toLocaleDateString("nb-NO")}
-              </span>
-
-            )}
-
-          </div>
+          <StatusBadge
+            status={ticket.status}
+          />
 
         </div>
 
 
-        {/* STATUS */}
+        {/* ==========================================
+            TICKET TITLE / DESCRIPTION
+        ========================================== */}
 
-        <StatusBadge
-          status={ticket.status}
-        />
+        <div>
+
+          <p className="text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg sm:leading-7">
+
+            {ticket.content}
+
+          </p>
+
+        </div>
+
+
+        {/* ==========================================
+            BOTTOM INFORMATION
+        ========================================== */}
+
+        <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+
+
+          {/* DATES */}
+
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+
+            <span>
+
+              Opprettet{" "}
+
+              <span className="font-medium text-slate-700 dark:text-slate-300">
+
+                {new Date(
+                  ticket.created_at
+                ).toLocaleDateString(
+                  "nb-NO"
+                )}
+
+              </span>
+
+            </span>
+
+
+            {ticket.due_date && (
+
+              <span>
+
+                Frist{" "}
+
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+
+                  {new Date(
+                    ticket.due_date
+                  ).toLocaleDateString(
+                    "nb-NO"
+                  )}
+
+                </span>
+
+              </span>
+
+            )}
+
+          </div>
+
+
+          {/* OPEN INDICATOR */}
+
+          <span className="text-sm font-semibold text-blue-600 transition group-hover:translate-x-0.5 dark:text-blue-400">
+
+            Se sak →
+
+          </span>
+
+        </div>
 
       </div>
 
-    </div>
+    </button>
 
   );
+
 }
 
 
@@ -635,9 +726,15 @@ function StatusBadge({
   if (status === "started") {
 
     return (
-      <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+
+        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+
         Pågår
+
       </span>
+
     );
 
   }
@@ -646,9 +743,15 @@ function StatusBadge({
   if (status === "completed") {
 
     return (
-      <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
+
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 dark:bg-green-950/50 dark:text-green-400">
+
+        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+
         Ferdig
+
       </span>
+
     );
 
   }
@@ -657,18 +760,30 @@ function StatusBadge({
   if (status === "cancelled") {
 
     return (
-      <span className="shrink-0 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
+
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 dark:bg-red-950/50 dark:text-red-400">
+
+        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+
         Avbrutt
+
       </span>
+
     );
 
   }
 
 
   return (
-    <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+
+      <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+
       Ny
+
     </span>
+
   );
 
 }
