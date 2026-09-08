@@ -394,7 +394,7 @@ export default function EmployeeDashboard() {
 
             <button
               onClick={() =>
-                router.push("/help")
+                router.push("/employee/help")
               }
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
