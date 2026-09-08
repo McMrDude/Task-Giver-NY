@@ -328,6 +328,16 @@ const completedTickets =
             {/* MINE SAKER */}
 
             <button
+              onClick={() =>
+                router.push("/employee")
+              }
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+            >
+              <span>▦</span>
+              Oversikt
+            </button>
+
+            <button
               onClick={() => {
                 window.scrollTo({
                   top: 0,
