@@ -1674,7 +1674,7 @@ async function sendMessage() {
                   >
 
                     <option value="not_started">
-                      Ny
+                      Ikke startet
                     </option>
 
 
