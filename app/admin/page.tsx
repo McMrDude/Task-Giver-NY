@@ -147,11 +147,24 @@ export default function AdminDashboard() {
 
 const totalTickets = tickets.length;
 
-// A ticket is "new" only if:
-// - it has been assigned
-// - it has not been started
-// - it was created less than 24 hours ago
+
+// --------------------------------------------------
+// IKKE TILDELT
+// --------------------------------------------------
+
+const unassignedTickets = tickets.filter(
+  ticket => !ticket.receiver_id
+).length;
+
+
+// --------------------------------------------------
+// NYE
+//
+// Assigned + not started + created less than 24h ago
+// --------------------------------------------------
+
 const newTickets = tickets.filter(ticket => {
+
   if (
     ticket.status !== "not_started" ||
     !ticket.receiver_id
@@ -162,45 +175,75 @@ const newTickets = tickets.filter(ticket => {
   const createdAt =
     new Date(ticket.created_at).getTime();
 
-  const now = Date.now();
+  if (!Number.isFinite(createdAt)) {
+    return false;
+  }
 
-  const age =
-    now - createdAt;
-
-  return age < 24 * 60 * 60 * 1000;
+  return (
+    Date.now() - createdAt <
+    24 * 60 * 60 * 1000
+  );
 }).length;
 
 
-// Tickets without an assigned employee
-const unassignedTickets =
-  tickets.filter(
-    ticket => !ticket.receiver_id
-  ).length;
+// --------------------------------------------------
+// IKKE STARTET
+//
+// Assigned + not started + older than 24h
+// --------------------------------------------------
+
+const notStartedTickets = tickets.filter(ticket => {
+
+  if (
+    ticket.status !== "not_started" ||
+    !ticket.receiver_id
+  ) {
+    return false;
+  }
+
+  const createdAt =
+    new Date(ticket.created_at).getTime();
+
+  if (!Number.isFinite(createdAt)) {
+    return true;
+  }
+
+  return (
+    Date.now() - createdAt >=
+    24 * 60 * 60 * 1000
+  );
+}).length;
 
 
-// Tickets currently being worked on
-const inProgressTickets =
-  tickets.filter(
-    ticket =>
-      ticket.status === "started"
-  ).length;
+// --------------------------------------------------
+// PÅGÅR
+// --------------------------------------------------
+
+const inProgressTickets = tickets.filter(
+  ticket =>
+    ticket.status === "started"
+).length;
 
 
-// Completed tickets
-const completedTickets =
-  tickets.filter(
-    ticket =>
-      ticket.status === "completed"
-  ).length;
+// --------------------------------------------------
+// FERDIGE
+// --------------------------------------------------
+
+const completedTickets = tickets.filter(
+  ticket =>
+    ticket.status === "completed"
+).length;
 
 
-// Other statistics
-const highPriorityTickets =
-  tickets.filter(
-    ticket =>
-      ticket.priority === "høy" ||
-      ticket.priority === "high"
-  ).length;
+// --------------------------------------------------
+// OTHER STATISTICS
+// --------------------------------------------------
+
+const highPriorityTickets = tickets.filter(
+  ticket =>
+    ticket.priority === "høy" ||
+    ticket.priority === "high"
+).length;
 
 
   // ==================================================
@@ -571,11 +614,6 @@ const highPriorityTickets =
                     label="Ikke tildelt"
                     value={unassignedTickets}
                     total={totalTickets}
-                    percentage={
-                      totalTickets > 0
-                        ? (unassignedTickets / totalTickets) * 100
-                        : 0
-                    }
                     type="unassigned"
                   />
 
@@ -584,12 +622,15 @@ const highPriorityTickets =
                     label="Nye"
                     value={newTickets}
                     total={totalTickets}
-                    percentage={
-                      totalTickets > 0
-                        ? (newTickets / totalTickets) * 100
-                        : 0
-                    }
                     type="new"
+                  />
+
+
+                  <StatusProgress
+                    label="Ikke startet"
+                    value={notStartedTickets}
+                    total={totalTickets}
+                    type="notStarted"
                   />
 
 
@@ -597,11 +638,6 @@ const highPriorityTickets =
                     label="Pågår"
                     value={inProgressTickets}
                     total={totalTickets}
-                    percentage={
-                      totalTickets > 0
-                        ? (inProgressTickets / totalTickets) * 100
-                        : 0
-                    }
                     type="progress"
                   />
 
@@ -610,11 +646,6 @@ const highPriorityTickets =
                     label="Ferdige"
                     value={completedTickets}
                     total={totalTickets}
-                    percentage={
-                      totalTickets > 0
-                        ? (completedTickets / totalTickets) * 100
-                        : 0
-                    }
                     type="completed"
                   />
 
@@ -825,16 +856,15 @@ function StatusProgress({
   label,
   value,
   total,
-  percentage,
   type,
 }: {
   label: string;
   value: number;
   total: number;
-  percentage: number;
   type:
     | "unassigned"
     | "new"
+    | "notStarted"
     | "progress"
     | "completed";
 }) {
@@ -842,9 +872,15 @@ function StatusProgress({
   const barClasses = {
     unassigned: "bg-orange-500",
     new: "bg-blue-500",
+    notStarted: "bg-slate-500",
     progress: "bg-amber-500",
     completed: "bg-green-500",
   };
+
+  const percentage =
+    total > 0
+      ? (value / total) * 100
+      : 0;
 
   const safePercentage =
     Math.min(Math.max(percentage, 0), 100);
