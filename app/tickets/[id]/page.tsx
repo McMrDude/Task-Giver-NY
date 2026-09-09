@@ -1205,6 +1205,8 @@ async function sendMessage() {
 
               <StatusBadge
                 status={ticket.status}
+                createdAt={ticket.created_at}
+                receiverId={ticket.receiver_id}
               />
 
             </div>
@@ -1512,7 +1514,7 @@ async function sendMessage() {
                     >
 
                       <option value="not_started">
-                        Ny
+                        Ikke startet
                       </option>
 
 
@@ -2101,76 +2103,83 @@ function getPriorityLabel(
 
 
 // ====================================================
-// STATUS
+// STATUS BADGE
 // ====================================================
 
 function StatusBadge({
   status,
+  createdAt,
+  receiverId,
 }: {
   status: string;
+  createdAt: string;
+  receiverId?: string | number | null;
 }) {
+  // --------------------------------------------------
+  // CANCELLED
+  // --------------------------------------------------
 
-  if (
-    status === "started" ||
-    status === "pågår"
-  ) {
-
+  if (status === "cancelled") {
     return (
-
-      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
-        Pågår
-
-      </span>
-
-    );
-
-  }
-
-
-  if (
-    status === "completed" ||
-    status === "finished"
-  ) {
-
-    return (
-
-      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
-
-        Ferdig
-
-      </span>
-
-    );
-
-  }
-
-
-  if (
-    status === "cancelled"
-  ) {
-
-    return (
-
       <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
         Avbrutt
-
       </span>
-
     );
-
   }
 
+  // --------------------------------------------------
+  // COMPLETED
+  // --------------------------------------------------
 
-  return (
+  if (status === "completed") {
+    return (
+      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
+        Ferdig
+      </span>
+    );
+  }
 
-    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+  // --------------------------------------------------
+  // STARTED
+  // --------------------------------------------------
 
-      Ny
+  if (status === "started") {
+    return (
+      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+        Pågår
+      </span>
+    );
+  }
 
-    </span>
+  // --------------------------------------------------
+  // NOT STARTED
+  // --------------------------------------------------
 
-  );
+  if (status === "not_started") {
+    const created = new Date(createdAt);
+    const now = new Date();
 
+    const isCreatedToday =
+      created.getFullYear() === now.getFullYear() &&
+      created.getMonth() === now.getMonth() &&
+      created.getDate() === now.getDate();
+
+    // A ticket that has not been assigned is shown
+    // as "Ikke tildelt" once it is no longer new.
+    if (!receiverId && !isCreatedToday) {
+      return (
+        <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+          Ikke tildelt
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        {isCreatedToday ? "Ny" : "Ikke startet"}
+      </span>
+    );
+  }
+
+  return null;
 }
