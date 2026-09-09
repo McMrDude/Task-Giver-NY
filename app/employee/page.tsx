@@ -934,6 +934,7 @@ function DashboardTicket({
 
         <StatusBadge
           status={ticket.status}
+          createdAt={ticket.created_at}
         />
 
       </div>
@@ -1022,8 +1023,10 @@ function PriorityBadge({
 
 function StatusBadge({
   status,
+  createdAt,
 }: {
   status: string;
+  createdAt: string;
 }) {
   if (
     status === "started" ||
@@ -1055,11 +1058,25 @@ function StatusBadge({
     );
   }
 
-  return (
-    <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-      Ny
-    </span>
-  );
+  if (status === "not_started") {
+    const created = new Date(createdAt);
+    const now = new Date();
+
+    const isCreatedToday =
+      created.getFullYear() === now.getFullYear() &&
+      created.getMonth() === now.getMonth() &&
+      created.getDate() === now.getDate();
+
+    return (
+      <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        {isCreatedToday
+          ? "Ny"
+          : "Ikke startet"}
+      </span>
+    );
+  }
+
+  return null;
 }
 
 // ====================================================
