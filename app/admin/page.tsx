@@ -141,44 +141,66 @@ export default function AdminDashboard() {
   }
 
 
-  // ==================================================
-  // STATISTICS
-  // ==================================================
+// ==================================================
+// STATUS STATISTICS
+// ==================================================
 
-  const totalTickets =
-    tickets.length;
+const totalTickets = tickets.length;
 
-  const openTickets =
-    tickets.filter(
-      ticket =>
-        ticket.status === "not_started" &&
-        isNewTicket(ticket.created_at)
-    ).length;
+// A ticket is "new" only if:
+// - it has been assigned
+// - it has not been started
+// - it was created less than 24 hours ago
+const newTickets = tickets.filter(ticket => {
+  if (
+    ticket.status !== "not_started" ||
+    !ticket.receiver_id
+  ) {
+    return false;
+  }
 
-  const inProgressTickets =
-    tickets.filter(
-      ticket =>
-        ticket.status === "started"
-    ).length;
+  const createdAt =
+    new Date(ticket.created_at).getTime();
 
-  const completedTickets =
-    tickets.filter(
-      ticket =>
-        ticket.status === "completed"
-    ).length;
+  const now = Date.now();
 
-  const highPriorityTickets =
-    tickets.filter(
-      ticket =>
-        ticket.priority === "høy" ||
-        ticket.priority === "high"
-    ).length;
+  const age =
+    now - createdAt;
 
-  const unassignedTickets =
-    tickets.filter(
-      ticket =>
-        !ticket.receiver_id
-    ).length;
+  return age < 24 * 60 * 60 * 1000;
+}).length;
+
+
+// Tickets without an assigned employee
+const unassignedTickets =
+  tickets.filter(
+    ticket => !ticket.receiver_id
+  ).length;
+
+
+// Tickets currently being worked on
+const inProgressTickets =
+  tickets.filter(
+    ticket =>
+      ticket.status === "started"
+  ).length;
+
+
+// Completed tickets
+const completedTickets =
+  tickets.filter(
+    ticket =>
+      ticket.status === "completed"
+  ).length;
+
+
+// Other statistics
+const highPriorityTickets =
+  tickets.filter(
+    ticket =>
+      ticket.priority === "høy" ||
+      ticket.priority === "high"
+  ).length;
 
 
   // ==================================================
@@ -475,8 +497,8 @@ export default function AdminDashboard() {
 
                 <StatCard
                   title="Nye"
-                  value={openTickets}
-                  description="Venter på behandling"
+                  value={newTickets}
+                  description="Opprettet siste 24 timer"
                   accent="blue"
                 />
 
@@ -546,12 +568,25 @@ export default function AdminDashboard() {
                 <div className="space-y-5">
 
                   <StatusProgress
-                    label="Nye"
-                    value={openTickets}
+                    label="Ikke tildelt"
+                    value={unassignedTickets}
                     total={totalTickets}
                     percentage={
                       totalTickets > 0
-                        ? (openTickets / totalTickets) * 100
+                        ? (unassignedTickets / totalTickets) * 100
+                        : 0
+                    }
+                    type="unassigned"
+                  />
+
+
+                  <StatusProgress
+                    label="Nye"
+                    value={newTickets}
+                    total={totalTickets}
+                    percentage={
+                      totalTickets > 0
+                        ? (newTickets / totalTickets) * 100
                         : 0
                     }
                     type="new"
@@ -797,10 +832,15 @@ function StatusProgress({
   value: number;
   total: number;
   percentage: number;
-  type: "new" | "progress" | "completed";
+  type:
+    | "unassigned"
+    | "new"
+    | "progress"
+    | "completed";
 }) {
 
   const barClasses = {
+    unassigned: "bg-orange-500",
     new: "bg-blue-500",
     progress: "bg-amber-500",
     completed: "bg-green-500",
