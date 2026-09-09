@@ -16,6 +16,12 @@ type User = {
   role: string;
 };
 
+type TicketStatus =
+  | "not_started"
+  | "started"
+  | "completed"
+  | "cancelled";
+
 type Ticket = {
   id: number;
 
@@ -26,7 +32,7 @@ type Ticket = {
   category: string;
   subcategory: string | null;
 
-  status: string;
+  status: TicketStatus;
   priority: string;
 
   due_date: string | null;
@@ -140,7 +146,7 @@ export default function EmployeeDashboard() {
 
   async function updateTicketStatus(
     ticketId: number,
-    status: string
+    status: TicketStatus
     ) {
     try {
 
@@ -221,21 +227,15 @@ export default function EmployeeDashboard() {
 // ACTIVE / COMPLETED TICKETS
 // ==================================================
 
-const activeTickets =
-  tickets.filter(
-    ticket =>
-      ticket.status !== "completed" &&
-      ticket.status !== "finished" &&
-      ticket.status !== "cancelled"
-  );
+const activeTickets = tickets.filter(
+  ticket =>
+    ticket.status !== "completed" &&
+    ticket.status !== "cancelled"
+);
 
-const completedTickets =
-  tickets.filter(
-    ticket =>
-      ticket.status === "completed" ||
-      ticket.status === "finished"
-  );
-
+const completedTickets = tickets.filter(
+  ticket => ticket.status === "completed"
+);
 
   // ==================================================
   // STATISTICS
@@ -255,11 +255,8 @@ const completedTickets =
   const totalTickets =
     activeTickets.length;
 
-  const inProgressTickets =
-    activeTickets.filter(
-      ticket =>
-        ticket.status === "started" ||
-        ticket.status === "pågår"
+    const inProgressTickets = activeTickets.filter(
+        ticket => ticket.status === "started"
     ).length;
 
     const newTickets = activeTickets.filter(
@@ -764,7 +761,7 @@ function EmployeeTicketCard({
 
   onUpdateStatus: (
     ticketId: number,
-    status: string
+    status: TicketStatus
   ) => void;
 }) {
   const router = useRouter();
@@ -940,7 +937,7 @@ function EmployeeTicketCard({
         onChange={e =>
             onUpdateStatus(
             ticket.id,
-            e.target.value
+            e.target.value as TicketStatus
             )
         }
         className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
@@ -1037,10 +1034,7 @@ function StatusBadge({
   createdAt: string;
 }) {
 
-  if (
-    status === "started" ||
-    status === "pågår"
-  ) {
+  if (status === "started") {
     return (
       <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
@@ -1048,10 +1042,7 @@ function StatusBadge({
     );
   }
 
-  if (
-    status === "completed" ||
-    status === "finished"
-  ) {
+  if (status === "completed") {
     return (
       <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
