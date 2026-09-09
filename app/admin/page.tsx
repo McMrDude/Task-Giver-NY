@@ -21,8 +21,18 @@ type Ticket = {
   receiver_id: string | null;
   status: string;
   priority: string;
+  created_at: string;
 };
 
+function isNewTicket(createdAt: string) {
+  const createdTime = new Date(createdAt).getTime();
+
+  if (!Number.isFinite(createdTime)) {
+    return false;
+  }
+
+  return Date.now() - createdTime < 24 * 60 * 60 * 1000;
+}
 
 // ====================================================
 // ADMIN DASHBOARD
@@ -141,7 +151,8 @@ export default function AdminDashboard() {
   const openTickets =
     tickets.filter(
       ticket =>
-        ticket.status === "not_started"
+        ticket.status === "not_started" &&
+        isNewTicket(ticket.created_at)
     ).length;
 
   const inProgressTickets =
