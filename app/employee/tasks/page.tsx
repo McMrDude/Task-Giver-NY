@@ -241,6 +241,17 @@ const completedTickets =
   // STATISTICS
   // ==================================================
 
+  function isCreatedToday(createdAt: string) {
+    const created = new Date(createdAt);
+    const now = new Date();
+
+    return (
+        created.getFullYear() === now.getFullYear() &&
+        created.getMonth() === now.getMonth() &&
+        created.getDate() === now.getDate()
+    );
+  }
+
   const totalTickets =
     activeTickets.length;
 
@@ -251,10 +262,10 @@ const completedTickets =
         ticket.status === "pågår"
     ).length;
 
-  const newTickets =
-    activeTickets.filter(
-      ticket =>
-        ticket.status === "not_started"
+    const newTickets = activeTickets.filter(
+        (ticket) =>
+            ticket.status === "not_started" &&
+            isCreatedToday(ticket.created_at)
     ).length;
 
   // ==================================================
@@ -857,6 +868,7 @@ function EmployeeTicketCard({
 
           <StatusBadge
             status={ticket.status}
+            createdAt={ticket.created_at}
           />
 
         </div>
@@ -922,33 +934,29 @@ function EmployeeTicketCard({
     Status
   </p>
 
-  <select
-    onClick={e =>
-      e.stopPropagation()
-    }
-    value={ticket.status}
-    onChange={e =>
-      onUpdateStatus(
-        ticket.id,
-        e.target.value
-      )
-    }
-    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
-  >
+    <select
+        onClick={e => e.stopPropagation()}
+        value={ticket.status}
+        onChange={e =>
+            onUpdateStatus(
+            ticket.id,
+            e.target.value
+            )
+        }
+        className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+        >
+        <option value="not_started">
+            Ikke startet
+        </option>
 
-    <option value="not_started">
-      Ny
-    </option>
+        <option value="started">
+            Pågår
+        </option>
 
-    <option value="started">
-      Pågår
-    </option>
-
-    <option value="completed">
-      Ferdig
-    </option>
-
-  </select>
+        <option value="completed">
+            Ferdig
+        </option>
+    </select>
 
 </div>
 
@@ -1023,9 +1031,12 @@ function getPriorityLabel(
 
 function StatusBadge({
   status,
+  createdAt,
 }: {
   status: string;
+  createdAt: string;
 }) {
+
   if (
     status === "started" ||
     status === "pågår"
@@ -1056,9 +1067,27 @@ function StatusBadge({
     );
   }
 
-  return (
-    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-      Ny
-    </span>
-  );
+  if (status === "not_started") {
+
+    const created =
+      new Date(createdAt);
+
+    const now =
+      new Date();
+
+    const isCreatedToday =
+      created.getFullYear() === now.getFullYear() &&
+      created.getMonth() === now.getMonth() &&
+      created.getDate() === now.getDate();
+
+    return (
+      <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        {isCreatedToday
+          ? "Ny"
+          : "Ikke startet"}
+      </span>
+    );
+  }
+
+  return null;
 }
