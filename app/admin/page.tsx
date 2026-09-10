@@ -24,16 +24,6 @@ type Ticket = {
   created_at: string;
 };
 
-function isNewTicket(createdAt: string) {
-  const createdTime = new Date(createdAt).getTime();
-
-  if (!Number.isFinite(createdTime)) {
-    return false;
-  }
-
-  return Date.now() - createdTime < 24 * 60 * 60 * 1000;
-}
-
 // ====================================================
 // ADMIN DASHBOARD
 // ====================================================
