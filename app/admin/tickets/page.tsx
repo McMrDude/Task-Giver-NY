@@ -1075,7 +1075,14 @@ function TicketRow({
   const [assignmentOpen, setAssignmentOpen] =
     useState(false);
 
-  const assignmentRef =
+    const [assignmentMenuPosition, setAssignmentMenuPosition] =
+    useState<{
+        top: number;
+        left: number;
+        width: number;
+    } | null>(null);
+
+    const assignmentRef =
     useRef<HTMLDivElement>(null);
 
 
@@ -1119,6 +1126,108 @@ function TicketRow({
     };
 
   }, []);
+
+  useEffect(() => {
+
+  if (!assignmentOpen) {
+    return;
+  }
+
+  function handlePositionUpdate() {
+
+    updateAssignmentMenuPosition();
+
+  }
+
+  window.addEventListener(
+    "resize",
+    handlePositionUpdate
+  );
+
+  window.addEventListener(
+    "scroll",
+    handlePositionUpdate,
+    true
+  );
+
+  return () => {
+
+    window.removeEventListener(
+      "resize",
+      handlePositionUpdate
+    );
+
+    window.removeEventListener(
+      "scroll",
+      handlePositionUpdate,
+      true
+    );
+
+  };
+
+}, [assignmentOpen]);
+
+
+  function updateAssignmentMenuPosition() {
+
+  if (!assignmentRef.current) {
+    return;
+  }
+
+  const button =
+    assignmentRef.current.querySelector(
+      "button"
+    );
+
+  if (!button) {
+    return;
+  }
+
+  const rect =
+    button.getBoundingClientRect();
+
+  const menuHeight = 300;
+  const gap = 8;
+
+  const spaceBelow =
+    window.innerHeight - rect.bottom;
+
+  const spaceAbove =
+    rect.top;
+
+  let top;
+
+  if (
+    spaceBelow >= menuHeight ||
+    spaceBelow >= spaceAbove
+  ) {
+
+    // Open downward
+    top = rect.bottom + gap;
+
+  } else {
+
+    // Open upward
+    top = rect.top - menuHeight - gap;
+
+  }
+
+  // Keep the menu inside the viewport
+  top = Math.max(
+    8,
+    Math.min(
+      top,
+      window.innerHeight - 8 - menuHeight
+    )
+  );
+
+  setAssignmentMenuPosition({
+    top,
+    left: rect.left,
+    width: rect.width,
+  });
+
+}
 
 
   // ==================================================
@@ -1234,11 +1343,21 @@ function TicketRow({
             <button
               type="button"
               disabled={assigning}
-              onClick={() =>
-                setAssignmentOpen(
-                  current => !current
-                )
-              }
+              onClick={() => {
+
+                if (assignmentOpen) {
+
+                    setAssignmentOpen(false);
+
+                    return;
+
+                }
+
+                updateAssignmentMenuPosition();
+
+                setAssignmentOpen(true);
+
+              }}
               className={`flex min-w-[230px] items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition ${
                 isUnassigned
                   ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
@@ -1329,9 +1448,17 @@ function TicketRow({
                 DROPDOWN MENU
             ================================================== */}
 
-            {assignmentOpen && (
+            {assignmentOpen && assignmentMenuPosition && (
 
-              <div className="absolute left-0 top-full z-50 mt-2 w-full min-w-[230px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+                <div
+                    style={{
+                    position: "fixed",
+                    top: assignmentMenuPosition.top,
+                    left: assignmentMenuPosition.left,
+                    width: assignmentMenuPosition.width,
+                    }}
+                    className="z-[100] max-h-[300px] overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                >
 
 
                 {/* DROPDOWN HEADER */}
