@@ -66,6 +66,12 @@ export default function AdminTicketsPage() {
   const [tickets, setTickets] =
     useState<Ticket[]>([]);
 
+const [employees, setEmployees] =
+  useState<User[]>([]);
+
+const [assigningTicketId, setAssigningTicketId] =
+  useState<number | null>(null);
+
   const [loading, setLoading] =
     useState(true);
 
@@ -216,6 +222,31 @@ export default function AdminTicketsPage() {
         ticketResult.data || []
       );
 
+      // ----------------------------------------------
+    // LOAD EMPLOYEES
+    // ----------------------------------------------
+
+    const employeeResponse =
+    await fetch("/api/admin/users");
+
+    const employeeResult =
+    await employeeResponse.json();
+
+    if (
+    !employeeResult.success
+    ) {
+    setError(
+        employeeResult.error ||
+        "Kunne ikke hente ansatte."
+    );
+
+    return;
+    }
+
+    setEmployees(
+    employeeResult.data || []
+    );
+
 
     } catch (err) {
 
@@ -233,6 +264,117 @@ export default function AdminTicketsPage() {
 
   }
 
+
+  // ==================================================
+// ASSIGN TICKET
+// ==================================================
+
+async function assignTicket(
+  ticketId: number,
+  receiverId: string | null
+) {
+
+  setAssigningTicketId(ticketId);
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/admin/tasks",
+        {
+          method: "PATCH",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: ticketId,
+            receiver_id: receiverId,
+          }),
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+
+      alert(
+        result.error ||
+        "Kunne ikke tildele saken."
+      );
+
+      return;
+
+    }
+
+
+    // --------------------------------------------
+    // UPDATE TICKET LOCALLY
+    // --------------------------------------------
+
+    const employee =
+      receiverId
+        ? employees.find(
+            employee =>
+              String(employee.id) ===
+              String(receiverId)
+          )
+        : null;
+
+
+    setTickets(currentTickets =>
+      currentTickets.map(ticket => {
+
+        if (
+          ticket.id !== ticketId
+        ) {
+          return ticket;
+        }
+
+
+        return {
+          ...ticket,
+
+          receiver_id:
+            receiverId,
+
+          receiver:
+            employee
+              ? {
+                  id: employee.id,
+                  name: employee.name,
+                  email: employee.email,
+                }
+              : null,
+        };
+
+      })
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "En nettverksfeil oppstod."
+    );
+
+  } finally {
+
+    setAssigningTicketId(null);
+
+  }
+
+}
 
   // ==================================================
   // LOGOUT
@@ -869,10 +1011,15 @@ export default function AdminTicketsPage() {
 
                             <TicketRow
                                 ticket={ticket}
+                                employees={employees}
+                                assigning={
+                                    assigningTicketId === ticket.id
+                                }
+                                onAssign={assignTicket}
                                 onOpen={() =>
-                                router.push(
+                                    router.push(
                                     `/tickets/${ticket.id}`
-                                )
+                                    )
                                 }
                             />
 
@@ -907,9 +1054,18 @@ export default function AdminTicketsPage() {
 
 function TicketRow({
   ticket,
+  employees,
+  assigning,
+  onAssign,
   onOpen,
 }: {
   ticket: Ticket;
+  employees: User[];
+  assigning: boolean;
+  onAssign: (
+    ticketId: number,
+    receiverId: string | null
+  ) => void;
   onOpen: () => void;
 }) {
 
@@ -919,10 +1075,8 @@ function TicketRow({
 
   return (
 
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group block w-full cursor-pointer text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    <div
+        className="group block w-full text-left"
     >
 
       <div className="p-5 sm:p-6">
@@ -1006,12 +1160,120 @@ function TicketRow({
           {/* ASSIGNMENT */}
 
           <div
-            className={`flex items-center gap-3 rounded-lg border px-3.5 py-3 ${
-              isUnassigned
-                ? "border-amber-200 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/20"
-                : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+            className={`relative flex items-center gap-3 rounded-lg border px-3.5 py-3 transition ${
+                isUnassigned
+                ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
+                : "border-slate-200 bg-slate-50 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800"
             }`}
-          >
+            >
+
+            {/* AVATAR / ICON */}
+
+            <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                isUnassigned
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
+                    : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
+                }`}
+            >
+
+                {isUnassigned
+                ? "?"
+                : ticket.receiver?.name
+                    ?.charAt(0)
+                    .toUpperCase()}
+
+            </div>
+
+
+            {/* ASSIGNMENT TEXT */}
+
+            <div className="min-w-0 flex-1">
+
+                <p
+                className={`text-xs font-semibold uppercase tracking-wide ${
+                    isUnassigned
+                    ? "text-amber-700 dark:text-amber-400"
+                    : "text-slate-500 dark:text-slate-400"
+                }`}
+                >
+
+                {isUnassigned
+                    ? "Ikke tildelt"
+                    : "Ansvarlig"}
+
+                </p>
+
+
+                <p
+                className={`truncate text-sm font-semibold ${
+                    isUnassigned
+                    ? "text-amber-900 dark:text-amber-300"
+                    : "text-slate-800 dark:text-slate-200"
+                }`}
+                >
+
+                {assigning
+                    ? "Oppdaterer..."
+                    : isUnassigned
+                    ? "Mangler ansvarlig"
+                    : ticket.receiver?.name}
+
+                </p>
+
+            </div>
+
+
+            {/* EMPLOYEE SELECT */}
+
+            <select
+                value={
+                ticket.receiver_id ?? ""
+                }
+                disabled={assigning}
+                onChange={event => {
+
+                const value =
+                    event.target.value;
+
+                onAssign(
+                    ticket.id,
+                    value || null
+                );
+
+                }}
+                onClick={event =>
+                event.stopPropagation()
+                }
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-wait"
+                aria-label={`Tildel sak #${ticket.id}`}
+            >
+
+                <option value="">
+                Ikke tildelt
+                </option>
+
+                {employees.map(employee => (
+
+                <option
+                    key={employee.id}
+                    value={employee.id}
+                >
+                    {employee.name}
+                </option>
+
+                ))}
+
+            </select>
+
+
+            {/* DROPDOWN INDICATOR */}
+
+            <span className="pointer-events-none shrink-0 text-slate-400 dark:text-slate-500">
+                ▾
+            </span>
+
+            </div>
 
             {/* AVATAR / ICON */}
 
@@ -1133,17 +1395,17 @@ function TicketRow({
 
           {/* OPEN */}
 
-          <span className="shrink-0 font-semibold text-blue-600 transition group-hover:translate-x-0.5 dark:text-blue-400">
-
+        <button
+            type="button"
+            onClick={onOpen}
+            className="shrink-0 cursor-pointer font-semibold text-blue-600 transition hover:translate-x-0.5 dark:text-blue-400"
+          >
             Åpne sak →
-
-          </span>
+        </button>
 
         </div>
 
       </div>
-
-    </button>
 
   );
 
