@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "../../components/ThemeToggle";
 import NotificationBell from "../../components/NotificationBell";
@@ -1006,7 +1006,7 @@ async function assignTicket(
 
                             <div
                             key={ticket.id}
-                            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                            className="relative rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                             >
 
                             <TicketRow
@@ -1072,12 +1072,76 @@ function TicketRow({
   const isUnassigned =
     !ticket.receiver_id;
 
+  const [assignmentOpen, setAssignmentOpen] =
+    useState(false);
+
+  const assignmentRef =
+    useRef<HTMLDivElement>(null);
+
+
+  // ==================================================
+  // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+  // ==================================================
+
+  useEffect(() => {
+
+    function handleClickOutside(
+      event: MouseEvent
+    ) {
+
+      if (
+        assignmentRef.current &&
+        !assignmentRef.current.contains(
+          event.target as Node
+        )
+      ) {
+
+        setAssignmentOpen(false);
+
+      }
+
+    }
+
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+
+    return () => {
+
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+
+    };
+
+  }, []);
+
+
+  // ==================================================
+  // HANDLE ASSIGNMENT
+  // ==================================================
+
+  function handleAssign(
+    receiverId: string | null
+  ) {
+
+    setAssignmentOpen(false);
+
+    onAssign(
+      ticket.id,
+      receiverId
+    );
+
+  }
+
 
   return (
 
-    <div
-        className="group block w-full text-left"
-    >
+    <div className="group block w-full text-left">
 
       <div className="p-5 sm:p-6">
 
@@ -1092,6 +1156,7 @@ function TicketRow({
           {/* LEFT: ID + CATEGORY */}
 
           <div className="flex min-w-0 items-center gap-3">
+
 
             {/* TICKET ID */}
 
@@ -1157,48 +1222,67 @@ function TicketRow({
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
 
-          {/* ASSIGNMENT */}
+          {/* ==================================================
+              ASSIGNMENT DROPDOWN
+          ================================================== */}
 
           <div
-            className={`relative flex items-center gap-3 rounded-lg border px-3.5 py-3 transition ${
+            ref={assignmentRef}
+            className="relative"
+          >
+
+            <button
+              type="button"
+              disabled={assigning}
+              onClick={() =>
+                setAssignmentOpen(
+                  current => !current
+                )
+              }
+              className={`flex min-w-[230px] items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition ${
                 isUnassigned
-                ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
-                : "border-slate-200 bg-slate-50 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800"
-            }`}
+                  ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
+                  : "border-slate-200 bg-slate-50 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800"
+              } ${
+                assigning
+                  ? "cursor-wait opacity-70"
+                  : "cursor-pointer"
+              }`}
             >
 
-            {/* AVATAR / ICON */}
 
-            <div
+              {/* AVATAR */}
+
+              <div
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                isUnassigned
+                  isUnassigned
                     ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
                     : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
                 }`}
-            >
+              >
 
                 {isUnassigned
-                ? "?"
-                : ticket.receiver?.name
-                    ?.charAt(0)
-                    .toUpperCase()}
+                  ? "+"
+                  : ticket.receiver?.name
+                      ?.charAt(0)
+                      .toUpperCase()}
 
-            </div>
+              </div>
 
 
-            {/* ASSIGNMENT TEXT */}
+              {/* ASSIGNMENT TEXT */}
 
-            <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1">
 
                 <p
-                className={`text-xs font-semibold uppercase tracking-wide ${
+                  className={`text-xs font-semibold uppercase tracking-wide ${
                     isUnassigned
-                    ? "text-amber-700 dark:text-amber-400"
-                    : "text-slate-500 dark:text-slate-400"
-                }`}
+                      ? "text-amber-700 dark:text-amber-400"
+                      : "text-slate-500 dark:text-slate-400"
+                  }`}
                 >
 
-                {isUnassigned
+                  {isUnassigned
                     ? "Ikke tildelt"
                     : "Ansvarlig"}
 
@@ -1206,14 +1290,14 @@ function TicketRow({
 
 
                 <p
-                className={`truncate text-sm font-semibold ${
+                  className={`truncate text-sm font-semibold ${
                     isUnassigned
-                    ? "text-amber-900 dark:text-amber-300"
-                    : "text-slate-800 dark:text-slate-200"
-                }`}
+                      ? "text-amber-900 dark:text-amber-300"
+                      : "text-slate-800 dark:text-slate-200"
+                  }`}
                 >
 
-                {assigning
+                  {assigning
                     ? "Oppdaterer..."
                     : isUnassigned
                     ? "Mangler ansvarlig"
@@ -1221,118 +1305,190 @@ function TicketRow({
 
                 </p>
 
-            </div>
+              </div>
 
 
-            {/* EMPLOYEE SELECT */}
+              {/* CHEVRON */}
 
-            <select
-                value={
-                ticket.receiver_id ?? ""
-                }
-                disabled={assigning}
-                onChange={event => {
+              <span
+                className={`shrink-0 text-xs text-slate-400 transition-transform dark:text-slate-500 ${
+                  assignmentOpen
+                    ? "rotate-180"
+                    : ""
+                }`}
+              >
 
-                const value =
-                    event.target.value;
+                ▼
 
-                onAssign(
-                    ticket.id,
-                    value || null
-                );
+              </span>
 
-                }}
-                onClick={event =>
-                event.stopPropagation()
-                }
-                className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-wait"
-                aria-label={`Tildel sak #${ticket.id}`}
-            >
+            </button>
 
-                <option value="">
-                Ikke tildelt
-                </option>
 
-                {employees.map(employee => (
+            {/* ==================================================
+                DROPDOWN MENU
+            ================================================== */}
 
-                <option
-                    key={employee.id}
-                    value={employee.id}
+            {assignmentOpen && (
+
+              <div className="absolute left-0 top-full z-50 mt-2 w-full min-w-[230px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+
+
+                {/* DROPDOWN HEADER */}
+
+                <div className="border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+
+                    Tildel ansvarlig
+
+                  </p>
+
+                </div>
+
+
+                {/* UNASSIGNED */}
+
+                <button
+                  type="button"
+                  disabled={assigning}
+                  onClick={() =>
+                    handleAssign(null)
+                  }
+                  className={`flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                    isUnassigned
+                      ? "bg-amber-50 dark:bg-amber-950/30"
+                      : ""
+                  }`}
                 >
-                    {employee.name}
-                </option>
 
-                ))}
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-950 dark:text-amber-400">
 
-            </select>
+                    +
 
-
-            {/* DROPDOWN INDICATOR */}
-
-            <span className="pointer-events-none shrink-0 text-slate-400 dark:text-slate-500">
-                ▾
-            </span>
-
-            </div>
-
-            {/* AVATAR / ICON */}
-
-            <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                isUnassigned
-                  ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
-                  : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
-              }`}
-            >
-
-              {isUnassigned
-                ? "?"
-                : ticket.receiver?.name
-                    ?.charAt(0)
-                    .toUpperCase()}
-
-            </div>
+                  </div>
 
 
-            {/* ASSIGNMENT TEXT */}
+                  <div className="min-w-0 flex-1">
 
-            <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
 
-              <p
-                className={`text-xs font-semibold uppercase tracking-wide ${
-                  isUnassigned
-                    ? "text-amber-700 dark:text-amber-400"
-                    : "text-slate-500 dark:text-slate-400"
-                }`}
-              >
+                      Ikke tildelt
 
-                {isUnassigned
-                  ? "Ikke tildelt"
-                  : "Ansvarlig"}
+                    </p>
 
-              </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+
+                      Ingen ansvarlig valgt
+
+                    </p>
+
+                  </div>
 
 
-              <p
-                className={`truncate text-sm font-semibold ${
-                  isUnassigned
-                    ? "text-amber-900 dark:text-amber-300"
-                    : "text-slate-800 dark:text-slate-200"
-                }`}
-              >
+                  {isUnassigned && (
 
-                {isUnassigned
-                  ? "Mangler ansvarlig"
-                  : ticket.receiver?.name}
+                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
 
-              </p>
+                      ✓
 
-            </div>
+                    </span>
+
+                  )}
+
+                </button>
+
+
+                {/* EMPLOYEES */}
+
+                {employees.map(employee => {
+
+                  const isSelected =
+                    String(
+                      employee.id
+                    ) ===
+                    String(
+                      ticket.receiver_id
+                    );
+
+
+                  return (
+
+                    <button
+                      key={employee.id}
+                      type="button"
+                      disabled={assigning}
+                      onClick={() =>
+                        handleAssign(
+                          employee.id
+                        )
+                      }
+                      className={`flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                        isSelected
+                          ? "bg-blue-50 dark:bg-blue-950/30"
+                          : ""
+                      }`}
+                    >
+
+
+                      {/* EMPLOYEE AVATAR */}
+
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+
+                        {employee.name
+                          ?.charAt(0)
+                          .toUpperCase()}
+
+                      </div>
+
+
+                      {/* EMPLOYEE NAME */}
+
+                      <div className="min-w-0 flex-1">
+
+                        <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+
+                          {employee.name}
+
+                        </p>
+
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+
+                          {employee.email}
+
+                        </p>
+
+                      </div>
+
+
+                      {/* CHECKMARK */}
+
+                      {isSelected && (
+
+                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+
+                          ✓
+
+                        </span>
+
+                      )}
+
+                    </button>
+
+                  );
+
+                })}
+
+              </div>
+
+            )}
 
           </div>
 
 
-          {/* STATUS */}
+          {/* ==================================================
+              STATUS
+          ================================================== */}
 
           <div className="flex items-center gap-2">
 
@@ -1356,6 +1512,7 @@ function TicketRow({
         ================================================== */}
 
         <div className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+
 
           <div className="flex flex-wrap gap-x-4 gap-y-1">
 
@@ -1395,17 +1552,22 @@ function TicketRow({
 
           {/* OPEN */}
 
-        <button
+          <button
             type="button"
             onClick={onOpen}
             className="shrink-0 cursor-pointer font-semibold text-blue-600 transition hover:translate-x-0.5 dark:text-blue-400"
           >
+
             Åpne sak →
-        </button>
+
+          </button>
 
         </div>
 
+
       </div>
+
+    </div>
 
   );
 
