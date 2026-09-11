@@ -224,9 +224,12 @@ const handleSubmit = async (
     // ----------------------------------------------
     // TASK DATA
     // ----------------------------------------------
+    const finalTitle =
+      title.trim() || selectedSubcategory;
+
     formData.append(
       "title",
-      title
+      finalTitle
     );
 
     formData.append(
@@ -926,7 +929,6 @@ const handleSubmit = async (
                           onChange={(e) =>
                             setTitle(e.target.value)
                           }
-                          required
                           maxLength={100}
                           placeholder="F.eks. PC-en starter ikke etter Windows-oppdatering"
                           className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
@@ -935,7 +937,7 @@ const handleSubmit = async (
                         <div className="mt-2 flex items-center justify-between gap-4">
 
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Skriv kort hva saken gjelder. Unngå å bruke bare kategorien som tittel.
+                            Valgfritt. Hvis du ikke skriver en tittel, brukes problemtypen automatisk.
                           </p>
 
                           <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">

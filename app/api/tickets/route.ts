@@ -165,6 +165,10 @@ export async function POST(request: Request) {
     const formData =
       await request.formData();
 
+    const title =
+      String(
+        formData.get("title") || ""
+      ).trim();
 
     const content =
       String(
@@ -201,6 +205,7 @@ export async function POST(request: Request) {
     // ====================================================
 
     if (
+      !title ||
       !content ||
       !category ||
       !subcategory ||
@@ -337,6 +342,7 @@ export async function POST(request: Request) {
           sender_id: payload.id,
           receiver_id: null,
 
+          title: title || null,
           content,
           category,
           subcategory,
