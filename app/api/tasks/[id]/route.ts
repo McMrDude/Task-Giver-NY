@@ -178,6 +178,7 @@ export async function GET(
         id,
         sender_id,
         receiver_id,
+        title,
         content,
         category,
         subcategory,
