@@ -118,6 +118,7 @@ export default function TicketingSystem() {
   const [showTicketForm, setShowTicketForm] =
     useState(false);
 
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [priority, setPriority] = useState("lav");
   const [dueDate, setDueDate] = useState("");
@@ -187,6 +188,7 @@ export default function TicketingSystem() {
     setSelectedSubcategory("");
     setShowTicketForm(false);
 
+    setTitle("");
     setContent("");
     setPriority("lav");
     setDueDate("");
@@ -222,6 +224,10 @@ const handleSubmit = async (
     // ----------------------------------------------
     // TASK DATA
     // ----------------------------------------------
+    formData.append(
+      "title",
+      title
+    );
 
     formData.append(
       "content",
@@ -856,14 +862,12 @@ const handleSubmit = async (
                         </p>
 
                         <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                          Beskriv problemet
+                          Opprett støttesak
                         </h2>
 
                         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                          Jo mer informasjon
-                          du gir, desto lettere
-                          er det for oss å
-                          hjelpe deg.
+                          Gi saken en kort tittel og beskriv problemet så detaljert som mulig.
+                          Jo mer informasjon du gir, desto lettere er det for oss å hjelpe deg.
                         </p>
 
                       </div>
@@ -908,6 +912,41 @@ const handleSubmit = async (
                       </div>
 
 
+                      {/* TITLE */}
+
+                      <div className="mb-6">
+
+                        <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
+                          Tittel
+                        </label>
+
+                        <input
+                          type="text"
+                          value={title}
+                          onChange={(e) =>
+                            setTitle(e.target.value)
+                          }
+                          required
+                          maxLength={100}
+                          placeholder="F.eks. PC-en starter ikke etter Windows-oppdatering"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
+                        />
+
+                        <div className="mt-2 flex items-center justify-between gap-4">
+
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Skriv kort hva saken gjelder. Unngå å bruke bare kategorien som tittel.
+                          </p>
+
+                          <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">
+                            {title.length}/100
+                          </span>
+
+                        </div>
+
+                      </div>
+
+
                       {/* DESCRIPTION */}
 
                       <div className="mb-6">
@@ -916,8 +955,13 @@ const handleSubmit = async (
                           Beskrivelse
                         </label>
 
+                        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+                          Forklar problemet så detaljert som mulig. Fortell hva som har skjedd,
+                          hva du har prøvd, og eventuelle feilmeldinger du har fått.
+                        </p>
+
                         <textarea
-                          rows={7}
+                          rows={9}
                           value={content}
                           onChange={(e) =>
                             setContent(
