@@ -1226,7 +1226,7 @@ async function sendMessage() {
 
             <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+                <h1 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center justify-center gap-2">
                   {ticket.title}
                 </h1>
               </div>
