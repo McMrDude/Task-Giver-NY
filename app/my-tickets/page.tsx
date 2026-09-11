@@ -17,6 +17,7 @@ type Ticket = {
   sender_id: string;
   receiver_id: string | null;
 
+  title: string | null;
   content: string;
   category: string;
   subcategory: string;
@@ -668,7 +669,7 @@ function TicketCard({
 
           <p className="text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg sm:leading-7">
 
-            {ticket.content}
+            {ticket.title || ticket.subcategory}
 
           </p>
 
