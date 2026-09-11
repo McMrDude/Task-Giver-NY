@@ -669,7 +669,7 @@ function TicketCard({
 
           <p className="text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg sm:leading-7">
 
-            {ticket.title || ticket.subcategory}
+            {ticket.title}
 
           </p>
 
