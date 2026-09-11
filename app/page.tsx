@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ThemeToggle from "./components/ThemeToggle";
 import NotificationBell from "./components/NotificationBell";
+
+const router = useRouter();
 
 type Category = {
   id: string;
@@ -400,8 +403,8 @@ const handleSubmit = async (
 
               <button
                 onClick={() =>
-                  (window.location.href =
-                    "/my-tickets")
+                  (router.push(
+                    "/my-tickets"))
                 }
                 className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
               >
@@ -410,8 +413,7 @@ const handleSubmit = async (
 
               <button
                 onClick={() =>
-                  (window.location.href =
-                    "/help")
+                  (router.push("/help"))
                 }
                 className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
               >
@@ -474,7 +476,7 @@ const handleSubmit = async (
 
             <button
               onClick={() => {
-                window.location.href = "/my-tickets";
+                router.push("/my-tickets");
               }}
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
@@ -487,7 +489,7 @@ const handleSubmit = async (
 
             <button
               onClick={() => {
-                window.location.href = "/help";
+                router.push("/help");
               }}
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
@@ -545,7 +547,7 @@ const handleSubmit = async (
                       method: "POST",
                     });
 
-                    window.location.href = "/login";
+                    router.push("/login");
 
                   }}
                   className="mt-3 w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -559,7 +561,7 @@ const handleSubmit = async (
 
               <button
                 onClick={() => {
-                  window.location.href = "/login";
+                  router.push("/login");
                 }}
                 className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
