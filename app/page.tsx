@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import ThemeToggle from "./components/ThemeToggle";
 import NotificationBell from "./components/NotificationBell";
 
-const router = useRouter();
-
 type Category = {
   id: string;
   name: string;
@@ -104,6 +102,7 @@ const categories: Category[] = [
 ];
 
 export default function TicketingSystem() {
+  const router = useRouter();
   const [user, setUser] = useState<{
     name: string;
     email: string;
