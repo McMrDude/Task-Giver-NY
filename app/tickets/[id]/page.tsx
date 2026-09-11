@@ -1242,64 +1242,61 @@ async function sendMessage() {
               </div>
 
               {ticket.attachments.length > 0 && (
-  <div className="mt-6 border-t border-slate-800 pt-5">
-    <div className="mb-4 flex items-center justify-center gap-2">
-      <span className="text-sm">📎</span>
+                <div className="mt-6 border-t border-slate-800 px-5 pt-5">
 
-      <h3 className="text-sm font-semibold text-slate-200">
-        Vedlegg
-      </h3>
+                  <div className="mb-4 flex items-center justify-center gap-2">
+                    <span className="text-sm">📎</span>
 
-      <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">
-        {ticket.attachments.length}
-      </span>
-    </div>
+                    <h3 className="text-sm font-semibold text-slate-200">
+                      Vedlegg
+                    </h3>
 
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {ticket.attachments.map((attachment) => (
-        <a
-          key={attachment.id}
-          href={attachment.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
-        >
-          <button
-            key={attachment.id}
-            rel="noopener noreferrer"
-            type="button"
-            onClick={() => {
-              // Open image / lightbox here later
-            }}
-            className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-slate-700 bg-slate-950 transition hover:border-blue-500 hover:shadow-lg"
-          >
-            <img
-              src={attachment.url}
-              alt={attachment.file_name}
-              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-            />
+                    <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">
+                      {ticket.attachments.length}
+                    </span>
+                  </div>
 
-            {/* Hover filename */}
-            <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-left transition-transform duration-200 group-hover:translate-y-0">
-              <p className="truncate text-xs font-medium text-white">
-                {attachment.file_name}
-              </p>
-            </div>
-          </button>
-        </a>
-      ))}
-    </div>
-  </div>
-)}
+                  <div className="flex flex-wrap justify-center gap-3 pb-5">
+
+                    {ticket.attachments.map((attachment) => (
+
+                      <a
+                        key={attachment.id}
+                        href={attachment.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-xl border border-slate-700 bg-slate-950 transition hover:border-blue-500 hover:shadow-lg"
+                      >
+
+                        <img
+                          src={attachment.url}
+                          alt={attachment.file_name}
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        />
+
+                        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-left transition-transform duration-200 group-hover:translate-y-0">
+
+                          <p className="truncate text-xs font-medium text-white">
+                            {attachment.file_name}
+                          </p>
+
+                        </div>
+
+                      </a>
+
+                    ))}
+
+                  </div>
+
+                </div>
+              )}
 
               <div className="p-5">
-
-                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-200">
-
-                  {ticket.content}
-
-                </p>
-
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-5 dark:border-slate-700 dark:bg-slate-950/60">
+                  <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-200">
+                    {ticket.content}
+                  </p>
+                </div>
               </div>
 
             </section>
