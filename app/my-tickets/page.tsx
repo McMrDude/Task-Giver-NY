@@ -576,7 +576,7 @@ export default function MyTicketsPage() {
                               <button
                                 type="button"
                                 onClick={() => navigateMobile("/")}
-                                className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-blue-50 px-4 text-left text-sm font-semibold text-blue-700 transition active:scale-[0.99] dark:bg-blue-950/40 dark:text-blue-300"
+                                className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
                               >
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                   <svg
@@ -600,7 +600,7 @@ export default function MyTicketsPage() {
                                 </div>
           
                                 <svg
-                                  className="h-4 w-4"
+                                  className="h-4 w-4 text-slate-400"
                                   viewBox="0 0 24 24"
                                   fill="none"
                                   stroke="currentColor"
@@ -614,7 +614,7 @@ export default function MyTicketsPage() {
                               <button
                                 type="button"
                                 onClick={() => navigateMobile("/my-tickets")}
-                                className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
+                                className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-blue-50 px-4 text-left text-sm font-semibold text-blue-700 transition active:scale-[0.99] dark:bg-blue-950/40 dark:text-blue-300"
                               >
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/60">
                                   <svg
@@ -639,7 +639,7 @@ export default function MyTicketsPage() {
                                 </div>
           
                                 <svg
-                                  className="h-4 w-4 text-slate-400"
+                                  className="h-4 w-4"
                                   viewBox="0 0 24 24"
                                   fill="none"
                                   stroke="currentColor"
