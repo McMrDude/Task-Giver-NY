@@ -598,7 +598,7 @@ const handleSubmit = async (
 
                     <button
                       type="button"
-                      onClick={() => navigateMobile("/")}
+                      onClick={() => navigateMobile("/my-tickets")}
                       className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
                     >
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -991,7 +991,7 @@ const handleSubmit = async (
 
           {/* CONTENT */}
 
-          <div className="mx-auto max-w-7xl px-4 sm:px-5 py-8 lg:px-8 lg:py-10">
+          <div className="mx-auto max-w-7xl px-4 sm:px-5 py-6 sm:py-8 lg:px-8 lg:py-10">
 
 
             {/* HERO */}
