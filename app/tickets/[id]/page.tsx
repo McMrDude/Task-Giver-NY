@@ -962,22 +962,6 @@ async function sendMessage() {
 
             </button>
 
-
-            {/* HELP */}
-
-            <button
-              onClick={() =>
-                router.push("/help")
-              }
-              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-
-              <span>❓</span>
-
-              Hjelp
-
-            </button>
-
           </nav>
 
 
@@ -1119,19 +1103,6 @@ async function sendMessage() {
                     : "Mine saker"}
 
                 </button>
-
-
-                <button
-                  onClick={() =>
-                    router.push("/help")
-                  }
-                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-
-                  ❓ Hjelp
-
-                </button>
-
 
                 <ThemeToggle />
 
