@@ -71,6 +71,14 @@ export async function GET() {
     // LOAD NOTIFICATIONS
     // ------------------------------------------------
 
+    const NOTIFICATION_RETENTION_DAYS = 3;
+
+    const expirationDate = new Date();
+
+    expirationDate.setDate(
+      expirationDate.getDate() - NOTIFICATION_RETENTION_DAYS
+    );
+
     const {
       data,
       error,
@@ -78,6 +86,7 @@ export async function GET() {
       .from("notifications")
       .select("*")
       .eq("user_id", userId)
+      .gte("created_at", expirationDate.toISOString())
       .order("created_at", {
         ascending: false,
       });
