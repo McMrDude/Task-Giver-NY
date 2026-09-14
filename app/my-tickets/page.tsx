@@ -45,6 +45,11 @@ export default function MyTicketsPage() {
   const [error, setError] =
     useState("");
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   // ------------------------------------------------
   // LOAD
@@ -160,16 +165,25 @@ export default function MyTicketsPage() {
   // LOGOUT
   // ------------------------------------------------
 
+  function navigateMobile(path: string) {
+    setMobileMenuOpen(false);
+    router.push(path);
+  }
+
   async function logout() {
+    if (loggingOut) return;
 
-    await fetch(
-      "/api/auth/logout",
-      {
+    setLoggingOut(true);
+
+    try {
+      await fetch("/api/auth/logout", {
         method: "POST",
-      }
-    );
-
-    router.push("/login");
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      window.location.href = "/login";
+    }
   }
 
 
