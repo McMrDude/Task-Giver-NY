@@ -56,6 +56,47 @@ export default function MyTicketsPage() {
   // ------------------------------------------------
 
   useEffect(() => {
+    let mounted = true;
+
+    async function loadUser() {
+      try {
+        const response = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          if (mounted) {
+            setUser(null);
+          }
+          return;
+        }
+
+        const result = await response.json();
+
+        if (mounted) {
+          setUser(result.success ? result.user : null);
+        }
+      } catch (error) {
+        console.error("Failed to load user:", error);
+
+        if (mounted) {
+          setUser(null);
+        }
+      } finally {
+        if (mounted) {
+          setAuthLoading(false);
+        }
+      }
+    }
+
+    loadUser();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     loadPage();
   }, []);
 
