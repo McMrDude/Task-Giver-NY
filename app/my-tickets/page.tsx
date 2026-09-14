@@ -353,24 +353,424 @@ export default function MyTicketsPage() {
         <section className="min-w-0 flex-1 lg:pl-64">
 
 
-          {/* MOBILE HEADER */}
-
-          <header className="border-b border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:hidden">
-
-            <div className="flex items-center justify-between">
-
-              <button
-                onClick={() => router.push("/")}
-                className="cursor-pointer text-sm font-medium text-blue-600"
-              >
-                ← Oversikt
-              </button>
-
-              <ThemeToggle />
-
-            </div>
-
-          </header>
+          {/* =========================
+                    MOBILE HEADER
+                ========================= */}
+                <header className="sticky top-0 z-50 lg:hidden">
+                  <div className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
+          
+                    <div className="flex h-16 items-center justify-between px-4 sm:px-5">
+          
+                      {/* Logo / Brand */}
+                      <button
+                        type="button"
+                        onClick={() => navigateMobile("/")}
+                        className="flex min-w-0 items-center gap-3 rounded-xl py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        aria-label="Gå til oversikt"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white shadow-sm">
+                          IT
+                        </div>
+          
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                            IT Support
+                          </p>
+          
+                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                            Støttesystem
+                          </p>
+                        </div>
+                      </button>
+          
+          
+                      {/* Right side controls */}
+                      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          
+                        {/* Notifications - only when logged in */}
+                        {!authLoading && user && (
+                          <div className="flex h-10 w-10 items-center justify-center">
+                            <NotificationBell />
+                          </div>
+                        )}
+          
+          
+                        {/* Login / Logout */}
+                        {!authLoading && (
+                          <>
+                            {user ? (
+                              <button
+                                type="button"
+                                onClick={logout}
+                                disabled={loggingOut}
+                                aria-label="Logg ut"
+                                title="Logg ut"
+                                className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                              >
+                                <svg
+                                  className="h-4 w-4 shrink-0"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M10 17l5-5-5-5" />
+                                  <path d="M15 12H3" />
+                                  <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                                </svg>
+          
+                                <span className="hidden sm:inline">
+                                  {loggingOut ? "Logger ut..." : "Logg ut"}
+                                </span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => navigateMobile("/login")}
+                                className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
+                              >
+                                <svg
+                                  className="h-4 w-4 shrink-0"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                  <path d="M10 17l5-5-5-5" />
+                                  <path d="M15 12H3" />
+                                </svg>
+          
+                                <span>Logg inn</span>
+                              </button>
+                            )}
+                          </>
+                        )}
+          
+          
+                        {/* Menu button */}
+                        <button
+                          type="button"
+                          onClick={() => setMobileMenuOpen((open) => !open)}
+                          aria-label={mobileMenuOpen ? "Lukk meny" : "Åpne meny"}
+                          aria-expanded={mobileMenuOpen}
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.97] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                          {mobileMenuOpen ? (
+                            <svg
+                              className="h-5 w-5"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            >
+                              <path d="M6 6l12 12" />
+                              <path d="M18 6L6 18" />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="h-5 w-5"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            >
+                              <path d="M4 6h16" />
+                              <path d="M4 12h16" />
+                              <path d="M4 18h16" />
+                            </svg>
+                          )}
+                        </button>
+          
+                      </div>
+                    </div>
+                  </div>
+          
+          
+                  {/* Mobile navigation overlay + menu */}
+                  {mobileMenuOpen && (
+                    <>
+                      {/* Background overlay */}
+                      <button
+                        type="button"
+                        aria-label="Lukk meny"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px]"
+                      />
+          
+                      {/* Menu */}
+                      <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
+          
+                        <div className="mx-auto w-full max-w-2xl px-4 py-5 sm:px-5">
+          
+                          {/* Navigation */}
+                          <div>
+                            <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                              Navigasjon
+                            </p>
+          
+                            <nav className="space-y-1.5">
+                              <button
+                                type="button"
+                                onClick={() => navigateMobile("/")}
+                                className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-blue-50 px-4 text-left text-sm font-semibold text-blue-700 transition active:scale-[0.99] dark:bg-blue-950/40 dark:text-blue-300"
+                              >
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/60">
+                                  <svg
+                                    className="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                  >
+                                    <path d="M3 10.5L12 3l9 7.5" />
+                                    <path d="M5 9.5V21h14V9.5" />
+                                    <path d="M9 21v-6h6v6" />
+                                  </svg>
+                                </div>
+          
+                                <div className="min-w-0 flex-1">
+                                  <p>Oversikt</p>
+                                  <p className="text-xs font-normal text-blue-600/70 dark:text-blue-300/70">
+                                    Startside
+                                  </p>
+                                </div>
+          
+                                <svg
+                                  className="h-4 w-4"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path d="M9 18l6-6-6-6" />
+                                </svg>
+                              </button>
+          
+          
+                              <button
+                                type="button"
+                                onClick={() => navigateMobile("/my-tickets")}
+                                className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
+                              >
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                  <svg
+                                    className="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                  >
+                                    <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                                    <path d="M8 8h8" />
+                                    <path d="M8 12h8" />
+                                    <path d="M8 16h5" />
+                                  </svg>
+                                </div>
+          
+                                <div className="min-w-0 flex-1">
+                                  <p>Mine saker</p>
+                                  <p className="text-xs font-normal text-slate-400 dark:text-slate-500">
+                                    Se dine saker
+                                  </p>
+                                </div>
+          
+                                <svg
+                                  className="h-4 w-4 text-slate-400"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path d="M9 18l6-6-6-6" />
+                                </svg>
+                              </button>
+          
+          
+                              <button
+                                type="button"
+                                onClick={() => navigateMobile("/help")}
+                                className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
+                              >
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                  <svg
+                                    className="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                  >
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-.9.8-1.8 1.2-1.8 2.3" />
+                                    <path d="M12 16h.01" />
+                                  </svg>
+                                </div>
+          
+                                <div className="min-w-0 flex-1">
+                                  <p>Hjelp</p>
+                                  <p className="text-xs font-normal text-slate-400 dark:text-slate-500">
+                                    Få hjelp med IT
+                                  </p>
+                                </div>
+          
+                                <svg
+                                  className="h-4 w-4 text-slate-400"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path d="M9 18l6-6-6-6" />
+                                </svg>
+                              </button>
+                            </nav>
+                          </div>
+          
+          
+                          {/* Divider */}
+                          <div className="my-5 border-t border-slate-200 dark:border-slate-800" />
+          
+          
+                          {/* Account */}
+                          <div>
+                            <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                              Konto
+                            </p>
+          
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
+          
+                              {authLoading ? (
+                                <div className="flex items-center gap-3">
+                                  <div className="h-11 w-11 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+          
+                                  <div className="flex-1 space-y-2">
+                                    <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                                    <div className="h-3 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                                  </div>
+                                </div>
+                              ) : user ? (
+                                <>
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-sm">
+                                      {user.name?.charAt(0)?.toUpperCase() || "U"}
+                                    </div>
+          
+                                    <div className="min-w-0 flex-1">
+                                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                                        {user.name}
+                                      </p>
+          
+                                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                                        {user.email}
+                                      </p>
+                                    </div>
+                                  </div>
+          
+                                  <button
+                                    type="button"
+                                    onClick={logout}
+                                    disabled={loggingOut}
+                                    className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+                                  >
+                                    <svg
+                                      className="h-4 w-4"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <path d="M10 17l5-5-5-5" />
+                                      <path d="M15 12H3" />
+                                      <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                                    </svg>
+          
+                                    {loggingOut ? "Logger ut..." : "Logg ut"}
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                      <svg
+                                        className="h-5 w-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                      >
+                                        <circle cx="12" cy="8" r="3.5" />
+                                        <path d="M5 20c.8-3.3 3.2-5 7-5s6.2 1.7 7 5" />
+                                      </svg>
+                                    </div>
+          
+                                    <div>
+                                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                        Ikke innlogget
+                                      </p>
+          
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Logg inn for å få tilgang til kontoen din
+                                      </p>
+                                    </div>
+                                  </div>
+          
+                                  <button
+                                    type="button"
+                                    onClick={() => navigateMobile("/login")}
+                                    className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.99]"
+                                  >
+                                    <svg
+                                      className="h-4 w-4"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                      <path d="M10 17l5-5-5-5" />
+                                      <path d="M15 12H3" />
+                                    </svg>
+          
+                                    Logg inn
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+          
+          
+                          {/* Theme */}
+                          <div className="mt-4 flex min-h-12 items-center justify-between rounded-xl border border-slate-200 px-4 dark:border-slate-800">
+                            <div>
+                              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                                Utseende
+                              </p>
+          
+                              <p className="text-xs text-slate-400 dark:text-slate-500">
+                                Bytt mellom lys og mørk modus
+                              </p>
+                            </div>
+          
+                            <ThemeToggle />
+                          </div>
+          
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </header>
 
 
           {/* DESKTOP HEADER */}
