@@ -446,8 +446,19 @@ export default function NotificationBell() {
 
       {open && (
 
-        <div className="absolute right-0 z-50 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
+        <div
+          className="
+            fixed left-4 right-4 top-[4.5rem] z-[60]
+            w-auto
+            overflow-hidden rounded-xl
+            border border-slate-200
+            bg-white shadow-xl
+            dark:border-slate-700 dark:bg-slate-900
 
+            sm:absolute sm:left-auto sm:right-0 sm:top-auto
+            sm:mt-2 sm:w-[360px]
+          "
+        >
 
           {/* ==================================================
               HEADER
@@ -595,7 +606,7 @@ export default function NotificationBell() {
                       <div className="min-w-0 flex-1">
 
                         <p
-                          className={`text-sm ${
+                          className={`min-w-0 break-words text-sm ${
                             notification.is_read
                               ? "font-medium text-slate-700 dark:text-slate-300"
                               : "font-semibold text-slate-900 dark:text-white"
@@ -607,7 +618,7 @@ export default function NotificationBell() {
                         </p>
 
 
-                        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                        <p className="mt-1 break-words text-xs text-slate-400 dark:text-slate-500">
 
                           {formatNotificationTime(
                             notification.created_at

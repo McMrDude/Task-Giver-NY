@@ -543,11 +543,11 @@ const handleSubmit = async (
               type="button"
               aria-label="Lukk meny"
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px]"
+              className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[2px]"
             />
 
             {/* Menu */}
-            <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
+            <div className="fixed inset-x-0 top-40 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
 
               <div className="mx-auto w-full max-w-2xl px-4 py-5 sm:px-5">
 
