@@ -899,7 +899,7 @@ async function sendMessage() {
 
   return (
 
-    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <main className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
       <div className="flex min-h-screen">
 
@@ -1035,78 +1035,218 @@ async function sendMessage() {
             MOBILE
         ================================================== */}
 
-        <div className="w-full lg:hidden">
+        <div className="lg:hidden">
 
-          <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+          <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
 
-            <div className="flex items-center justify-between px-5 py-4">
+            {/* TOP BAR */}
+            <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-5">
 
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-
-                  IT
-
-                </div>
-
-
-                <div>
-
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">
-
-                    IT Support
-
-                  </p>
-
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-
-                    Støttesystem
-
-                  </p>
-
-                </div>
-
-              </div>
-
-
+              {/* BRAND */}
               <button
-                onClick={() =>
-                  setMobileMenuOpen(
-                    !mobileMenuOpen
-                  )
-                }
-                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 dark:border-slate-700 dark:text-slate-300"
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  goBack();
+                }}
+                className="flex min-w-0 items-center gap-3 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-blue-500/30"
               >
 
-                ☰
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white shadow-sm">
+                  IT
+                </div>
+
+                <div className="min-w-0">
+
+                  <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                    IT Support
+                  </p>
+
+                  <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                    Sak #{ticket.id}
+                  </p>
+
+                </div>
 
               </button>
+
+
+              {/* RIGHT SIDE */}
+              <div className="flex shrink-0 items-center gap-2">
+
+                {/* BACK BUTTON */}
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="hidden h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 sm:flex"
+                >
+
+                  <span className="text-base">
+                    ←
+                  </span>
+
+                  Tilbake
+
+                </button>
+
+
+                {/* MENU */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMobileMenuOpen(
+                      current => !current
+                    )
+                  }
+                  aria-label={
+                    mobileMenuOpen
+                      ? "Lukk meny"
+                      : "Åpne meny"
+                  }
+                  aria-expanded={mobileMenuOpen}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.97] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+
+                  {mobileMenuOpen ? (
+
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    >
+
+                      <path d="M6 6l12 12" />
+                      <path d="M18 6L6 18" />
+
+                    </svg>
+
+                  ) : (
+
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    >
+
+                      <path d="M4 6h16" />
+                      <path d="M4 12h16" />
+                      <path d="M4 18h16" />
+
+                    </svg>
+
+                  )}
+
+                </button>
+
+              </div>
 
             </div>
 
 
+            {/* MOBILE MENU */}
             {mobileMenuOpen && (
 
-              <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+              <>
 
-
+                {/* BACKDROP */}
                 <button
-                  onClick={goBack}
-                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
+                  type="button"
+                  aria-label="Lukk meny"
+                  onClick={() =>
+                    setMobileMenuOpen(false)
+                  }
+                  className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px]"
+                />
 
-                  ←{" "}
 
-                  {user?.role === "admin"
-                    ? "Tilbake til admin"
-                    : "Mine saker"}
+                {/* MENU PANEL */}
+                <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
 
-                </button>
+                  <div className="px-4 py-4 sm:px-5">
 
-                <ThemeToggle />
+                    {/* NAVIGATION */}
 
-              </div>
+                    <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      Navigasjon
+                    </p>
+
+
+                    <div className="space-y-1.5">
+
+                      <button
+                        type="button"
+                        onClick={goBack}
+                        className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-blue-50 px-4 text-left text-sm font-semibold text-blue-700 transition active:scale-[0.99] dark:bg-blue-950/40 dark:text-blue-300"
+                      >
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/60">
+
+                          <svg
+                            className="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                          >
+
+                            <path d="M15 18l-6-6 6-6" />
+
+                          </svg>
+
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+
+                          <p>
+                            {user?.role === "admin"
+                              ? "Tilbake til admin"
+                              : user?.role === "employee"
+                              ? "Tilbake til mine saker"
+                              : "Mine saker"}
+                          </p>
+
+                          <p className="text-xs font-normal text-blue-600/70 dark:text-blue-300/70">
+                            Forlat denne saken
+                          </p>
+
+                        </div>
+
+                      </button>
+
+
+                      {/* THEME */}
+
+                      <div className="mt-4 flex min-h-12 items-center justify-between rounded-xl border border-slate-200 px-4 dark:border-slate-800">
+
+                        <div>
+
+                          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                            Utseende
+                          </p>
+
+                          <p className="text-xs text-slate-400 dark:text-slate-500">
+                            Lys eller mørk modus
+                          </p>
+
+                        </div>
+
+                        <ThemeToggle />
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </>
 
             )}
 
@@ -1124,62 +1264,62 @@ async function sendMessage() {
 
           {/* HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-5 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-900 sm:px-5 sm:py-6 lg:px-8">
+
+            <div className="mx-auto max-w-5xl">
+
+              {/* BACK LINK - desktop */}
+              <button
+                type="button"
+                onClick={goBack}
+                className="mb-4 hidden items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
+              >
+                ←
+
+                {user?.role === "admin"
+                  ? "Tilbake til admin"
+                  : "Tilbake til mine saker"}
+              </button>
 
 
-            <button
-              onClick={goBack}
-              className="mb-4 cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
-            >
-
-              ←{" "}
-
-              {user?.role === "admin"
-                ? "Tilbake til admin"
-                : "Tilbake til mine saker"}
-
-            </button>
+              {/* CONTEXT */}
+              <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                {user?.role === "admin"
+                  ? "Administrasjon"
+                  : user?.role === "employee"
+                  ? "Ansattportal"
+                  : "Brukerportal"}
+              </p>
 
 
-            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              {/* TITLE + STATUS */}
+              <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-              {user?.role === "admin"
-                ? "Administrasjon"
-                : user?.role === "employee"
-                ? "Ansattportal"
-                : "Brukerportal"}
+                <div className="min-w-0">
 
-            </p>
+                  <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+                    Sak #{ticket.id}
+                  </h1>
 
+                  <p className="mt-1.5 break-words text-sm leading-5 text-slate-500 dark:text-slate-400">
+                    {ticket.category}
 
-            <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    {ticket.subcategory &&
+                      ` · ${ticket.subcategory}`}
+                  </p>
 
-              <div>
-
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-
-                  Sak #{ticket.id}
-
-                </h1>
+                </div>
 
 
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-
-                  {ticket.category}
-
-                  {ticket.subcategory &&
-                    ` · ${ticket.subcategory}`}
-
-                </p>
+                <div className="shrink-0 self-start sm:self-auto">
+                  <StatusBadge
+                    status={ticket.status}
+                    createdAt={ticket.created_at}
+                    receiverId={ticket.receiver_id}
+                  />
+                </div>
 
               </div>
-
-
-              <StatusBadge
-                status={ticket.status}
-                createdAt={ticket.created_at}
-                receiverId={ticket.receiver_id}
-              />
 
             </div>
 
@@ -1188,36 +1328,95 @@ async function sendMessage() {
 
           {/* CONTENT */}
 
-          <div className="mx-auto max-w-5xl space-y-6 p-5 lg:p-8">
+          <div className="mx-auto w-full max-w-5xl space-y-5 px-4 py-5 sm:space-y-6 sm:px-5 sm:py-6 lg:p-8">
 
 
             {/* ==================================================
                 DESCRIPTION
             ================================================== */}
 
-            <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div>
-                <h1 className="pt-5 text-3xl font-bold text-slate-900 dark:text-white mb-4 flex items-center justify-center gap-2">
-                  {ticket.title}
-                </h1>
+            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+
+              {/* TICKET TITLE */}
+
+              <div className="px-4 py-5 sm:px-5 sm:py-6">
+
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  Problem
+                </p>
+
+                <h2 className="break-words text-xl font-bold leading-tight text-slate-900 dark:text-white sm:text-2xl">
+                  {ticket.title || "IT-problem"}
+                </h2>
+
               </div>
-              
-              {ticket.attachments.length > 0 && (
-                <div className="mt-6 border-t border-slate-800 px-5 pt-5">
 
-                  <div className="mb-4 flex items-center justify-center gap-2">
-                    <span className="text-sm">📎</span>
 
-                    <h3 className="text-sm font-semibold text-slate-200">
-                      Vedlegg
-                    </h3>
+              {/* DESCRIPTION */}
 
-                    <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">
-                      {ticket.attachments.length}
-                    </span>
+              <div className="border-t border-slate-100 dark:border-slate-800">
+
+                <div className="px-4 py-4 sm:px-5">
+
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Beskrivelse
+                  </h3>
+
+                </div>
+
+
+                <div className="px-4 pb-5 sm:px-5 sm:pb-6">
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-950/60 sm:px-5 sm:py-5">
+
+                    <p className="break-words whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-200">
+                      {ticket.content}
+                    </p>
+
                   </div>
 
-                  <div className="flex flex-wrap justify-center gap-3 pb-5">
+                </div>
+
+              </div>
+
+
+              {/* ATTACHMENTS */}
+
+              {ticket.attachments.length > 0 && (
+
+                <div className="border-t border-slate-100 dark:border-slate-800">
+
+                  <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+
+                    <div className="flex min-w-0 items-center gap-2">
+
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm dark:bg-slate-800">
+                        📎
+                      </span>
+
+                      <div className="min-w-0">
+
+                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Vedlegg
+                        </h3>
+
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
+                          Bilder lagt ved saken
+                        </p>
+
+                      </div>
+
+                    </div>
+
+
+                    <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                      {ticket.attachments.length}
+                    </span>
+
+                  </div>
+
+
+                  <div className="grid grid-cols-2 gap-3 px-4 pb-5 sm:grid-cols-3 sm:px-5 sm:pb-6">
 
                     {ticket.attachments.map((attachment) => (
 
@@ -1226,7 +1425,7 @@ async function sendMessage() {
                         href={attachment.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-xl border border-slate-700 bg-slate-950 transition hover:border-blue-500 hover:shadow-lg"
+                        className="group relative aspect-square min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 transition active:scale-[0.98] dark:border-slate-700 dark:bg-slate-950 sm:aspect-[4/3]"
                       >
 
                         <img
@@ -1235,9 +1434,10 @@ async function sendMessage() {
                           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                         />
 
-                        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-left transition-transform duration-200 group-hover:translate-y-0">
 
-                          <p className="truncate text-xs font-medium text-white">
+                        <div className="absolute inset-x-0 bottom-0 bg-black/70 px-2 py-2">
+
+                          <p className="truncate text-[11px] font-medium text-white">
                             {attachment.file_name}
                           </p>
 
@@ -1250,25 +1450,8 @@ async function sendMessage() {
                   </div>
 
                 </div>
+
               )}
-
-              <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
-
-                <h2 className="font-semibold text-slate-900 dark:text-white">
-
-                  Beskrivelse
-
-                </h2>
-
-              </div>
-
-              <div className="p-5">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-5 dark:border-slate-700 dark:bg-slate-950/60">
-                  <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-200">
-                    {ticket.content}
-                  </p>
-                </div>
-              </div>
 
             </section>
 
@@ -1282,7 +1465,7 @@ async function sendMessage() {
 
               {/* GENERAL */}
 
-              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
 
                 <h2 className="mb-5 font-semibold text-slate-900 dark:text-white">
 
@@ -1341,7 +1524,7 @@ async function sendMessage() {
 
               {/* DATES */}
 
-              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
 
                 <h2 className="mb-5 font-semibold text-slate-900 dark:text-white">
 
@@ -1404,7 +1587,7 @@ async function sendMessage() {
                 </div>
 
 
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="mt-6 grid p-4 grid-cols-1 gap-4 md:grid-cols-2 sm:p-5">
 
 
                   {/* ASSIGN EMPLOYEE */}
@@ -1434,7 +1617,7 @@ async function sendMessage() {
                             null,
                         })
                       }
-                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
                     >
 
                       <option value="">
@@ -1484,7 +1667,7 @@ async function sendMessage() {
                             e.target.value,
                         })
                       }
-                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
                     >
 
                       <option value="not_started">
@@ -1531,7 +1714,7 @@ async function sendMessage() {
                             e.target.value,
                         })
                       }
-                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
                     >
 
                       <option value="lav">
@@ -1582,7 +1765,7 @@ async function sendMessage() {
                             null,
                         })
                       }
-                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950 [color-scheme:light] dark:[color-scheme:dark]"
+                      className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950 [color-scheme:light] dark:[color-scheme:dark]"
                     />
 
                   </div>
@@ -1644,7 +1827,7 @@ async function sendMessage() {
                         e.target.value
                       )
                     }
-                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
+                    className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950"
                   >
 
                     <option value="not_started">
@@ -1680,9 +1863,9 @@ async function sendMessage() {
       HEADER
   ================================================== */}
 
-  <div className="border-b border-slate-100 px-5 py-5 dark:border-slate-800">
+  <div className="border-b border-slate-100 px-4 py-4 dark:border-slate-800 sm:px-5 sm:py-5">
 
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex items-start gap-3">
 
       <div>
 
@@ -1699,13 +1882,8 @@ async function sendMessage() {
 
       {/* MESSAGE COUNT */}
 
-      <div className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
-        {messages.length}{" "}
-        {messages.length === 1
-          ? "melding"
-          : "meldinger"}
-
+      <div className="ml-auto shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        {messages.length}
       </div>
 
     </div>
@@ -1717,60 +1895,60 @@ async function sendMessage() {
       SCROLLABLE MESSAGE AREA
   ================================================== */}
 
-  <div 
+  <div
     ref={messagesContainerRef}
-    className="chat-scrollbar h-[500px] overflow-y-auto space-y-4 p-5"
+    className="chat-scrollbar h-[min(60vh,500px)] min-h-[320px] overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
   >
 
-    <div className="space-y-5 p-5">
+    {messagesLoading ? (
 
-      {messagesLoading ? (
+      <div className="flex min-h-[280px] items-center justify-center">
 
-        <div className="flex h-full min-h-[420px] items-center justify-center">
+        <div className="text-center">
 
-          <div className="text-center">
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
 
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-
-              <span className="text-lg">
-                💬
-              </span>
-
-            </div>
-
-            <p className="text-sm text-slate-400 dark:text-slate-500">
-              Laster meldinger...
-            </p>
-
-          </div>
-
-        </div>
-
-      ) : messages.length === 0 ? (
-
-        <div className="flex min-h-[420px] items-center justify-center">
-
-          <div className="text-center">
-
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
+            <span className="text-lg">
               💬
-            </div>
-
-            <p className="mt-4 font-medium text-slate-700 dark:text-slate-200">
-              Ingen meldinger ennå
-            </p>
-
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
-              Start samtalen ved å sende en melding nedenfor.
-            </p>
+            </span>
 
           </div>
 
+          <p className="text-sm text-slate-400 dark:text-slate-500">
+            Laster meldinger...
+          </p>
+
         </div>
 
-      ) : (
+      </div>
 
-        messages.map(message => {
+    ) : messages.length === 0 ? (
+
+      <div className="flex min-h-[280px] items-center justify-center px-4">
+
+        <div className="max-w-xs text-center">
+
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
+            💬
+          </div>
+
+          <p className="mt-4 font-medium text-slate-700 dark:text-slate-200">
+            Ingen meldinger ennå
+          </p>
+
+          <p className="mt-1 text-sm leading-6 text-slate-400 dark:text-slate-500">
+            Start samtalen ved å sende en melding nedenfor.
+          </p>
+
+        </div>
+
+      </div>
+
+    ) : (
+
+      <div className="space-y-4">
+
+        {messages.map(message => {
 
           const isOwnMessage =
             String(message.sender_id) ===
@@ -1780,7 +1958,7 @@ async function sendMessage() {
 
             <div
               key={message.id}
-              className={`flex ${
+              className={`flex min-w-0 ${
                 isOwnMessage
                   ? "justify-end"
                   : "justify-start"
@@ -1788,16 +1966,14 @@ async function sendMessage() {
             >
 
               <div
-                className={`flex max-w-[85%] gap-3 sm:max-w-[75%] ${
+                className={`flex min-w-0 max-w-[92%] gap-2 sm:max-w-[75%] ${
                   isOwnMessage
                     ? "flex-row-reverse"
                     : "flex-row"
                 }`}
               >
 
-                {/* ==================================================
-                    AVATAR
-                ================================================== */}
+                {/* AVATAR */}
 
                 <div
                   className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
@@ -1817,11 +1993,9 @@ async function sendMessage() {
                 </div>
 
 
-                {/* ==================================================
-                    MESSAGE
-                ================================================== */}
+                {/* MESSAGE CONTENT */}
 
-                <div>
+                <div className="min-w-0 max-w-full">
 
                   {/* SENDER */}
 
@@ -1833,7 +2007,7 @@ async function sendMessage() {
                     }`}
                   >
 
-                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="max-w-full truncate text-xs font-semibold text-slate-600 dark:text-slate-300">
 
                       {message.sender?.name ||
                         "Ukjent bruker"}
@@ -1843,17 +2017,17 @@ async function sendMessage() {
                   </div>
 
 
-                  {/* MESSAGE BUBBLE */}
+                  {/* BUBBLE */}
 
                   <div
-                    className={`rounded-2xl px-4 py-3 ${
+                    className={`max-w-full overflow-hidden rounded-2xl px-3.5 py-3 sm:px-4 ${
                       isOwnMessage
                         ? "rounded-tr-md bg-blue-600 text-white"
                         : "rounded-tl-md bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
                     }`}
                   >
 
-                    <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                    <p className="break-words whitespace-pre-wrap text-sm leading-6">
                       {message.content}
                     </p>
 
@@ -1863,7 +2037,7 @@ async function sendMessage() {
                   {/* DATE */}
 
                   <p
-                    className={`mt-1.5 text-[11px] text-slate-400 dark:text-slate-500 ${
+                    className={`mt-1.5 text-[10px] text-slate-400 dark:text-slate-500 ${
                       isOwnMessage
                         ? "text-right"
                         : "text-left"
@@ -1893,11 +2067,11 @@ async function sendMessage() {
 
           );
 
-        })
+        })}
 
-      )}
+      </div>
 
-    </div>
+    )}
 
   </div>
 
@@ -1906,9 +2080,9 @@ async function sendMessage() {
       MESSAGE INPUT
   ================================================== */}
 
-  <div className="border-t border-slate-100 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-950/40 sm:p-5">
+  <div className="border-t border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-950/50 sm:p-5">
 
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3">
 
       {/* TEXT INPUT */}
 
@@ -1917,15 +2091,20 @@ async function sendMessage() {
         <textarea
           value={messageText}
           onChange={e =>
-            setMessageText(
-              e.target.value
-            )
+            setMessageText(e.target.value)
           }
           onKeyDown={e => {
 
+            /*
+            * Keep Enter behavior on desktop.
+            * On phones, users can use the keyboard's
+            * normal return/new-line behavior.
+            */
+
             if (
               e.key === "Enter" &&
-              !e.shiftKey
+              !e.shiftKey &&
+              window.innerWidth >= 640
             ) {
 
               e.preventDefault();
@@ -1937,18 +2116,18 @@ async function sendMessage() {
           }}
           disabled={sendingMessage}
           placeholder="Skriv en melding..."
-          rows={2}
-          className="min-h-[60px] w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-950"
+          rows={3}
+          className="min-h-[76px] w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-950 sm:min-h-[60px] sm:text-sm"
         />
 
-        <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+        <p className="mt-1.5 hidden text-xs text-slate-400 dark:text-slate-500 sm:block">
           Enter sender · Shift + Enter for ny linje
         </p>
 
       </div>
 
 
-      {/* SEND BUTTON */}
+      {/* SEND */}
 
       <button
         type="button"
@@ -1957,12 +2136,56 @@ async function sendMessage() {
           sendingMessage ||
           !messageText.trim()
         }
-        className="shrink-0 cursor-pointer rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-blue-950 sm:h-[60px]"
+        className="flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-blue-950 sm:h-[60px] sm:w-auto"
       >
 
-        {sendingMessage
-          ? "Sender..."
-          : "Send melding"}
+        {sendingMessage ? (
+          <>
+            <svg
+              className="h-4 w-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                stroke="currentColor"
+                strokeWidth="3"
+                className="opacity-25"
+              />
+
+              <path
+                d="M21 12a9 9 0 0 0-9-9"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            Sender...
+
+          </>
+        ) : (
+
+          <>
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 2L11 13" />
+              <path d="M22 2l-7 20-4-9-9-4z" />
+            </svg>
+
+            Send melding
+          </>
+
+        )}
 
       </button>
 
@@ -2000,19 +2223,14 @@ function InfoRow({
 
   return (
 
-    <div className="flex items-start justify-between gap-4">
+    <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] items-start gap-4 border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
 
-      <span className="text-sm text-slate-500 dark:text-slate-400">
-
+      <span className="min-w-0 break-words text-sm text-slate-500 dark:text-slate-400">
         {label}
-
       </span>
 
-
-      <span className="text-right text-sm font-medium text-slate-900 dark:text-slate-100">
-
+      <span className="min-w-0 break-words text-right text-sm font-medium text-slate-900 dark:text-slate-100">
         {value}
-
       </span>
 
     </div>
