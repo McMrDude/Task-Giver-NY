@@ -175,6 +175,9 @@ export default function HelpPage() {
           setUser(null);
         }
       } finally {
+
+        setLoading(false);
+
         if (mounted) {
           setAuthLoading(false);
         }
