@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [authLoading, setAuthLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -103,7 +104,8 @@ export default function AdminDashboard() {
         "Kunne ikke laste adminpanelet."
       );
     } finally {
-      setLoading(false);
+        setAuthLoading(false);
+        setLoading(false);
     }
   }
 
@@ -319,9 +321,70 @@ export default function AdminDashboard() {
 
           {/* RIGHT SIDE */}
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
 
-            <NotificationBell />
+            {!authLoading && user && (
+              <div className="flex h-10 w-10 items-center justify-center">
+                <NotificationBell />
+              </div>
+            )}
+
+            {!authLoading && (
+              <>
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={logout}
+                    disabled={loggingOut}
+                    aria-label="Logg ut"
+                    title="Logg ut"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <svg
+                      className="h-4 w-4 shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M10 17l5-5-5-5" />
+                      <path d="M15 12H3" />
+                      <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                    </svg>
+
+                    <span className="hidden sm:inline">
+                      {loggingOut ? "Logger ut..." : "Logg ut"}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => navigateMobile("/login")}
+                    className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
+                  >
+                    <svg
+                      className="h-4 w-4 shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                      <path d="M10 17l5-5-5-5" />
+                      <path d="M15 12H3" />
+                    </svg>
+
+                    <span>Logg inn</span>
+                  </button>
+                )}
+              </>
+            )}
 
             <button
               type="button"
@@ -376,6 +439,8 @@ export default function AdminDashboard() {
         </div>
 
       </header>
+
+      
 
 
       {/* ==================================================
