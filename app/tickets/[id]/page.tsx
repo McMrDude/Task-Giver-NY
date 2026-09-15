@@ -1027,132 +1027,17 @@ async function sendMessage() {
                     Navigasjon
                   </p>
 
-                  <nav className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    className="mb-4 hidden items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
+                  >
+                    ←
 
-                    {/* Oversikt */}
-                    <button
-                      type="button"
-                      onClick={() => router.push("/")}
-                      className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
-                    >
-
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                        <svg
-                          className="h-5 w-5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                        >
-                          <path d="M3 10.5L12 3l9 7.5" />
-                          <path d="M5 9.5V21h14V9.5" />
-                          <path d="M9 21v-6h6v6" />
-                        </svg>
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p>Oversikt</p>
-                        <p className="text-xs font-normal text-slate-400 dark:text-slate-500">
-                          Startside
-                        </p>
-                      </div>
-
-                      <svg
-                        className="h-4 w-4 text-slate-400"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M9 18l6-6-6-6" />
-                      </svg>
-
-                    </button>
-
-
-                    {/* Mine saker */}
-                    <button
-                      type="button"
-                      onClick={() => router.push("/my-tickets")}
-                      className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
-                    >
-
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                        <svg
-                          className="h-5 w-5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                        >
-                          <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
-                          <path d="M8 8h8" />
-                          <path d="M8 12h8" />
-                          <path d="M8 16h5" />
-                        </svg>
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p>Mine saker</p>
-                        <p className="text-xs font-normal text-slate-400 dark:text-slate-500">
-                          Se dine saker
-                        </p>
-                      </div>
-
-                      <svg
-                        className="h-4 w-4 text-slate-400"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M9 18l6-6-6-6" />
-                      </svg>
-
-                    </button>
-
-
-                    {/* Hjelp */}
-                    <button
-                      type="button"
-                      onClick={() => router.push("/help")}
-                      className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-900"
-                    >
-
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                        <svg
-                          className="h-5 w-5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                        >
-                          <circle cx="12" cy="12" r="9" />
-                          <path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-.9.8-1.8 1.2-1.8 2.3" />
-                          <path d="M12 16h.01" />
-                        </svg>
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p>Hjelp</p>
-                        <p className="text-xs font-normal text-slate-400 dark:text-slate-500">
-                          Få hjelp med IT
-                        </p>
-                      </div>
-
-                      <svg
-                        className="h-4 w-4 text-slate-400"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M9 18l6-6-6-6" />
-                      </svg>
-
-                    </button>
-
-                  </nav>
+                    {user?.role === "admin"
+                      ? "Tilbake til admin"
+                      : "Tilbake til mine saker"}
+                  </button>
 
                 </div>
 
@@ -1282,38 +1167,17 @@ async function sendMessage() {
 
 
           {/* NAVIGATION */}
-          <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+          <button
+            type="button"
+            onClick={goBack}
+            className="mb-4 hidden items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
+          >
+            ←
 
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-            >
-              <span>⌂</span>
-              Oversikt
-            </button>
-
-
-            <button
-              type="button"
-              onClick={() => router.push("/my-tickets")}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-              <span>📋</span>
-              Mine saker
-            </button>
-
-
-            <button
-              type="button"
-              onClick={() => router.push("/help")}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-              <span>❓</span>
-              Hjelp
-            </button>
-
-          </nav>
+            {user?.role === "admin"
+              ? "Tilbake til admin"
+              : "Tilbake til mine saker"}
+          </button>
 
 
           {/* THEME */}
