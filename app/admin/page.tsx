@@ -36,6 +36,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // ==================================================
   // INITIAL LOAD
@@ -44,7 +46,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     loadAdmin();
   }, []);
-
 
   async function loadAdmin() {
     try {
@@ -66,7 +67,6 @@ export default function AdminDashboard() {
         return;
       }
 
-
       // ----------------------------------------------
       // CHECK ADMIN
       // ----------------------------------------------
@@ -78,163 +78,178 @@ export default function AdminDashboard() {
 
       setUser(me.user);
 
-
       // ----------------------------------------------
       // LOAD TICKETS
       // ----------------------------------------------
 
-      const ticketResponse =
-        await fetch("/api/admin/tasks");
+      const ticketResponse = await fetch("/api/admin/tasks");
 
-      const ticketResult =
-        await ticketResponse.json();
+      const ticketResult = await ticketResponse.json();
 
       if (!ticketResult.success) {
         setError(
           ticketResult.error ||
-          "Kunne ikke hente saker."
+            "Kunne ikke hente saker."
         );
 
         return;
       }
 
-      setTickets(
-        ticketResult.data || []
-      );
-
+      setTickets(ticketResult.data || []);
     } catch (err) {
       console.error(err);
 
       setError(
         "Kunne ikke laste adminpanelet."
       );
-
     } finally {
       setLoading(false);
     }
   }
 
+  // ==================================================
+  // LOCK BODY SCROLL WHEN MOBILE MENU IS OPEN
+  // ==================================================
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
+    }
+
+    const originalOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow =
+        originalOverflow;
+    };
+  }, [mobileMenuOpen]);
 
   // ==================================================
   // LOGOUT
   // ==================================================
 
   async function logout() {
-    await fetch(
-      "/api/auth/logout",
-      {
+    try {
+      setLoggingOut(true);
+
+      await fetch("/api/auth/logout", {
         method: "POST",
-      }
+      });
+
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setLoggingOut(false);
+    }
+  }
+
+  // ==================================================
+  // MOBILE NAVIGATION
+  // ==================================================
+
+  function navigateMobile(path: string) {
+    setMobileMenuOpen(false);
+    router.push(path);
+  }
+
+  // ==================================================
+  // STATUS STATISTICS
+  // ==================================================
+
+  const totalTickets = tickets.length;
+
+  // --------------------------------------------------
+  // IKKE TILDELT
+  // --------------------------------------------------
+
+  const unassignedTickets = tickets.filter(
+    (ticket) => !ticket.receiver_id
+  ).length;
+
+  // --------------------------------------------------
+  // NYE
+  //
+  // Assigned + not started + created less than 24h ago
+  // --------------------------------------------------
+
+  const newTickets = tickets.filter((ticket) => {
+    if (
+      ticket.status !== "not_started" ||
+      !ticket.receiver_id
+    ) {
+      return false;
+    }
+
+    const createdAt =
+      new Date(ticket.created_at).getTime();
+
+    if (!Number.isFinite(createdAt)) {
+      return false;
+    }
+
+    return (
+      Date.now() - createdAt <
+      24 * 60 * 60 * 1000
     );
+  }).length;
 
-    router.push("/login");
-  }
+  // --------------------------------------------------
+  // IKKE STARTET
+  //
+  // Assigned + not started + older than 24h
+  // --------------------------------------------------
 
+  const notStartedTickets = tickets.filter((ticket) => {
+    if (
+      ticket.status !== "not_started" ||
+      !ticket.receiver_id
+    ) {
+      return false;
+    }
 
-// ==================================================
-// STATUS STATISTICS
-// ==================================================
+    const createdAt =
+      new Date(ticket.created_at).getTime();
 
-const totalTickets = tickets.length;
+    if (!Number.isFinite(createdAt)) {
+      return true;
+    }
 
+    return (
+      Date.now() - createdAt >=
+      24 * 60 * 60 * 1000
+    );
+  }).length;
 
-// --------------------------------------------------
-// IKKE TILDELT
-// --------------------------------------------------
+  // --------------------------------------------------
+  // PÅGÅR
+  // --------------------------------------------------
 
-const unassignedTickets = tickets.filter(
-  ticket => !ticket.receiver_id
-).length;
+  const inProgressTickets = tickets.filter(
+    (ticket) =>
+      ticket.status === "started"
+  ).length;
 
+  // --------------------------------------------------
+  // FERDIGE
+  // --------------------------------------------------
 
-// --------------------------------------------------
-// NYE
-//
-// Assigned + not started + created less than 24h ago
-// --------------------------------------------------
+  const completedTickets = tickets.filter(
+    (ticket) =>
+      ticket.status === "completed"
+  ).length;
 
-const newTickets = tickets.filter(ticket => {
+  // --------------------------------------------------
+  // OTHER STATISTICS
+  // --------------------------------------------------
 
-  if (
-    ticket.status !== "not_started" ||
-    !ticket.receiver_id
-  ) {
-    return false;
-  }
-
-  const createdAt =
-    new Date(ticket.created_at).getTime();
-
-  if (!Number.isFinite(createdAt)) {
-    return false;
-  }
-
-  return (
-    Date.now() - createdAt <
-    24 * 60 * 60 * 1000
-  );
-}).length;
-
-
-// --------------------------------------------------
-// IKKE STARTET
-//
-// Assigned + not started + older than 24h
-// --------------------------------------------------
-
-const notStartedTickets = tickets.filter(ticket => {
-
-  if (
-    ticket.status !== "not_started" ||
-    !ticket.receiver_id
-  ) {
-    return false;
-  }
-
-  const createdAt =
-    new Date(ticket.created_at).getTime();
-
-  if (!Number.isFinite(createdAt)) {
-    return true;
-  }
-
-  return (
-    Date.now() - createdAt >=
-    24 * 60 * 60 * 1000
-  );
-}).length;
-
-
-// --------------------------------------------------
-// PÅGÅR
-// --------------------------------------------------
-
-const inProgressTickets = tickets.filter(
-  ticket =>
-    ticket.status === "started"
-).length;
-
-
-// --------------------------------------------------
-// FERDIGE
-// --------------------------------------------------
-
-const completedTickets = tickets.filter(
-  ticket =>
-    ticket.status === "completed"
-).length;
-
-
-// --------------------------------------------------
-// OTHER STATISTICS
-// --------------------------------------------------
-
-const highPriorityTickets = tickets.filter(
-  ticket =>
-    ticket.priority === "høy" ||
-    ticket.priority === "high"
-).length;
-
+  const highPriorityTickets = tickets.filter(
+    (ticket) =>
+      ticket.priority === "høy" ||
+      ticket.priority === "high"
+  ).length;
 
   // ==================================================
   // LOADING
@@ -250,7 +265,6 @@ const highPriorityTickets = tickets.filter(
     );
   }
 
-
   // ==================================================
   // ERROR
   // ==================================================
@@ -265,22 +279,275 @@ const highPriorityTickets = tickets.filter(
     );
   }
 
-
   // ==================================================
   // PAGE
   // ==================================================
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <main className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
-      <div className="flex min-h-screen">
+      {/* ==================================================
+          MOBILE HEADER
+      ================================================== */}
 
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
+
+        <div className="flex h-16 items-center justify-between px-4">
+
+          {/* BRAND */}
+
+          <div className="flex min-w-0 items-center gap-3">
+
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+              IT
+            </div>
+
+            <div className="min-w-0">
+
+              <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                IT Support
+              </p>
+
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                Administrasjon
+              </p>
+
+            </div>
+
+          </div>
+
+
+          {/* RIGHT SIDE */}
+
+          <div className="flex shrink-0 items-center gap-1">
+
+            <NotificationBell />
+
+            <button
+              type="button"
+              aria-label={
+                mobileMenuOpen
+                  ? "Lukk meny"
+                  : "Åpne meny"
+              }
+              aria-expanded={mobileMenuOpen}
+              onClick={() =>
+                setMobileMenuOpen(
+                  (open) => !open
+                )
+              }
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 active:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800 dark:active:bg-slate-700"
+            >
+              {mobileMenuOpen ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 6l12 12M18 6L6 18"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
+
+          </div>
+
+        </div>
+
+      </header>
+
+
+      {/* ==================================================
+          MOBILE MENU BACKDROP
+      ================================================== */}
+
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          aria-label="Lukk meny"
+          onClick={() =>
+            setMobileMenuOpen(false)
+          }
+          className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
+        />
+      )}
+
+
+      {/* ==================================================
+          MOBILE MENU
+      ================================================== */}
+
+      {mobileMenuOpen && (
+        <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+
+          <div className="p-4">
+
+            {/* ==================================================
+                NAVIGATION
+            ================================================== */}
+
+            <div>
+
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Navigasjon
+              </p>
+
+              <div className="space-y-1">
+
+                {/* DASHBOARD */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile("/admin")
+                  }
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+                  Dashboard
+                </button>
+
+
+                {/* ALL TICKETS */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin/tickets"
+                    )
+                  }
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  Alle saker
+                </button>
+
+
+                {/* EMPLOYEES */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin/employees"
+                    )
+                  }
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  Ansatte
+                </button>
+
+              </div>
+
+            </div>
+
+
+            {/* ==================================================
+                ACCOUNT
+            ================================================== */}
+
+            <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Konto
+              </p>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+
+                <div className="flex min-w-0 items-center gap-3">
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                    {user?.name
+                      ?.charAt(0)
+                      .toUpperCase()}
+                  </div>
+
+                  <div className="min-w-0">
+
+                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                      {user?.name}
+                    </p>
+
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {user?.email}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              {/* LOGOUT */}
+
+              <button
+                type="button"
+                onClick={logout}
+                disabled={loggingOut}
+                className="mt-3 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                {loggingOut
+                  ? "Logger ut..."
+                  : "Logg ut"}
+              </button>
+
+            </div>
+
+
+            {/* ==================================================
+                APPEARANCE
+            ================================================== */}
+
+            <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Utseende
+              </p>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900">
+                <ThemeToggle />
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* ==================================================
+          DESKTOP LAYOUT
+      ================================================== */}
+
+      <div className="flex min-h-screen w-full">
 
         {/* ==================================================
             SIDEBAR
         ================================================== */}
 
-        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
 
@@ -400,9 +667,12 @@ const highPriorityTickets = tickets.filter(
 
             <button
               onClick={logout}
-              className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              disabled={loggingOut}
+              className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
-              Logg ut
+              {loggingOut
+                ? "Logger ut..."
+                : "Logg ut"}
             </button>
 
           </div>
@@ -414,24 +684,23 @@ const highPriorityTickets = tickets.filter(
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 flex-1">
-
+        <section className="min-w-0 w-full flex-1">
 
           {/* ==================================================
               HEADER
           ================================================== */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-900 sm:px-5 sm:py-6 lg:px-8">
 
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start justify-between gap-4">
 
-              <div>
+              <div className="min-w-0">
 
                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
                   Administrasjon
                 </p>
 
-                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                   Dashboard
                 </h1>
 
@@ -441,7 +710,9 @@ const highPriorityTickets = tickets.filter(
 
               </div>
 
-              <NotificationBell />
+              <div className="hidden shrink-0 lg:block">
+                <NotificationBell />
+              </div>
 
             </div>
 
@@ -452,8 +723,7 @@ const highPriorityTickets = tickets.filter(
               CONTENT
           ================================================== */}
 
-          <div className="space-y-8 p-6 lg:p-8">
-
+          <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-5 sm:space-y-8 sm:px-5 sm:py-6 lg:p-8">
 
             {/* ==================================================
                 WELCOME
@@ -461,11 +731,11 @@ const highPriorityTickets = tickets.filter(
 
             <section>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
 
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
-                  <div>
+                  <div className="min-w-0">
 
                     <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
                       Velkommen tilbake
@@ -487,7 +757,7 @@ const highPriorityTickets = tickets.filter(
                     onClick={() =>
                       router.push("/admin/tickets")
                     }
-                    className="shrink-0 cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="min-h-11 w-full shrink-0 cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
                   >
                     Se alle saker
                   </button>
@@ -520,13 +790,11 @@ const highPriorityTickets = tickets.filter(
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
 
-
                 <StatCard
                   title="Totale saker"
                   value={totalTickets}
                   description="Alle registrerte saker"
                 />
-
 
                 <StatCard
                   title="Nye"
@@ -535,14 +803,12 @@ const highPriorityTickets = tickets.filter(
                   accent="blue"
                 />
 
-
                 <StatCard
                   title="Pågår"
                   value={inProgressTickets}
                   description="Under behandling"
                   accent="amber"
                 />
-
 
                 <StatCard
                   title="Ferdige"
@@ -551,14 +817,12 @@ const highPriorityTickets = tickets.filter(
                   accent="green"
                 />
 
-
                 <StatCard
                   title="Høy prioritet"
                   value={highPriorityTickets}
                   description="Krever oppmerksomhet"
                   accent="red"
                 />
-
 
                 <StatCard
                   title="Ikke tildelt"
@@ -578,12 +842,11 @@ const highPriorityTickets = tickets.filter(
 
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-
               {/* ==================================================
                   STATUS OVERVIEW
               ================================================== */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
 
                 <div className="mb-6">
 
@@ -607,14 +870,12 @@ const highPriorityTickets = tickets.filter(
                     type="unassigned"
                   />
 
-
                   <StatusProgress
                     label="Nye"
                     value={newTickets}
                     total={totalTickets}
                     type="new"
                   />
-
 
                   <StatusProgress
                     label="Ikke startet"
@@ -623,14 +884,12 @@ const highPriorityTickets = tickets.filter(
                     type="notStarted"
                   />
 
-
                   <StatusProgress
                     label="Pågår"
                     value={inProgressTickets}
                     total={totalTickets}
                     type="progress"
                   />
-
 
                   <StatusProgress
                     label="Ferdige"
@@ -648,7 +907,7 @@ const highPriorityTickets = tickets.filter(
                   NEEDS ATTENTION
               ================================================== */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
 
                 <div className="mb-6">
 
@@ -665,7 +924,6 @@ const highPriorityTickets = tickets.filter(
 
                 <div className="space-y-3">
 
-
                   {/* HIGH PRIORITY */}
 
                   <AttentionItem
@@ -674,7 +932,9 @@ const highPriorityTickets = tickets.filter(
                     value={highPriorityTickets}
                     type="danger"
                     onClick={() =>
-                      router.push("/admin/tickets?priority=high")
+                      router.push(
+                        "/admin/tickets?priority=high"
+                      )
                     }
                   />
 
@@ -687,12 +947,11 @@ const highPriorityTickets = tickets.filter(
                     value={unassignedTickets}
                     type="warning"
                     onClick={() =>
-                      router.push("/admin/tickets?unassigned=true")
+                      router.push(
+                        "/admin/tickets?unassigned=true"
+                      )
                     }
                   />
-
-
-                  
 
                 </div>
 
@@ -722,7 +981,6 @@ const highPriorityTickets = tickets.filter(
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-
                 {/* ALL TICKETS */}
 
                 <QuickAccessCard
@@ -730,7 +988,9 @@ const highPriorityTickets = tickets.filter(
                   description="Se, søk, filtrer og administrer alle støttesaker."
                   icon="▤"
                   onClick={() =>
-                    router.push("/admin/tickets")
+                    router.push(
+                      "/admin/tickets"
+                    )
                   }
                 />
 
@@ -742,7 +1002,9 @@ const highPriorityTickets = tickets.filter(
                   description="Se og administrer ansatte som håndterer støttesaker."
                   icon="♙"
                   onClick={() =>
-                    router.push("/admin/employees")
+                    router.push(
+                      "/admin/employees"
+                    )
                   }
                 />
 
@@ -804,13 +1066,13 @@ function StatCard({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+    <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900 sm:p-5">
 
       <div className="flex items-start justify-between gap-4">
 
-        <div>
+        <div className="min-w-0">
 
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="truncate text-sm font-medium text-slate-500 dark:text-slate-400">
             {title}
           </p>
 
@@ -873,7 +1135,10 @@ function StatusProgress({
       : 0;
 
   const safePercentage =
-    Math.min(Math.max(percentage, 0), 100);
+    Math.min(
+      Math.max(percentage, 0),
+      100
+    );
 
   return (
     <div>
@@ -944,6 +1209,7 @@ function AttentionItem({
     danger: {
       wrapper:
         "border-red-200 bg-red-50/70 hover:border-red-300 dark:border-red-900/60 dark:bg-red-950/20 dark:hover:border-red-800",
+
       badge:
         "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
     },
@@ -951,6 +1217,7 @@ function AttentionItem({
     warning: {
       wrapper:
         "border-amber-200 bg-amber-50/70 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800",
+
       badge:
         "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
     },
@@ -958,6 +1225,7 @@ function AttentionItem({
     info: {
       wrapper:
         "border-blue-200 bg-blue-50/70 hover:border-blue-300 dark:border-blue-900/60 dark:bg-blue-950/20 dark:hover:border-blue-800",
+
       badge:
         "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
     },
@@ -966,7 +1234,7 @@ function AttentionItem({
   return (
     <button
       onClick={onClick}
-      className={`group flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border p-4 text-left transition ${styles[type].wrapper}`}
+      className={`group flex min-h-16 w-full cursor-pointer items-center justify-between gap-4 rounded-xl border p-4 text-left transition ${styles[type].wrapper}`}
     >
 
       <div className="min-w-0">
@@ -1020,7 +1288,7 @@ function QuickAccessCard({
   return (
     <button
       onClick={onClick}
-      className="group flex w-full cursor-pointer items-center gap-5 rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
+      className="group flex min-h-20 w-full cursor-pointer items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800 sm:gap-5 sm:p-6"
     >
 
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xl text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
