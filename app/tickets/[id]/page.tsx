@@ -902,236 +902,58 @@ async function sendMessage() {
 
       {/* =====================================================
           MOBILE HEADER
-          Visible only below lg
+          Only visible on phones/tablets
       ===================================================== */}
       <header className="sticky top-0 z-50 lg:hidden">
-
         <div className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
 
-          <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-5">
+          <div className="flex h-16 items-center gap-3 px-4 sm:px-5">
 
-            {/* Logo / Brand */}
+            {/* BACK BUTTON */}
             <button
               type="button"
               onClick={goBack}
-              className="flex min-w-0 items-center gap-3 rounded-xl py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/30"
               aria-label="Gå tilbake"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.97] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             >
-
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white shadow-sm">
-                IT
-              </div>
-
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                  IT Support
-                </p>
-
-                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                  Sak #{ticket.id}
-                </p>
-              </div>
-
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </svg>
             </button>
 
 
-            {/* Right side */}
-            <div className="flex shrink-0 items-center gap-2">
+            {/* PAGE TITLE */}
+            <div className="min-w-0 flex-1">
 
-              {/* Back */}
-              <button
-                type="button"
-                onClick={goBack}
-                className="hidden h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] sm:inline-flex dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                <span>←</span>
-                <span>Tilbake</span>
-              </button>
+              <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                IT Support
+              </p>
+
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                Sak #{ticket.id}
+              </p>
+
+            </div>
 
 
-              {/* Menu */}
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen((open) => !open)}
-                aria-label={mobileMenuOpen ? "Lukk meny" : "Åpne meny"}
-                aria-expanded={mobileMenuOpen}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.97] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-
-                {mobileMenuOpen ? (
-
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  >
-                    <path d="M6 6l12 12" />
-                    <path d="M18 6L6 18" />
-                  </svg>
-
-                ) : (
-
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  >
-                    <path d="M4 6h16" />
-                    <path d="M4 12h16" />
-                    <path d="M4 18h16" />
-                  </svg>
-
-                )}
-
-              </button>
-
+            {/* THEME */}
+            <div className="shrink-0">
+              <ThemeToggle />
             </div>
 
           </div>
 
         </div>
-
-
-        {/* =====================================================
-            MOBILE MENU
-        ===================================================== */}
-
-        {mobileMenuOpen && (
-          <>
-
-            {/* Overlay */}
-            <button
-              type="button"
-              aria-label="Lukk meny"
-              onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px]"
-            />
-
-
-            {/* Menu panel */}
-            <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
-
-              <div className="mx-auto w-full max-w-2xl px-4 py-5 sm:px-5">
-
-
-                {/* NAVIGATION */}
-                <div>
-
-                  <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    Navigasjon
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={goBack}
-                    className="mb-4 hidden items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
-                  >
-                    ←
-
-                    {user?.role === "admin"
-                      ? "Tilbake til admin"
-                      : "Tilbake til mine saker"}
-                  </button>
-
-                </div>
-
-
-                {/* Divider */}
-                <div className="my-5 border-t border-slate-200 dark:border-slate-800" />
-
-
-                {/* ACCOUNT */}
-                {user && (
-                  <div>
-
-                    <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      Konto
-                    </p>
-
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-
-                      <div className="flex items-center gap-3">
-
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-sm">
-                          {user.name?.charAt(0)?.toUpperCase() || "U"}
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-
-                          <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
-                            {user.name}
-                          </p>
-
-                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                            {user.email}
-                          </p>
-
-                        </div>
-
-                      </div>
-
-
-                      <button
-                        type="button"
-                        onClick={logout}
-                        disabled={updating}
-                        className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
-                      >
-
-                        <svg
-                          className="h-4 w-4"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M10 17l5-5-5-5" />
-                          <path d="M15 12H3" />
-                          <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
-                        </svg>
-
-                        Logg ut
-
-                      </button>
-
-                    </div>
-
-                  </div>
-                )}
-
-
-                {/* THEME */}
-                <div className="mt-4 flex min-h-12 items-center justify-between rounded-xl border border-slate-200 px-4 dark:border-slate-800">
-
-                  <div>
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                      Utseende
-                    </p>
-
-                    <p className="text-xs text-slate-400 dark:text-slate-500">
-                      Bytt mellom lys og mørk modus
-                    </p>
-                  </div>
-
-                  <ThemeToggle />
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </>
-        )}
-
       </header>
 
 
@@ -1167,17 +989,38 @@ async function sendMessage() {
 
 
           {/* NAVIGATION */}
-          <button
-            type="button"
-            onClick={goBack}
-            className="mb-4 hidden items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
-          >
-            ←
+          <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
-            {user?.role === "admin"
-              ? "Tilbake til admin"
-              : "Tilbake til mine saker"}
-          </button>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+            >
+              <span>⌂</span>
+              Oversikt
+            </button>
+
+
+            <button
+              type="button"
+              onClick={() => router.push("/my-tickets")}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+            >
+              <span>📋</span>
+              Mine saker
+            </button>
+
+
+            <button
+              type="button"
+              onClick={() => router.push("/help")}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+            >
+              <span>❓</span>
+              Hjelp
+            </button>
+
+          </nav>
 
 
           {/* THEME */}
