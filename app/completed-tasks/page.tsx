@@ -310,7 +310,7 @@ export default function CompletedTasksPage() {
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
 
-            {/* ACTIVE TASKS */}
+            {/* OVERVIEW */}
 
             <button
               onClick={() =>
@@ -318,9 +318,15 @@ export default function CompletedTasksPage() {
               }
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
+
               <span>▦</span>
+
               Oversikt
+
             </button>
+
+
+            {/* ACTIVE TASKS */}
 
             <button
               onClick={() =>
@@ -435,9 +441,9 @@ export default function CompletedTasksPage() {
             MOBILE HEADER
         ================================================== */}
 
-        <div className="w-full lg:hidden">
+        <div className="fixed left-0 right-0 top-0 z-50 lg:hidden">
 
-          <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+          <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
 
             <div className="flex items-center justify-between px-5 py-4">
 
@@ -468,6 +474,8 @@ export default function CompletedTasksPage() {
               </div>
 
 
+              {/* HAMBURGER */}
+
               <button
                 onClick={() =>
                   setMobileMenuOpen(
@@ -476,6 +484,7 @@ export default function CompletedTasksPage() {
                 }
                 className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 aria-label="Åpne meny"
+                aria-expanded={mobileMenuOpen}
               >
 
                 ☰
@@ -492,17 +501,22 @@ export default function CompletedTasksPage() {
               <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
 
 
+                {/* MINE TILDELTE SAKER */}
+
                 <button
-                  onClick={() =>
-                    router.push("/my-tickets")
-                  }
-                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/employee/tasks");
+                  }}
+                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
 
                   📋 Mine tildelte saker
 
                 </button>
 
+
+                {/* CURRENT PAGE */}
 
                 <button
                   onClick={() =>
@@ -516,17 +530,22 @@ export default function CompletedTasksPage() {
                 </button>
 
 
+                {/* HELP */}
+
                 <button
-                  onClick={() =>
-                    router.push("/help")
-                  }
-                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/employee/help");
+                  }}
+                  className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
 
                   ❓ Hjelp
 
                 </button>
 
+
+                {/* THEME */}
 
                 <ThemeToggle />
 
@@ -543,10 +562,18 @@ export default function CompletedTasksPage() {
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 flex-1 lg:ml-64">
+        <section
+          className="
+            min-w-0
+            flex-1
+            pt-[73px]
+            lg:ml-64
+            lg:pt-0
+          "
+        >
 
 
-          {/* HEADER */}
+          {/* DESKTOP HEADER */}
 
           <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
@@ -574,6 +601,8 @@ export default function CompletedTasksPage() {
 
               </div>
 
+
+              {/* NOTIFICATIONS */}
 
               <NotificationBell />
 
@@ -648,6 +677,8 @@ export default function CompletedTasksPage() {
 
               </div>
 
+
+              {/* EMPTY STATE */}
 
               {tickets.length === 0 ? (
 
@@ -856,6 +887,8 @@ function CompletedTicketCard({
       <div className="mt-5 flex flex-wrap gap-6 border-t border-slate-100 pt-4 dark:border-slate-800">
 
 
+        {/* PRIORITY */}
+
         <div>
 
           <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
@@ -874,6 +907,8 @@ function CompletedTicketCard({
 
         </div>
 
+
+        {/* DUE DATE */}
 
         <div>
 
@@ -897,6 +932,8 @@ function CompletedTicketCard({
 
         </div>
 
+
+        {/* STATUS */}
 
         <div>
 
