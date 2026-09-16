@@ -551,7 +551,22 @@ export default function EmployeesPage() {
         </div>
 
 
-        {/* MOBILE MENU */}
+      {/* ==================================================
+          MOBILE MENU BACKDROP
+      ================================================== */}
+
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          aria-label="Lukk meny"
+          onClick={() =>
+            setMobileMenuOpen(false)
+          }
+          className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
+        />
+      )}
+
+      {/* MOBILE MENU */}
 
       {mobileMenuOpen && (
         <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:hidden">
