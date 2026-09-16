@@ -360,12 +360,12 @@ const handleSubmit = async (
 
     setStatusMessage(
       images.length > 0
-        ? `Støttesaken ble opprettet med ${images.length} ${
+        ? `saken ble opprettet med ${images.length} ${
             images.length === 1
               ? "bilde"
               : "bilder"
           }!`
-        : "Støttesaken ble opprettet!"
+        : "saken ble opprettet!"
     );
 
 
@@ -1235,11 +1235,11 @@ const handleSubmit = async (
                       <div className="mb-8">
 
                         <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                          NY STØTTESAK
+                          NY SAK
                         </p>
 
                         <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                          Opprett støttesak
+                          Opprett sak
                         </h2>
 
                         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -1609,7 +1609,7 @@ const handleSubmit = async (
                           type="submit"
                           className="cursor-pointer rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                         >
-                          Send inn støttesak
+                          Send inn sak
                         </button>
 
                       </div>

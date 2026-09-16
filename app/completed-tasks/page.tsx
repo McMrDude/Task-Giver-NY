@@ -829,31 +829,45 @@ export default function CompletedTasksPage() {
             MAIN
         ================================================== */}
 
-        <header className="hidden border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:block">
+        <section className="min-w-0 w-full flex-1 pt-16 lg:ml-64 lg:w-[calc(100%-16rem)] lg:pt-0">
 
-          <div className="flex items-start justify-between gap-4 px-6 py-6 lg:px-8">
 
-            <div>
+          {/* DESKTOP HEADER */}
 
-              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                Ansattportal
-              </p>
+          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
 
-              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Fullførte saker
-              </h1>
+            <div className="flex items-start justify-between gap-4">
 
-              <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
-                Her finner du saker du tidligere har fullført.
-              </p>
+              <div>
+
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+
+                  Ansattportal
+
+                </p>
+
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+
+                  Fullførte saker
+
+                </h1>
+
+                <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+
+                  Her finner du saker du tidligere har fullført.
+
+                </p>
+
+              </div>
+
+
+              {/* NOTIFICATIONS */}
+
+              <NotificationBell />
 
             </div>
 
-            <NotificationBell />
-
-          </div>
-
-        </header>
+          </header>
 
 
           {/* CONTENT */}
