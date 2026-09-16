@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import ThemeToggle from "../../components/ThemeToggle";
 import NotificationBell from "../../components/NotificationBell";
 
-
 // ====================================================
 // TYPES
 // ====================================================
@@ -46,99 +45,109 @@ type Ticket = {
   } | null;
 };
 
-
 // ====================================================
 // ADMIN TICKETS PAGE
 // ====================================================
 
 export default function AdminTicketsPage() {
-
   const router = useRouter();
-
 
   // ==================================================
   // STATE
   // ==================================================
 
-  const [user, setUser] =
-    useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
-  const [tickets, setTickets] =
-    useState<Ticket[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
-const [employees, setEmployees] =
-  useState<User[]>([]);
+  const [employees, setEmployees] = useState<User[]>([]);
 
-const [assigningTicketId, setAssigningTicketId] =
-  useState<number | null>(null);
+  const [assigningTicketId, setAssigningTicketId] =
+    useState<number | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  const [priorityFilter, setPriorityFilter] =
-    useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
 
-  // NEW
   const [assignmentFilter, setAssignmentFilter] =
     useState("all");
 
+  // ==================================================
+  // MOBILE UI STATE
+  // ==================================================
+
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // ==================================================
   // INITIAL LOAD
   // ==================================================
 
   useEffect(() => {
+    const params = new URLSearchParams(
+      window.location.search
+    );
 
-    // NEW
-    // Read filters from the URL before loading the page.
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
+    const priority = params.get("priority");
 
-    const priority =
-      params.get("priority");
+    const unassigned = params.get("unassigned");
 
-    const unassigned =
-      params.get("unassigned");
-
-
-    // NEW
     // /admin/tickets?priority=high
     if (priority === "high") {
-
       setPriorityFilter("høy");
-
     }
 
-
-    // NEW
     // /admin/tickets?unassigned=true
     if (unassigned === "true") {
-
       setAssignmentFilter("unassigned");
-
     }
 
-
     loadAdmin();
-
   }, []);
 
+  // ==================================================
+  // LOCK BODY SCROLL WHEN MOBILE MENU IS OPEN
+  // ==================================================
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
+    }
+
+    const originalOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow =
+        originalOverflow;
+    };
+  }, [mobileMenuOpen]);
+
+  // ==================================================
+  // MOBILE NAVIGATION
+  // ==================================================
+
+  function navigateMobile(path: string) {
+    setMobileMenuOpen(false);
+    router.push(path);
+  }
+
+  // ==================================================
+  // LOAD ADMIN DATA
+  // ==================================================
 
   async function loadAdmin() {
-
     try {
-
       // ----------------------------------------------
       // CHECK LOGIN
       // ----------------------------------------------
@@ -146,140 +155,93 @@ const [assigningTicketId, setAssigningTicketId] =
       const meResponse =
         await fetch("/api/auth/me");
 
-
       if (!meResponse.ok) {
-
         router.push("/login");
-
         return;
-
       }
 
+      const me = await meResponse.json();
 
-      const me =
-        await meResponse.json();
-
-
-      if (
-        !me.success ||
-        !me.user
-      ) {
-
+      if (!me.success || !me.user) {
         router.push("/login");
-
         return;
-
       }
-
 
       // ----------------------------------------------
       // CHECK ADMIN
       // ----------------------------------------------
 
-      if (
-        me.user.role !== "admin"
-      ) {
-
+      if (me.user.role !== "admin") {
         router.push("/");
-
         return;
-
       }
 
-
       setUser(me.user);
-
 
       // ----------------------------------------------
       // LOAD ALL TICKETS
       // ----------------------------------------------
 
       const ticketResponse =
-        await fetch(
-          "/api/admin/tasks"
-        );
-
+        await fetch("/api/admin/tasks");
 
       const ticketResult =
         await ticketResponse.json();
 
-
-      if (
-        !ticketResult.success
-      ) {
-
+      if (!ticketResult.success) {
         setError(
           ticketResult.error ||
-          "Kunne ikke hente saker."
+            "Kunne ikke hente saker."
         );
 
         return;
-
       }
 
-
-      setTickets(
-        ticketResult.data || []
-      );
+      setTickets(ticketResult.data || []);
 
       // ----------------------------------------------
-    // LOAD EMPLOYEES
-    // ----------------------------------------------
+      // LOAD EMPLOYEES
+      // ----------------------------------------------
 
-    const employeeResponse =
-    await fetch("/api/admin/users");
+      const employeeResponse =
+        await fetch("/api/admin/users");
 
-    const employeeResult =
-    await employeeResponse.json();
+      const employeeResult =
+        await employeeResponse.json();
 
-    if (
-    !employeeResult.success
-    ) {
-    setError(
-        employeeResult.error ||
-        "Kunne ikke hente ansatte."
-    );
+      if (!employeeResult.success) {
+        setError(
+          employeeResult.error ||
+            "Kunne ikke hente ansatte."
+        );
 
-    return;
-    }
+        return;
+      }
 
-    setEmployees(
-    employeeResult.data || []
-    );
-
-
+      setEmployees(employeeResult.data || []);
     } catch (err) {
-
       console.error(err);
 
       setError(
         "Kunne ikke laste sakene."
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
-
   // ==================================================
-// ASSIGN TICKET
-// ==================================================
+  // ASSIGN TICKET
+  // ==================================================
 
-async function assignTicket(
-  ticketId: number,
-  receiverId: string | null
-) {
+  async function assignTicket(
+    ticketId: number,
+    receiverId: string | null
+  ) {
+    setAssigningTicketId(ticketId);
 
-  setAssigningTicketId(ticketId);
-
-  try {
-
-    const response =
-      await fetch(
+    try {
+      const response = await fetch(
         "/api/admin/tasks",
         {
           method: "PATCH",
@@ -296,32 +258,26 @@ async function assignTicket(
         }
       );
 
+      const result =
+        await response.json();
 
-    const result =
-      await response.json();
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+        alert(
+          result.error ||
+            "Kunne ikke tildele saken."
+        );
 
+        return;
+      }
 
-    if (
-      !response.ok ||
-      !result.success
-    ) {
+      // --------------------------------------------
+      // UPDATE TICKET LOCALLY
+      // --------------------------------------------
 
-      alert(
-        result.error ||
-        "Kunne ikke tildele saken."
-      );
-
-      return;
-
-    }
-
-
-    // --------------------------------------------
-    // UPDATE TICKET LOCALLY
-    // --------------------------------------------
-
-    const employee =
-      receiverId
+      const employee = receiverId
         ? employees.find(
             employee =>
               String(employee.id) ===
@@ -329,244 +285,439 @@ async function assignTicket(
           )
         : null;
 
+      setTickets(currentTickets =>
+        currentTickets.map(ticket => {
+          if (ticket.id !== ticketId) {
+            return ticket;
+          }
 
-    setTickets(currentTickets =>
-      currentTickets.map(ticket => {
+          return {
+            ...ticket,
 
-        if (
-          ticket.id !== ticketId
-        ) {
-          return ticket;
-        }
+            receiver_id:
+              receiverId,
 
-
-        return {
-          ...ticket,
-
-          receiver_id:
-            receiverId,
-
-          receiver:
-            employee
+            receiver: employee
               ? {
                   id: employee.id,
                   name: employee.name,
                   email: employee.email,
                 }
               : null,
-        };
+          };
+        })
+      );
+    } catch (error) {
+      console.error(error);
 
-      })
-    );
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "En nettverksfeil oppstod."
-    );
-
-  } finally {
-
-    setAssigningTicketId(null);
-
+      alert(
+        "En nettverksfeil oppstod."
+      );
+    } finally {
+      setAssigningTicketId(null);
+    }
   }
-
-}
 
   // ==================================================
   // LOGOUT
   // ==================================================
 
   async function logout() {
+    try {
+      setLoggingOut(true);
 
-    await fetch(
-      "/api/auth/logout",
-      {
-        method: "POST",
-      }
-    );
+      await fetch(
+        "/api/auth/logout",
+        {
+          method: "POST",
+        }
+      );
 
-    router.push("/login");
+      router.push("/login");
+    } catch (error) {
+      console.error(
+        "Logout failed:",
+        error
+      );
 
+      setLoggingOut(false);
+    }
   }
-
 
   // ==================================================
   // FILTER TICKETS
   // ==================================================
 
-  const filteredTickets =
-    useMemo(() => {
+  const filteredTickets = useMemo(() => {
+    return tickets.filter(ticket => {
+      const searchText =
+        search.toLowerCase();
 
-      return tickets.filter(ticket => {
+      // --------------------------------------------
+      // SEARCH
+      // --------------------------------------------
 
-        const searchText =
-          search.toLowerCase();
+      const matchesSearch =
+        !search ||
+        ticket.content
+          ?.toLowerCase()
+          .includes(searchText) ||
+        ticket.category
+          ?.toLowerCase()
+          .includes(searchText) ||
+        ticket.subcategory
+          ?.toLowerCase()
+          .includes(searchText) ||
+        ticket.sender?.name
+          ?.toLowerCase()
+          .includes(searchText) ||
+        ticket.receiver?.name
+          ?.toLowerCase()
+          .includes(searchText) ||
+        String(ticket.id)
+          .includes(searchText);
 
+      // --------------------------------------------
+      // STATUS
+      // --------------------------------------------
 
-        // --------------------------------------------
-        // SEARCH
-        // --------------------------------------------
+      const matchesStatus =
+        statusFilter === "all" ||
+        ticket.status ===
+          statusFilter;
 
-        const matchesSearch =
-          !search ||
-          ticket.content
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.category
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.subcategory
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.sender?.name
-            ?.toLowerCase()
-            .includes(searchText) ||
-          ticket.receiver?.name
-            ?.toLowerCase()
-            .includes(searchText) ||
-          String(ticket.id)
-            .includes(searchText);
+      // --------------------------------------------
+      // PRIORITY
+      // --------------------------------------------
 
+      const matchesPriority =
+        priorityFilter === "all" ||
+        ticket.priority ===
+          priorityFilter;
 
-        // --------------------------------------------
-        // STATUS
-        // --------------------------------------------
+      // --------------------------------------------
+      // ASSIGNMENT
+      // --------------------------------------------
 
-        const matchesStatus =
-          statusFilter === "all" ||
-          ticket.status ===
-            statusFilter;
+      const matchesAssignment =
+        assignmentFilter === "all" ||
+        (assignmentFilter ===
+          "unassigned" &&
+          !ticket.receiver_id) ||
+        (assignmentFilter ===
+          "assigned" &&
+          !!ticket.receiver_id);
 
-
-        // --------------------------------------------
-        // PRIORITY
-        // --------------------------------------------
-
-        const matchesPriority =
-          priorityFilter === "all" ||
-          ticket.priority ===
-            priorityFilter;
-
-
-        // --------------------------------------------
-        // ASSIGNMENT
-        // --------------------------------------------
-
-        const matchesAssignment =
-          assignmentFilter === "all" ||
-          (
-            assignmentFilter === "unassigned" &&
-            !ticket.receiver_id
-          ) ||
-          (
-            assignmentFilter === "assigned" &&
-            !!ticket.receiver_id
-          );
-
-
-        return (
-          matchesSearch &&
-          matchesStatus &&
-          matchesPriority &&
-          matchesAssignment
-        );
-
-      });
-
-    }, [
-      tickets,
-      search,
-      statusFilter,
-      priorityFilter,
-      assignmentFilter,
-    ]);
-
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPriority &&
+        matchesAssignment
+      );
+    });
+  }, [
+    tickets,
+    search,
+    statusFilter,
+    priorityFilter,
+    assignmentFilter,
+  ]);
 
   // ==================================================
   // CLEAR FILTERS
   // ==================================================
 
   function clearFilters() {
-
     setSearch("");
     setStatusFilter("all");
     setPriorityFilter("all");
     setAssignmentFilter("all");
 
-    // NEW
-    // Remove URL filters as well.
-    router.replace("/admin/tickets");
-
+    router.replace(
+      "/admin/tickets"
+    );
   }
-
 
   // ==================================================
   // LOADING
   // ==================================================
 
   if (loading) {
-
     return (
-
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-
-        <div className="text-sm text-slate-500 dark:text-slate-400">
-
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <div className="text-center text-sm text-slate-500 dark:text-slate-400">
           Laster saker...
-
         </div>
-
       </main>
-
     );
-
   }
-
 
   // ==================================================
   // ERROR
   // ==================================================
 
   if (error) {
-
     return (
-
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-
-        <div className="max-w-md rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
-
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <div className="w-full max-w-md rounded-xl border border-red-200 bg-red-50 px-5 py-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400 sm:px-6">
           {error}
-
         </div>
-
       </main>
-
     );
-
   }
-
 
   // ==================================================
   // PAGE
   // ==================================================
 
   return (
+    <main className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
-    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      {/* ==================================================
+          MOBILE HEADER
+      ================================================== */}
 
-      <div className="flex min-h-screen">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
+        <div className="flex h-16 items-center justify-between px-4">
 
+          {/* BRAND */}
+
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+              IT
+            </div>
+
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                IT Support
+              </p>
+
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                Administrasjon
+              </p>
+            </div>
+          </div>
+
+          {/* RIGHT SIDE */}
+
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+
+            <div className="flex h-10 w-10 items-center justify-center">
+              <NotificationBell />
+            </div>
+
+            <button
+              type="button"
+              aria-label={
+                mobileMenuOpen
+                  ? "Lukk meny"
+                  : "Åpne meny"
+              }
+              aria-expanded={
+                mobileMenuOpen
+              }
+              onClick={() =>
+                setMobileMenuOpen(
+                  open => !open
+                )
+              }
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.97] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {mobileMenuOpen ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 6l12 12M18 6L6 18"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ==================================================
+          MOBILE MENU BACKDROP
+      ================================================== */}
+
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          aria-label="Lukk meny"
+          onClick={() =>
+            setMobileMenuOpen(false)
+          }
+          className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
+        />
+      )}
+
+      {/* ==================================================
+          MOBILE MENU
+      ================================================== */}
+
+      {mobileMenuOpen && (
+        <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+
+          <div className="p-4">
+
+            {/* ==================================================
+                NAVIGATION
+            ================================================== */}
+
+            <div>
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Navigasjon
+              </p>
+
+              <div className="space-y-1">
+
+                {/* DASHBOARD */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin"
+                    )
+                  }
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  Dashboard
+                </button>
+
+                {/* ALL TICKETS */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin/tickets"
+                    )
+                  }
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+                  Alle saker
+                </button>
+
+                {/* EMPLOYEES */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin/employees"
+                    )
+                  }
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  Ansatte
+                </button>
+
+              </div>
+            </div>
+
+            {/* ==================================================
+                ACCOUNT
+            ================================================== */}
+
+            <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Konto
+              </p>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+
+                <div className="flex min-w-0 items-center gap-3">
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                    {user?.name
+                      ?.charAt(0)
+                      .toUpperCase()}
+                  </div>
+
+                  <div className="min-w-0">
+
+                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                      {user?.name}
+                    </p>
+
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {user?.email}
+                    </p>
+
+                  </div>
+                </div>
+              </div>
+
+              {/* LOGOUT */}
+
+              <button
+                type="button"
+                onClick={logout}
+                disabled={loggingOut}
+                className="mt-3 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                {loggingOut
+                  ? "Logger ut..."
+                  : "Logg ut"}
+              </button>
+            </div>
+
+            {/* ==================================================
+                APPEARANCE
+            ================================================== */}
+
+            <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Utseende
+              </p>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900">
+                <ThemeToggle />
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================
+          DESKTOP + MAIN CONTENT
+      ================================================== */}
+
+      <div className="flex min-h-screen w-full">
 
         {/* ==================================================
             SIDEBAR
         ================================================== */}
 
-        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
 
@@ -575,23 +726,17 @@ async function assignTicket(
             <div className="flex items-center gap-3">
 
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">
-
                 IT
-
               </div>
 
               <div>
 
                 <p className="font-bold text-slate-900 dark:text-white">
-
                   IT Support
-
                 </p>
 
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-
                   Administrasjon
-
                 </p>
 
               </div>
@@ -600,11 +745,9 @@ async function assignTicket(
 
           </div>
 
-
           {/* NAVIGATION */}
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-
 
             {/* DASHBOARD */}
 
@@ -614,63 +757,52 @@ async function assignTicket(
               }
               className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
-
               Dashboard
-
             </button>
-
 
             {/* ADMIN SECTION */}
 
             <div className="px-3 pb-2 pt-6">
 
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-
                 Admin
-
               </p>
 
             </div>
-
 
             {/* ALL TICKETS */}
 
             <button
               onClick={() =>
-                router.push("/admin/tickets")
+                router.push(
+                  "/admin/tickets"
+                )
               }
               className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
             >
-
               Alle saker
-
             </button>
-
 
             {/* EMPLOYEES */}
 
             <button
               onClick={() =>
-                router.push("/admin/employees")
+                router.push(
+                  "/admin/employees"
+                )
               }
               className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
             >
-
               Ansatte
-
             </button>
 
           </nav>
 
-
           {/* THEME */}
 
           <div className="border-t border-slate-200 p-3 dark:border-slate-800">
-
             <ThemeToggle />
-
           </div>
-
 
           {/* ACCOUNT */}
 
@@ -686,25 +818,19 @@ async function assignTicket(
 
               </div>
 
-
               <div className="min-w-0">
 
                 <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
-
                   {user?.name}
-
                 </p>
 
                 <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-
                   Administrator
-
                 </p>
 
               </div>
 
             </div>
-
 
             {/* LOGOUT */}
 
@@ -712,67 +838,56 @@ async function assignTicket(
               onClick={logout}
               className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
-
               Logg ut
-
             </button>
 
           </div>
 
         </aside>
 
-
         {/* ==================================================
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 flex-1">
-
+        <section className="min-w-0 w-full flex-1">
 
           {/* ==================================================
               HEADER
           ================================================== */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-900 sm:px-5 sm:py-6 lg:px-8 lg:py-6">
 
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start justify-between gap-4">
 
-              <div>
+              <div className="min-w-0">
 
                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-
                   Administrasjon
-
                 </p>
 
-                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                   Alle saker
-
                 </h1>
 
                 <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
-
                   Se, søk og administrer alle registrerte støttesaker.
-
                 </p>
 
               </div>
 
-
-              <NotificationBell />
+              <div className="hidden lg:block">
+                <NotificationBell />
+              </div>
 
             </div>
 
           </header>
 
-
           {/* ==================================================
               CONTENT
           ================================================== */}
 
-          <div className="p-6 lg:p-8">
-
+          <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-5 sm:px-5 sm:py-6 lg:space-y-8 lg:p-8">
 
             {/* ==================================================
                 FILTERS
@@ -780,31 +895,25 @@ async function assignTicket(
 
             <section>
 
-              <div className="mb-5">
+              <div className="mb-4 sm:mb-5">
 
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-
                   Saker
-
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-
                   Velg en sak for å se detaljer og administrere den.
-
                 </p>
 
               </div>
 
-
               {/* FILTER BAR */}
 
-              <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-
+              <div className="mb-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-4">
 
                 {/* SEARCH */}
 
-                <div className="relative min-w-0 flex-1">
+                <div className="relative min-w-0 w-full">
 
                   <input
                     type="text"
@@ -815,16 +924,14 @@ async function assignTicket(
                       )
                     }
                     placeholder="Søk etter sak, bruker eller problem..."
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
+                    className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                   />
 
                 </div>
 
-
                 {/* SELECTS */}
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
 
                   {/* STATUS */}
 
@@ -835,7 +942,7 @@ async function assignTicket(
                         e.target.value
                       )
                     }
-                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    className="min-h-11 w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   >
 
                     <option value="all">
@@ -860,7 +967,6 @@ async function assignTicket(
 
                   </select>
 
-
                   {/* PRIORITY */}
 
                   <select
@@ -870,7 +976,7 @@ async function assignTicket(
                         e.target.value
                       )
                     }
-                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    className="min-h-11 w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   >
 
                     <option value="all">
@@ -891,8 +997,7 @@ async function assignTicket(
 
                   </select>
 
-
-                  {/* NEW: ASSIGNMENT */}
+                  {/* ASSIGNMENT */}
 
                   <select
                     value={assignmentFilter}
@@ -901,7 +1006,7 @@ async function assignTicket(
                         e.target.value
                       )
                     }
-                    className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    className="min-h-11 w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   >
 
                     <option value="all">
@@ -920,32 +1025,32 @@ async function assignTicket(
 
                 </div>
 
-
                 {/* CLEAR FILTERS */}
 
                 {(search ||
-                  statusFilter !== "all" ||
-                  priorityFilter !== "all" ||
-                  assignmentFilter !== "all") && (
+                  statusFilter !==
+                    "all" ||
+                  priorityFilter !==
+                    "all" ||
+                  assignmentFilter !==
+                    "all") && (
 
-                  <div className="flex justify-end">
+                  <div className="mt-3 flex justify-start sm:justify-end">
 
                     <button
                       type="button"
-                      onClick={clearFilters}
-                      className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                      onClick={
+                        clearFilters
+                      }
+                      className="min-h-10 cursor-pointer px-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                     >
-
                       Nullstill filtre
-
                     </button>
 
                   </div>
-
                 )}
 
               </div>
-
 
               {/* ==================================================
                   RESULT COUNT
@@ -958,17 +1063,13 @@ async function assignTicket(
                   Viser{" "}
 
                   <span className="font-semibold text-slate-700 dark:text-slate-200">
-
                     {filteredTickets.length}
-
                   </span>{" "}
 
                   av{" "}
 
                   <span className="font-semibold text-slate-700 dark:text-slate-200">
-
                     {tickets.length}
-
                   </span>{" "}
 
                   saker
@@ -977,61 +1078,67 @@ async function assignTicket(
 
               </div>
 
-
               {/* ==================================================
                   TICKET LIST
               ================================================== */}
 
-                <div>
+              <div>
 
-                    {filteredTickets.length === 0 ? (
+                {filteredTickets.length === 0 ? (
 
-                        <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
 
-                        <p className="font-medium text-slate-700 dark:text-slate-200">
-                            Ingen saker funnet
-                        </p>
+                    <p className="font-medium text-slate-700 dark:text-slate-200">
+                      Ingen saker funnet
+                    </p>
 
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            Prøv å endre søket eller filtrene.
-                        </p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Prøv å endre søket eller filtrene.
+                    </p>
+
+                  </div>
+
+                ) : (
+
+                  <div className="space-y-3">
+
+                    {filteredTickets.map(
+                      ticket => (
+
+                        <div
+                          key={ticket.id}
+                          className="relative min-w-0 overflow-visible rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                        >
+
+                          <TicketRow
+                            ticket={ticket}
+                            employees={
+                              employees
+                            }
+                            assigning={
+                              assigningTicketId ===
+                              ticket.id
+                            }
+                            onAssign={
+                              assignTicket
+                            }
+                            onOpen={() =>
+                              router.push(
+                                `/tickets/${ticket.id}`
+                              )
+                            }
+                          />
 
                         </div>
 
-                    ) : (
-
-                        <div className="space-y-3">
-
-                        {filteredTickets.map(ticket => (
-
-                            <div
-                            key={ticket.id}
-                            className="relative rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
-                            >
-
-                            <TicketRow
-                                ticket={ticket}
-                                employees={employees}
-                                assigning={
-                                    assigningTicketId === ticket.id
-                                }
-                                onAssign={assignTicket}
-                                onOpen={() =>
-                                    router.push(
-                                    `/tickets/${ticket.id}`
-                                    )
-                                }
-                            />
-
-                            </div>
-
-                        ))}
-
-                        </div>
-
+                      )
                     )}
 
-                </div>
+                  </div>
+
+                )}
+
+              </div>
 
             </section>
 
@@ -1042,11 +1149,8 @@ async function assignTicket(
       </div>
 
     </main>
-
   );
-
 }
-
 
 // ====================================================
 // TICKET ROW
@@ -1068,167 +1172,206 @@ function TicketRow({
   ) => void;
   onOpen: () => void;
 }) {
-
   const isUnassigned =
     !ticket.receiver_id;
 
   const [assignmentOpen, setAssignmentOpen] =
     useState(false);
 
-    const [assignmentMenuPosition, setAssignmentMenuPosition] =
+  const [assignmentMenuPosition, setAssignmentMenuPosition] =
     useState<{
-        top: number;
-        left: number;
-        width: number;
+      top: number;
+      left: number;
+      width: number;
     } | null>(null);
 
-    const assignmentRef =
+  const assignmentRef =
     useRef<HTMLDivElement>(null);
-
 
   // ==================================================
   // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
   // ==================================================
 
   useEffect(() => {
-
     function handleClickOutside(
       event: MouseEvent
     ) {
-
       if (
         assignmentRef.current &&
         !assignmentRef.current.contains(
           event.target as Node
         )
       ) {
-
         setAssignmentOpen(false);
-
       }
-
     }
-
 
     document.addEventListener(
       "mousedown",
       handleClickOutside
     );
 
-
     return () => {
-
       document.removeEventListener(
         "mousedown",
         handleClickOutside
       );
-
     };
-
   }, []);
 
+  // ==================================================
+  // UPDATE DROPDOWN POSITION
+  // ==================================================
+
   useEffect(() => {
+    if (!assignmentOpen) {
+      return;
+    }
 
-  if (!assignmentOpen) {
-    return;
-  }
+    function handlePositionUpdate() {
+      updateAssignmentMenuPosition();
+    }
 
-  function handlePositionUpdate() {
-
-    updateAssignmentMenuPosition();
-
-  }
-
-  window.addEventListener(
-    "resize",
-    handlePositionUpdate
-  );
-
-  window.addEventListener(
-    "scroll",
-    handlePositionUpdate,
-    true
-  );
-
-  return () => {
-
-    window.removeEventListener(
+    window.addEventListener(
       "resize",
       handlePositionUpdate
     );
 
-    window.removeEventListener(
+    window.addEventListener(
       "scroll",
       handlePositionUpdate,
       true
     );
 
-  };
+    return () => {
+      window.removeEventListener(
+        "resize",
+        handlePositionUpdate
+      );
 
-}, [assignmentOpen]);
-
+      window.removeEventListener(
+        "scroll",
+        handlePositionUpdate,
+        true
+      );
+    };
+  }, [assignmentOpen]);
 
   function updateAssignmentMenuPosition() {
+    if (!assignmentRef.current) {
+      return;
+    }
 
-  if (!assignmentRef.current) {
-    return;
-  }
+    const button =
+      assignmentRef.current.querySelector(
+        "button"
+      );
 
-  const button =
-    assignmentRef.current.querySelector(
-      "button"
+    if (!button) {
+      return;
+    }
+
+    const rect =
+      button.getBoundingClientRect();
+
+    const gap = 8;
+
+    /*
+     * On phones we use a viewport-aware menu.
+     * On larger screens the existing width is kept.
+     */
+
+    const isMobile =
+      window.innerWidth < 640;
+
+    const viewportPadding =
+      isMobile ? 12 : 8;
+
+    const menuWidth = isMobile
+      ? Math.min(
+          window.innerWidth -
+            viewportPadding * 2,
+          360
+        )
+      : rect.width;
+
+    const menuHeight = 300;
+
+    const spaceBelow =
+      window.innerHeight -
+      rect.bottom;
+
+    const spaceAbove =
+      rect.top;
+
+    let top;
+
+    if (
+      spaceBelow >= menuHeight ||
+      spaceBelow >= spaceAbove
+    ) {
+      top =
+        rect.bottom + gap;
+    } else {
+      top =
+        rect.top -
+        menuHeight -
+        gap;
+    }
+
+    top = Math.max(
+      viewportPadding,
+      Math.min(
+        top,
+        window.innerHeight -
+          viewportPadding -
+          menuHeight
+      )
     );
 
-  if (!button) {
-    return;
-  }
+    /*
+     * Desktop:
+     * Keep the menu aligned with the
+     * assignment button.
+     *
+     * Mobile:
+     * Center the menu inside the viewport
+     * so it can never run off the screen.
+     */
 
-  const rect =
-    button.getBoundingClientRect();
+    let left;
 
-  const menuHeight = 300;
-  const gap = 8;
+    if (isMobile) {
+      left =
+        (window.innerWidth -
+          menuWidth) /
+        2;
+    } else {
+      left = rect.left;
 
-  const spaceBelow =
-    window.innerHeight - rect.bottom;
+      if (
+        left + menuWidth >
+        window.innerWidth -
+          viewportPadding
+      ) {
+        left =
+          window.innerWidth -
+          viewportPadding -
+          menuWidth;
+      }
 
-  const spaceAbove =
-    rect.top;
+      left = Math.max(
+        viewportPadding,
+        left
+      );
+    }
 
-  let top;
-
-  if (
-    spaceBelow >= menuHeight ||
-    spaceBelow >= spaceAbove
-  ) {
-
-    // Open downward
-    top = rect.bottom + gap;
-
-  } else {
-
-    // Open upward
-    top = rect.top - menuHeight - gap;
-
-  }
-
-  // Keep the menu inside the viewport
-  top = Math.max(
-    8,
-    Math.min(
+    setAssignmentMenuPosition({
       top,
-      window.innerHeight - 8 - menuHeight
-    )
-  );
-
-  setAssignmentMenuPosition({
-    top,
-    left: rect.left,
-    width: rect.width,
-  });
-
-}
-
+      left,
+      width: menuWidth,
+    });
+  }
 
   // ==================================================
   // HANDLE ASSIGNMENT
@@ -1237,68 +1380,50 @@ function TicketRow({
   function handleAssign(
     receiverId: string | null
   ) {
-
     setAssignmentOpen(false);
 
     onAssign(
       ticket.id,
       receiverId
     );
-
   }
 
-
   return (
+    <div className="group block w-full min-w-0 text-left">
 
-    <div className="group block w-full text-left">
-
-      <div className="p-5 sm:p-6">
-
+      <div className="min-w-0 p-4 sm:p-5 sm:p-6">
 
         {/* ==================================================
             TOP ROW
         ================================================== */}
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2.5 sm:gap-3">
 
           {/* LEFT: ID + CATEGORY */}
 
-          <div className="flex min-w-0 items-center gap-3">
-
+          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 sm:gap-3">
 
             {/* TICKET ID */}
 
-            <span className="font-mono text-lg font-bold text-slate-900 dark:text-white">
-
+            <span className="font-mono text-base font-bold text-slate-900 dark:text-white sm:text-lg">
               #{ticket.id}
-
             </span>
-
 
             {/* CATEGORY */}
 
-            <span className="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
+            <span className="max-w-[calc(100vw-8rem)] truncate rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 sm:max-w-none">
               {ticket.category}
-
             </span>
-
 
             {/* SUBCATEGORY */}
 
             {ticket.subcategory && (
-
               <span className="hidden rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600 sm:inline-block dark:bg-slate-800 dark:text-slate-300">
-
                 {ticket.subcategory}
-
               </span>
-
             )}
 
           </div>
-
 
           {/* PRIORITY */}
 
@@ -1308,28 +1433,23 @@ function TicketRow({
 
         </div>
 
-
         {/* ==================================================
             TITLE / DESCRIPTION
         ================================================== */}
 
-        <div className="mt-4">
+        <div className="mt-3 min-w-0 sm:mt-4">
 
-          <p className="line-clamp-2 text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg">
-
+          <p className="line-clamp-2 break-words text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg">
             {ticket.content}
-
           </p>
 
         </div>
-
 
         {/* ==================================================
             ASSIGNMENT + STATUS
         ================================================== */}
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
+        <div className="mt-4 flex min-w-0 flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
 
           {/* ==================================================
               ASSIGNMENT DROPDOWN
@@ -1337,28 +1457,23 @@ function TicketRow({
 
           <div
             ref={assignmentRef}
-            className="relative"
+            className="relative min-w-0 w-full sm:w-auto"
           >
 
             <button
               type="button"
               disabled={assigning}
               onClick={() => {
-
                 if (assignmentOpen) {
-
-                    setAssignmentOpen(false);
-
-                    return;
-
+                  setAssignmentOpen(false);
+                  return;
                 }
 
                 updateAssignmentMenuPosition();
 
                 setAssignmentOpen(true);
-
               }}
-              className={`flex min-w-[230px] items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition ${
+              className={`flex min-h-12 w-full min-w-0 items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition sm:min-w-[230px] ${
                 isUnassigned
                   ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
                   : "border-slate-200 bg-slate-50 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800"
@@ -1369,7 +1484,6 @@ function TicketRow({
               }`}
             >
 
-
               {/* AVATAR */}
 
               <div
@@ -1379,15 +1493,12 @@ function TicketRow({
                     : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
                 }`}
               >
-
                 {isUnassigned
                   ? "+"
                   : ticket.receiver?.name
                       ?.charAt(0)
                       .toUpperCase()}
-
               </div>
-
 
               {/* ASSIGNMENT TEXT */}
 
@@ -1400,13 +1511,10 @@ function TicketRow({
                       : "text-slate-500 dark:text-slate-400"
                   }`}
                 >
-
                   {isUnassigned
                     ? "Ikke tildelt"
                     : "Ansvarlig"}
-
                 </p>
-
 
                 <p
                   className={`truncate text-sm font-semibold ${
@@ -1415,17 +1523,14 @@ function TicketRow({
                       : "text-slate-800 dark:text-slate-200"
                   }`}
                 >
-
                   {assigning
                     ? "Oppdaterer..."
                     : isUnassigned
                     ? "Mangler ansvarlig"
                     : ticket.receiver?.name}
-
                 </p>
 
               </div>
-
 
               {/* CHEVRON */}
 
@@ -1436,193 +1541,163 @@ function TicketRow({
                     : ""
                 }`}
               >
-
                 ▼
-
               </span>
 
             </button>
-
 
             {/* ==================================================
                 DROPDOWN MENU
             ================================================== */}
 
-            {assignmentOpen && assignmentMenuPosition && (
-
+            {assignmentOpen &&
+              assignmentMenuPosition && (
                 <div
-                    style={{
+                  style={{
                     position: "fixed",
-                    top: assignmentMenuPosition.top,
-                    left: assignmentMenuPosition.left,
-                    width: assignmentMenuPosition.width,
-                    }}
-                    className="z-[100] max-h-[300px] overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                    top:
+                      assignmentMenuPosition.top,
+                    left:
+                      assignmentMenuPosition.left,
+                    width:
+                      assignmentMenuPosition.width,
+                  }}
+                  className="z-[100] max-h-[min(300px,60dvh)] overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
                 >
 
+                  {/* DROPDOWN HEADER */}
 
-                {/* DROPDOWN HEADER */}
+                  <div className="border-b border-slate-100 px-3 py-2 dark:border-slate-800">
 
-                <div className="border-b border-slate-100 px-3 py-2 dark:border-slate-800">
-
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-
-                    Tildel ansvarlig
-
-                  </p>
-
-                </div>
-
-
-                {/* UNASSIGNED */}
-
-                <button
-                  type="button"
-                  disabled={assigning}
-                  onClick={() =>
-                    handleAssign(null)
-                  }
-                  className={`flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                    isUnassigned
-                      ? "bg-amber-50 dark:bg-amber-950/30"
-                      : ""
-                  }`}
-                >
-
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-
-                    +
-
-                  </div>
-
-
-                  <div className="min-w-0 flex-1">
-
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-
-                      Ikke tildelt
-
-                    </p>
-
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-
-                      Ingen ansvarlig valgt
-
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                      Tildel ansvarlig
                     </p>
 
                   </div>
 
+                  {/* UNASSIGNED */}
 
-                  {isUnassigned && (
+                  <button
+                    type="button"
+                    disabled={assigning}
+                    onClick={() =>
+                      handleAssign(null)
+                    }
+                    className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                      isUnassigned
+                        ? "bg-amber-50 dark:bg-amber-950/30"
+                        : ""
+                    }`}
+                  >
 
-                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                      +
+                    </div>
 
-                      ✓
+                    <div className="min-w-0 flex-1">
 
-                    </span>
+                      <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                        Ikke tildelt
+                      </p>
 
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Ingen ansvarlig valgt
+                      </p>
+
+                    </div>
+
+                    {isUnassigned && (
+                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                        ✓
+                      </span>
+                    )}
+
+                  </button>
+
+                  {/* EMPLOYEES */}
+
+                  {employees.map(
+                    employee => {
+
+                      const isSelected =
+                        String(
+                          employee.id
+                        ) ===
+                        String(
+                          ticket.receiver_id
+                        );
+
+                      return (
+                        <button
+                          key={
+                            employee.id
+                          }
+                          type="button"
+                          disabled={
+                            assigning
+                          }
+                          onClick={() =>
+                            handleAssign(
+                              employee.id
+                            )
+                          }
+                          className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                            isSelected
+                              ? "bg-blue-50 dark:bg-blue-950/30"
+                              : ""
+                          }`}
+                        >
+
+                          {/* EMPLOYEE AVATAR */}
+
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                            {employee.name
+                              ?.charAt(
+                                0
+                              )
+                              .toUpperCase()}
+                          </div>
+
+                          {/* EMPLOYEE NAME */}
+
+                          <div className="min-w-0 flex-1">
+
+                            <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+                              {employee.name}
+                            </p>
+
+                            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                              {employee.email}
+                            </p>
+
+                          </div>
+
+                          {/* CHECKMARK */}
+
+                          {isSelected && (
+                            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                              ✓
+                            </span>
+                          )}
+
+                        </button>
+                      );
+                    }
                   )}
 
-                </button>
-
-
-                {/* EMPLOYEES */}
-
-                {employees.map(employee => {
-
-                  const isSelected =
-                    String(
-                      employee.id
-                    ) ===
-                    String(
-                      ticket.receiver_id
-                    );
-
-
-                  return (
-
-                    <button
-                      key={employee.id}
-                      type="button"
-                      disabled={assigning}
-                      onClick={() =>
-                        handleAssign(
-                          employee.id
-                        )
-                      }
-                      className={`flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                        isSelected
-                          ? "bg-blue-50 dark:bg-blue-950/30"
-                          : ""
-                      }`}
-                    >
-
-
-                      {/* EMPLOYEE AVATAR */}
-
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
-
-                        {employee.name
-                          ?.charAt(0)
-                          .toUpperCase()}
-
-                      </div>
-
-
-                      {/* EMPLOYEE NAME */}
-
-                      <div className="min-w-0 flex-1">
-
-                        <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
-
-                          {employee.name}
-
-                        </p>
-
-                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-
-                          {employee.email}
-
-                        </p>
-
-                      </div>
-
-
-                      {/* CHECKMARK */}
-
-                      {isSelected && (
-
-                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-
-                          ✓
-
-                        </span>
-
-                      )}
-
-                    </button>
-
-                  );
-
-                })}
-
-              </div>
-
-            )}
+                </div>
+              )}
 
           </div>
-
 
           {/* ==================================================
               STATUS
           ================================================== */}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:shrink-0">
 
             <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-
               Status
-
             </span>
 
             <StatusBadge
@@ -1633,71 +1708,49 @@ function TicketRow({
 
         </div>
 
-
         {/* ==================================================
             METADATA
         ================================================== */}
 
-        <div className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
 
-
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
 
             <span>
-
               Opprettet{" "}
-
               <span className="font-medium text-slate-600 dark:text-slate-300">
-
                 {formatDate(
                   ticket.created_at
                 )}
-
               </span>
-
             </span>
 
-
             {ticket.sender && (
-
-              <span>
-
+              <span className="max-w-full truncate">
                 Fra{" "}
-
                 <span className="font-medium text-slate-600 dark:text-slate-300">
-
                   {ticket.sender.name}
-
                 </span>
-
               </span>
-
             )}
 
           </div>
-
 
           {/* OPEN */}
 
           <button
             type="button"
             onClick={onOpen}
-            className="shrink-0 cursor-pointer font-semibold text-blue-600 transition hover:translate-x-0.5 dark:text-blue-400"
+            className="min-h-10 shrink-0 self-start cursor-pointer font-semibold text-blue-600 transition hover:translate-x-0.5 dark:text-blue-400 sm:self-auto"
           >
-
             Åpne sak →
-
           </button>
 
         </div>
 
-
       </div>
-
     </div>
-
   );
-
 }
 
 // ====================================================
@@ -1709,54 +1762,31 @@ function PriorityBadge({
 }: {
   priority: string;
 }) {
-
   if (
     priority === "høy" ||
     priority === "high"
   ) {
-
     return (
-
-      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
+      <span className="shrink-0 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Høy
-
       </span>
-
     );
-
   }
 
-
-  if (
-    priority === "medium"
-  ) {
-
+  if (priority === "medium") {
     return (
-
-      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
-
+      <span className="shrink-0 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
         Medium
-
       </span>
-
     );
-
   }
-
 
   return (
-
-    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
+    <span className="shrink-0 rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Lav
-
     </span>
-
   );
-
 }
-
 
 // ====================================================
 // STATUS BADGE
@@ -1767,81 +1797,48 @@ function StatusBadge({
 }: {
   status: string;
 }) {
-
   if (
     status === "started" ||
     status === "pågår"
   ) {
-
     return (
-
-      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
+      <span className="inline-flex shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
-
       </span>
-
     );
-
   }
-
 
   if (
     status === "completed" ||
     status === "finished"
   ) {
-
     return (
-
-      <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
-
+      <span className="inline-flex shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
-
       </span>
-
     );
-
   }
 
-
-  if (
-    status === "cancelled"
-  ) {
-
+  if (status === "cancelled") {
     return (
-
-      <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
+      <span className="inline-flex shrink-0 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Avbrutt
-
       </span>
-
     );
-
   }
-
 
   return (
-
-    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
+    <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Ny
-
     </span>
-
   );
-
 }
-
 
 // ====================================================
 // DATE
 // ====================================================
 
-function formatDate(
-  value: string
-) {
-
+function formatDate(value: string) {
   return new Date(
     value
   ).toLocaleDateString(
@@ -1852,5 +1849,4 @@ function formatDate(
       year: "numeric",
     }
   );
-
 }
