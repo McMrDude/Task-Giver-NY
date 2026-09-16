@@ -828,7 +828,7 @@ export default function EmployeeDashboard() {
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 w-full flex-1 lg:ml-64">
+        <section className="min-w-0 w-full pt-16 lg:ml-64 lg:w-[calc(100%-16rem)] lg:pt-0">
 
           {/* ==================================================
               DESKTOP PAGE HEADER
