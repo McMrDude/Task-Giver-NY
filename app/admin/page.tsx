@@ -292,7 +292,7 @@ export default function AdminDashboard() {
           MOBILE HEADER
       ================================================== */}
 
-      <header className="fixed inset-x-0 top-0 z-50 lg:hidden border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
 
         <div className="flex h-16 items-center justify-between px-4">
 
@@ -749,7 +749,7 @@ export default function AdminDashboard() {
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 w-full flex-1">
+        <section className="min-w-0 w-full flex-1 pt-16 lg:pt-0">
 
           {/* ==================================================
               HEADER
