@@ -477,8 +477,9 @@ export default function AdminTicketsPage() {
           MOBILE HEADER
       ================================================== */}
 
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
-        <div className="flex h-16 items-center justify-between px-4">
+      <header className="sticky top-0 z-50 lg:hidden">
+        <div className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-5">
 
           {/* BRAND */}
 
@@ -505,6 +506,22 @@ export default function AdminTicketsPage() {
             <div className="flex h-10 w-10 items-center justify-center">
               <NotificationBell />
             </div>
+
+            <button
+              type="button"
+              onClick={logout}
+              disabled={loggingOut}
+              aria-label="Logg ut"
+              title="Logg ut"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 17l5-5-5-5" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H3" />
+              </svg>
+              <span className="hidden sm:inline">{loggingOut ? "Logger ut..." : "Logg ut"}</span>
+            </button>
 
             <button
               type="button"
@@ -557,6 +574,7 @@ export default function AdminTicketsPage() {
             </button>
           </div>
         </div>
+        </div>
       </header>
 
       {/* ==================================================
@@ -570,7 +588,7 @@ export default function AdminTicketsPage() {
           onClick={() =>
             setMobileMenuOpen(false)
           }
-          className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
         />
       )}
 
@@ -717,7 +735,7 @@ export default function AdminTicketsPage() {
             SIDEBAR
         ================================================== */}
 
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
+        <aside className="fixed left-0 top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
 
@@ -849,7 +867,7 @@ export default function AdminTicketsPage() {
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 w-full flex-1">
+        <section className="min-w-0 w-full flex-1 lg:ml-64">
 
           {/* ==================================================
               HEADER
@@ -1391,7 +1409,7 @@ function TicketRow({
   return (
     <div className="group block w-full min-w-0 text-left">
 
-      <div className="min-w-0 p-4 sm:p-5 sm:p-6">
+      <div className="min-w-0 p-4 sm:p-6">
 
         {/* ==================================================
             TOP ROW
