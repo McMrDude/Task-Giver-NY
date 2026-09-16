@@ -588,19 +588,6 @@ export default function EmployeesPage() {
                 </button>
 
 
-                {/* ADMIN */}
-
-                <div className="px-3 pb-2 pt-5">
-
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-
-                    Admin
-
-                  </p>
-
-                </div>
-
-
                 {/* ALL TICKETS */}
 
                 <button
@@ -743,6 +730,10 @@ export default function EmployeesPage() {
           {/* NAVIGATION */}
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+
+            <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Navigasjon
+            </p>
 
             {/* DASHBOARD */}
 
