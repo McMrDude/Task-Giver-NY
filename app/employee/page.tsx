@@ -50,7 +50,24 @@ export default function EmployeeDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
+  // ==================================================
+  // MOBILE MENU SCROLL LOCK
+  // ==================================================
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   // ==================================================
   // LOAD
@@ -132,6 +149,15 @@ export default function EmployeeDashboard() {
   }
 
   // ==================================================
+  // MOBILE NAVIGATION
+  // ==================================================
+
+  function navigateMobile(path: string) {
+    setMobileMenuOpen(false);
+    router.push(path);
+  }
+
+  // ==================================================
   // TICKET FILTERING
   // ==================================================
 
@@ -160,7 +186,6 @@ export default function EmployeeDashboard() {
   // DASHBOARD CARD DATA
   // ==================================================
 
-  // High-priority active tickets
   const highPriorityTickets = useMemo(
     () =>
       activeTickets.filter(
@@ -171,7 +196,6 @@ export default function EmployeeDashboard() {
     [activeTickets]
   );
 
-  // Tickets with a deadline within the next 7 days
   const upcomingDeadlineTickets = useMemo(() => {
     const now = new Date();
 
@@ -195,7 +219,6 @@ export default function EmployeeDashboard() {
     });
   }, [activeTickets]);
 
-  // Overdue active tickets
   const overdueTickets = useMemo(() => {
     const now = new Date();
 
@@ -210,11 +233,9 @@ export default function EmployeeDashboard() {
     });
   }, [activeTickets]);
 
-  // Completed during the current week
   const completedThisWeek = useMemo(() => {
     const now = new Date();
 
-    // Monday = 1, Sunday = 0
     const day = now.getDay();
 
     const daysSinceMonday =
@@ -325,10 +346,10 @@ export default function EmployeeDashboard() {
       <div className="flex min-h-screen">
 
         {/* ==================================================
-            SIDEBAR
+            DESKTOP SIDEBAR
         ================================================== */}
 
-        <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+        <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
 
@@ -451,15 +472,22 @@ export default function EmployeeDashboard() {
 
         </aside>
 
+
         {/* ==================================================
             MOBILE
         ================================================== */}
 
         <div className="w-full lg:hidden">
 
+          {/* ==================================================
+              MOBILE HEADER
+          ================================================== */}
+
           <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
 
             <div className="flex items-center justify-between px-5 py-4">
+
+              {/* LOGO */}
 
               <div className="flex items-center gap-3">
 
@@ -468,6 +496,7 @@ export default function EmployeeDashboard() {
                 </div>
 
                 <div>
+
                   <p className="text-sm font-bold text-slate-900 dark:text-white">
                     IT Support
                   </p>
@@ -475,71 +504,181 @@ export default function EmployeeDashboard() {
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Ansattportal
                   </p>
+
                 </div>
 
               </div>
 
+
+              {/* MENU BUTTON */}
+
               <button
+                type="button"
                 onClick={() =>
                   setMobileMenuOpen(
-                    !mobileMenuOpen
+                    current => !current
                   )
                 }
-                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                aria-label="Åpne meny"
+                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                aria-label={
+                  mobileMenuOpen
+                    ? "Lukk meny"
+                    : "Åpne meny"
+                }
+                aria-expanded={
+                  mobileMenuOpen
+                }
               >
-                ☰
+
+                {mobileMenuOpen
+                  ? "✕"
+                  : "☰"}
+
               </button>
 
             </div>
 
+
+            {/* ==================================================
+                MOBILE BACKDROP
+            ================================================== */}
+
             {mobileMenuOpen && (
-              <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+              <button
+                type="button"
+                aria-label="Lukk meny"
+                onClick={() =>
+                  setMobileMenuOpen(false)
+                }
+                className="fixed inset-0 top-[73px] z-40 cursor-default bg-slate-900/20 backdrop-blur-sm dark:bg-black/30"
+              />
+            )}
 
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                >
-                  ▦ Oversikt
-                </button>
 
-                <button
-                  onClick={() =>
-                    router.push("/employee/tasks")
-                  }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  📋 Mine tildelte saker
-                </button>
+            {/* ==================================================
+                MOBILE DROPDOWN
+            ================================================== */}
 
-                <button
-                  onClick={() =>
-                    router.push("/completed-tasks")
-                  }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  ✓ Fullførte saker
-                </button>
+            {mobileMenuOpen && (
 
-                <button
-                  onClick={() =>
-                    router.push("/help")
-                  }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  ❓ Hjelp
-                </button>
+              <div className="absolute left-0 right-0 top-full z-50 border-b border-slate-200 bg-white px-5 py-4 shadow-lg dark:border-slate-800 dark:bg-slate-900">
 
-                <ThemeToggle />
+                <div className="space-y-2">
+
+                  {/* DASHBOARD */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setMobileMenuOpen(false)
+                    }
+                    className="w-full cursor-pointer rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                  >
+                    ▦ Oversikt
+                  </button>
+
+
+                  {/* TASKS */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigateMobile(
+                        "/employee/tasks"
+                      )
+                    }
+                    className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    📋 Mine tildelte saker
+                  </button>
+
+
+                  {/* COMPLETED */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigateMobile(
+                        "/completed-tasks"
+                      )
+                    }
+                    className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    ✓ Fullførte saker
+                  </button>
+
+
+                  {/* HELP */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigateMobile(
+                        "/employee/help"
+                      )
+                    }
+                    className="w-full cursor-pointer rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    ❓ Hjelp
+                  </button>
+
+
+                  {/* THEME */}
+
+                  <div className="pt-2">
+                    <ThemeToggle />
+                  </div>
+
+
+                  {/* ACCOUNT */}
+
+                  {user && (
+                    <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+
+                      <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-950">
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                          {user.name
+                            .charAt(0)
+                            .toUpperCase()}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+
+                          <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                            {user.name}
+                          </p>
+
+                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                            {user.email}
+                          </p>
+
+                        </div>
+
+                      </div>
+
+
+                      <button
+                        type="button"
+                        onClick={logout}
+                        className="mt-3 w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        Logg ut
+                      </button>
+
+                    </div>
+                  )}
+
+                </div>
 
               </div>
+
             )}
 
           </header>
 
         </div>
+
 
         {/* ==================================================
             MAIN
@@ -549,59 +688,68 @@ export default function EmployeeDashboard() {
 
           {/* HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-5 py-5 dark:border-slate-800 dark:bg-slate-900 sm:px-6 sm:py-6 lg:px-8">
 
             <div className="flex items-start justify-between gap-4">
 
-              <div>
+              <div className="min-w-0">
 
                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
                   Ansattportal
                 </p>
 
-                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="mt-1 truncate text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
                   Hei, {user?.name}
                 </h1>
 
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
                   Her får du en rask oversikt over arbeidssakene dine.
                 </p>
 
               </div>
 
-              <NotificationBell />
+              <div className="shrink-0">
+                <NotificationBell />
+              </div>
 
             </div>
 
           </header>
 
+
           {/* CONTENT */}
 
-          <div className="space-y-8 p-5 lg:p-8">
+          <div className="space-y-8 p-5 sm:p-6 lg:p-8">
 
             {/* ==================================================
                 DASHBOARD CARDS
             ================================================== */}
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
 
               <DashboardStat
                 title="Høy prioritet"
-                value={highPriorityTickets.length}
+                value={
+                  highPriorityTickets.length
+                }
                 description="Saker som bør prioriteres"
                 icon="!"
               />
 
               <DashboardStat
                 title="Frister snart"
-                value={upcomingDeadlineTickets.length}
+                value={
+                  upcomingDeadlineTickets.length
+                }
                 description="Frist innen 7 dager"
                 icon="◷"
               />
 
               <DashboardStat
                 title="Forfalte"
-                value={overdueTickets.length}
+                value={
+                  overdueTickets.length
+                }
                 description="Saker med utgått frist"
                 icon="!"
                 danger={
@@ -611,12 +759,15 @@ export default function EmployeeDashboard() {
 
               <DashboardStat
                 title="Fullført denne uken"
-                value={completedThisWeek.length}
+                value={
+                  completedThisWeek.length
+                }
                 description="Saker ferdigbehandlet"
                 icon="✓"
               />
 
             </div>
+
 
             {/* ==================================================
                 QUICK OVERVIEW
@@ -631,6 +782,7 @@ export default function EmployeeDashboard() {
                 <div className="mb-5 flex items-end justify-between gap-4">
 
                   <div>
+
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                       Krever oppmerksomhet
                     </h2>
@@ -638,11 +790,14 @@ export default function EmployeeDashboard() {
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       Saker du bør prioritere først.
                     </p>
+
                   </div>
 
                   <button
                     onClick={() =>
-                      router.push("/employee/tasks")
+                      router.push(
+                        "/employee/tasks"
+                      )
                     }
                     className="hidden cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 sm:block"
                   >
@@ -650,6 +805,7 @@ export default function EmployeeDashboard() {
                   </button>
 
                 </div>
+
 
                 {priorityTickets.length === 0 ? (
 
@@ -674,6 +830,7 @@ export default function EmployeeDashboard() {
 
               </section>
 
+
               {/* DEADLINES */}
 
               <section>
@@ -689,6 +846,7 @@ export default function EmployeeDashboard() {
                   </p>
 
                 </div>
+
 
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
@@ -716,6 +874,7 @@ export default function EmployeeDashboard() {
 
                       {upcomingTickets.map(
                         ticket => (
+
                           <button
                             key={ticket.id}
                             onClick={() =>
@@ -749,6 +908,7 @@ export default function EmployeeDashboard() {
                             </div>
 
                           </button>
+
                         )
                       )}
 
@@ -762,11 +922,12 @@ export default function EmployeeDashboard() {
 
             </div>
 
+
             {/* ==================================================
                 QUICK ACTION
             ================================================== */}
 
-            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
 
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
@@ -784,9 +945,11 @@ export default function EmployeeDashboard() {
 
                 <button
                   onClick={() =>
-                    router.push("/employee/tasks")
+                    router.push(
+                      "/employee/tasks"
+                    )
                   }
-                  className="cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  className="w-full cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
                 >
                   Se mine saker
                 </button>
@@ -824,23 +987,23 @@ function DashboardStat({
 }) {
   return (
     <div
-      className={`rounded-xl border bg-white p-5 shadow-sm dark:bg-slate-900 ${
+      className={`rounded-xl border bg-white p-4 shadow-sm sm:p-5 dark:bg-slate-900 ${
         danger
           ? "border-red-200 dark:border-red-900/70"
           : "border-slate-200 dark:border-slate-800"
       }`}
     >
 
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-2">
 
-        <div>
+        <div className="min-w-0">
 
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="truncate text-xs font-medium text-slate-500 dark:text-slate-400 sm:text-sm">
             {title}
           </p>
 
           <p
-            className={`mt-2 text-3xl font-bold ${
+            className={`mt-2 text-2xl font-bold sm:text-3xl ${
               danger &&
               value > 0
                 ? "text-red-600 dark:text-red-400"
@@ -853,7 +1016,7 @@ function DashboardStat({
         </div>
 
         <div
-          className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm ${
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm sm:h-9 sm:w-9 ${
             danger &&
             value > 0
               ? "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400"
@@ -865,7 +1028,7 @@ function DashboardStat({
 
       </div>
 
-      <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+      <p className="mt-2 hidden text-xs text-slate-400 dark:text-slate-500 sm:block">
         {description}
       </p>
 
@@ -889,7 +1052,7 @@ function DashboardTicket({
       onClick={() =>
         router.push(`/tickets/${ticket.id}`)
       }
-      className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+      className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
     >
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -926,7 +1089,7 @@ function DashboardTicket({
 
           </div>
 
-          <p className="mt-2 truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+          <p className="mt-2 line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-200">
             {ticket.content}
           </p>
 
@@ -1063,9 +1226,12 @@ function StatusBadge({
     const now = new Date();
 
     const isCreatedToday =
-      created.getFullYear() === now.getFullYear() &&
-      created.getMonth() === now.getMonth() &&
-      created.getDate() === now.getDate();
+      created.getFullYear() ===
+        now.getFullYear() &&
+      created.getMonth() ===
+        now.getMonth() &&
+      created.getDate() ===
+        now.getDate();
 
     return (
       <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
