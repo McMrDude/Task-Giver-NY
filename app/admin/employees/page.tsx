@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import ThemeToggle from "../../components/ThemeToggle";
 import NotificationBell from "../../components/NotificationBell";
 
-
 // ====================================================
 // TYPES
 // ====================================================
@@ -47,7 +46,6 @@ type Ticket = {
   } | null;
 };
 
-
 // ====================================================
 // EMPLOYEE WITH TASK INFORMATION
 // ====================================================
@@ -58,13 +56,11 @@ type EmployeeData = {
   completedTasks: Ticket[];
 };
 
-
 // ====================================================
 // PAGE
 // ====================================================
 
 export default function EmployeesPage() {
-
   const router = useRouter();
 
   const [user, setUser] =
@@ -88,22 +84,23 @@ export default function EmployeesPage() {
   const [expandedEmployee, setExpandedEmployee] =
     useState<string | null>(null);
 
+  // Mobile navigation
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
+  const [loggingOut, setLoggingOut] =
+    useState(false);
 
   // ==================================================
   // LOAD
   // ==================================================
 
   useEffect(() => {
-
     loadEmployees();
-
   }, []);
 
-
   async function loadEmployees() {
-
     try {
-
       // ----------------------------------------------
       // CHECK LOGIN
       // ----------------------------------------------
@@ -112,29 +109,20 @@ export default function EmployeesPage() {
         await fetch("/api/auth/me");
 
       if (!meResponse.ok) {
-
         router.push("/login");
-
         return;
-
       }
-
 
       const me =
         await meResponse.json();
-
 
       if (
         !me.success ||
         !me.user
       ) {
-
         router.push("/login");
-
         return;
-
       }
-
 
       // ----------------------------------------------
       // CHECK ADMIN
@@ -143,16 +131,11 @@ export default function EmployeesPage() {
       if (
         me.user.role !== "admin"
       ) {
-
         router.push("/");
-
         return;
-
       }
 
-
       setUser(me.user);
-
 
       // ----------------------------------------------
       // LOAD EMPLOYEES
@@ -161,24 +144,19 @@ export default function EmployeesPage() {
       const employeeResponse =
         await fetch("/api/admin/users");
 
-
       const employeeResult =
         await employeeResponse.json();
-
 
       if (
         !employeeResult.success
       ) {
-
         setError(
           employeeResult.error ||
           "Kunne ikke hente ansatte."
         );
 
         return;
-
       }
-
 
       // ----------------------------------------------
       // LOAD TASKS
@@ -187,24 +165,19 @@ export default function EmployeesPage() {
       const taskResponse =
         await fetch("/api/admin/tasks");
 
-
       const taskResult =
         await taskResponse.json();
-
 
       if (
         !taskResult.success
       ) {
-
         setError(
           taskResult.error ||
           "Kunne ikke hente saker."
         );
 
         return;
-
       }
-
 
       setEmployees(
         employeeResult.data || []
@@ -213,42 +186,53 @@ export default function EmployeesPage() {
       setTickets(
         taskResult.data || []
       );
-
-
     } catch (err) {
-
       console.error(err);
 
       setError(
         "Kunne ikke laste ansattoversikten."
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
+  // ==================================================
+  // MOBILE NAVIGATION
+  // ==================================================
+
+  function navigateMobile(path: string) {
+    setMobileMenuOpen(false);
+    router.push(path);
+  }
 
   // ==================================================
   // LOGOUT
   // ==================================================
 
   async function logout() {
+    if (loggingOut) {
+      return;
+    }
 
-    await fetch(
-      "/api/auth/logout",
-      {
-        method: "POST",
-      }
-    );
+    setLoggingOut(true);
 
-    router.push("/login");
-
+    try {
+      await fetch(
+        "/api/auth/logout",
+        {
+          method: "POST",
+        }
+      );
+    } catch (err) {
+      console.error(
+        "Logout failed:",
+        err
+      );
+    } finally {
+      window.location.href = "/login";
+    }
   }
-
 
   // ==================================================
   // EMPLOYEE DATA
@@ -256,45 +240,42 @@ export default function EmployeesPage() {
 
   const employeeData =
     useMemo<EmployeeData[]>(() => {
+      return employees.map(
+        employee => {
+          const employeeTasks =
+            tickets.filter(
+              ticket =>
+                ticket.receiver_id ===
+                employee.id
+            );
 
-      return employees.map(employee => {
+          const currentTasks =
+            employeeTasks.filter(
+              ticket =>
+                ticket.status !==
+                  "completed" &&
+                ticket.status !==
+                  "cancelled"
+            );
 
-        const employeeTasks =
-          tickets.filter(
-            ticket =>
-              ticket.receiver_id ===
-              employee.id
-          );
+          const completedTasks =
+            employeeTasks.filter(
+              ticket =>
+                ticket.status ===
+                "completed"
+            );
 
-
-        const currentTasks =
-          employeeTasks.filter(
-            ticket =>
-              ticket.status !== "completed" &&
-              ticket.status !== "cancelled"
-          );
-
-
-        const completedTasks =
-          employeeTasks.filter(
-            ticket =>
-              ticket.status === "completed"
-          );
-
-
-        return {
-          employee,
-          currentTasks,
-          completedTasks,
-        };
-
-      });
-
+          return {
+            employee,
+            currentTasks,
+            completedTasks,
+          };
+        }
+      );
     }, [
       employees,
       tickets,
     ]);
-
 
   // ==================================================
   // SEARCH
@@ -302,41 +283,31 @@ export default function EmployeesPage() {
 
   const filteredEmployees =
     useMemo(() => {
-
       const searchText =
         search
           .trim()
           .toLowerCase();
 
-
       if (!searchText) {
-
         return employeeData;
-
       }
-
 
       return employeeData.filter(
         data =>
-
-            data.employee.name
+          data.employee.name
             .toLowerCase()
             .includes(searchText) ||
-
-            data.employee.email
+          data.employee.email
             .toLowerCase()
             .includes(searchText) ||
-
-            data.employee.phone_number
+          data.employee.phone_number
             ?.toLowerCase()
             .includes(searchText)
-       );
-
+      );
     }, [
       employeeData,
       search,
     ]);
-
 
   // ==================================================
   // STATISTICS
@@ -344,7 +315,6 @@ export default function EmployeesPage() {
 
   const totalEmployees =
     employees.length;
-
 
   const totalCurrentTasks =
     employeeData.reduce(
@@ -354,7 +324,6 @@ export default function EmployeesPage() {
       0
     );
 
-
   const totalCompletedTasks =
     employeeData.reduce(
       (sum, employee) =>
@@ -363,77 +332,380 @@ export default function EmployeesPage() {
       0
     );
 
-
   const employeesWithTasks =
     employeeData.filter(
       employee =>
         employee.currentTasks.length > 0
     ).length;
 
-
   // ==================================================
   // LOADING
   // ==================================================
 
   if (loading) {
-
     return (
-
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-
         <div className="text-sm text-slate-500 dark:text-slate-400">
-
           Laster ansatte...
-
         </div>
-
       </main>
-
     );
-
   }
-
 
   // ==================================================
   // ERROR
   // ==================================================
 
   if (error) {
-
     return (
-
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-
         <div className="max-w-md rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
-
           {error}
-
         </div>
-
       </main>
-
     );
-
   }
-
 
   // ==================================================
   // PAGE
   // ==================================================
 
   return (
-
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
-      <div className="flex min-h-screen">
+      {/* ==================================================
+          MOBILE HEADER
+      ================================================== */}
 
+      <header className="sticky top-0 z-50 lg:hidden">
+
+        <div className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
+
+          <div className="flex h-16 items-center justify-between px-4 sm:px-5">
+
+            {/* MOBILE LOGO */}
+
+            <button
+              type="button"
+              onClick={() =>
+                navigateMobile("/admin")
+              }
+              className="flex min-w-0 cursor-pointer items-center gap-3 text-left"
+              aria-label="Gå til administrasjon"
+            >
+
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-sm">
+
+                IT
+
+              </div>
+
+              <div className="min-w-0">
+
+                <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+
+                  IT Support
+
+                </p>
+
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+
+                  Administrasjon
+
+                </p>
+
+              </div>
+
+            </button>
+
+
+            {/* RIGHT SIDE */}
+
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+
+              {/* NOTIFICATIONS */}
+
+              <div className="flex h-10 w-10 items-center justify-center">
+
+                <NotificationBell />
+
+              </div>
+
+
+              {/* LOGOUT */}
+
+              <button
+                type="button"
+                onClick={logout}
+                disabled={loggingOut}
+                className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 sm:px-3.5"
+                aria-label="Logg ut"
+              >
+
+                <svg
+                  className="h-4 w-4 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+
+                <span className="hidden sm:inline">
+                  {loggingOut
+                    ? "Logger ut..."
+                    : "Logg ut"}
+                </span>
+
+              </button>
+
+
+              {/* HAMBURGER */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setMobileMenuOpen(
+                    current => !current
+                  )
+                }
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                aria-label={
+                  mobileMenuOpen
+                    ? "Lukk meny"
+                    : "Åpne meny"
+                }
+                aria-expanded={
+                  mobileMenuOpen
+                }
+              >
+
+                {mobileMenuOpen ? (
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <line
+                      x1="18"
+                      y1="6"
+                      x2="6"
+                      y2="18"
+                    />
+                    <line
+                      x1="6"
+                      y1="6"
+                      x2="18"
+                      y2="18"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <line
+                      x1="4"
+                      y1="6"
+                      x2="20"
+                      y2="6"
+                    />
+                    <line
+                      x1="4"
+                      y1="12"
+                      x2="20"
+                      y2="12"
+                    />
+                    <line
+                      x1="4"
+                      y1="18"
+                      x2="20"
+                      y2="18"
+                    />
+                  </svg>
+                )}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        {/* MOBILE MENU */}
+
+        {mobileMenuOpen && (
+          <>
+            {/* BACKDROP */}
+
+            <button
+              type="button"
+              aria-label="Lukk meny"
+              onClick={() =>
+                setMobileMenuOpen(false)
+              }
+              className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px]"
+            />
+
+
+            {/* MENU PANEL */}
+
+            <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
+
+              <nav className="p-3">
+
+                {/* DASHBOARD */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile("/admin")
+                  }
+                  className="flex w-full cursor-pointer items-center rounded-lg px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                >
+
+                  Dashboard
+
+                </button>
+
+
+                {/* ADMIN */}
+
+                <div className="px-3 pb-2 pt-5">
+
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+
+                    Admin
+
+                  </p>
+
+                </div>
+
+
+                {/* ALL TICKETS */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin/tickets"
+                    )
+                  }
+                  className="flex w-full cursor-pointer items-center rounded-lg px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                >
+
+                  Alle saker
+
+                </button>
+
+
+                {/* EMPLOYEES */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigateMobile(
+                      "/admin/employees"
+                    )
+                  }
+                  className="flex w-full cursor-pointer items-center rounded-lg bg-blue-50 px-3 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+
+                  Ansatte
+
+                </button>
+
+              </nav>
+
+
+              {/* MOBILE ACCOUNT */}
+
+              <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+
+                <div className="mb-3 flex items-center gap-3">
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+
+                    {user?.name
+                      ?.charAt(0)
+                      .toUpperCase()}
+
+                  </div>
+
+                  <div className="min-w-0">
+
+                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+
+                      {user?.name}
+
+                    </p>
+
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+
+                      Administrator
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <div className="mb-3">
+
+                  <ThemeToggle />
+
+                </div>
+
+
+                <button
+                  type="button"
+                  onClick={logout}
+                  disabled={loggingOut}
+                  className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+
+                  {loggingOut
+                    ? "Logger ut..."
+                    : "Logg ut"}
+
+                </button>
+
+              </div>
+
+            </div>
+          </>
+        )}
+
+      </header>
+
+
+      <div className="flex min-h-screen">
 
         {/* ==================================================
             SIDEBAR
         ================================================== */}
 
-        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
 
@@ -472,7 +744,6 @@ export default function EmployeesPage() {
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-3">
 
-
             {/* DASHBOARD */}
 
             <button
@@ -486,8 +757,6 @@ export default function EmployeesPage() {
 
             </button>
 
-
-            {/* USER TICKETS */}
 
             {/* ADMIN SECTION */}
 
@@ -595,10 +864,9 @@ export default function EmployeesPage() {
 
         <section className="min-w-0 flex-1">
 
-
           {/* HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="border-b border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-900 sm:px-5 sm:py-6 lg:px-8">
 
             <div className="flex items-start justify-between gap-4">
 
@@ -625,7 +893,13 @@ export default function EmployeesPage() {
               </div>
 
 
-              <NotificationBell />
+              {/* Desktop notification bell */}
+
+              <div className="hidden lg:flex">
+
+                <NotificationBell />
+
+              </div>
 
             </div>
 
@@ -634,8 +908,7 @@ export default function EmployeesPage() {
 
           {/* CONTENT */}
 
-          <div className="space-y-8 p-6 lg:p-8">
-
+          <div className="space-y-8 p-4 sm:p-6 lg:p-8">
 
             {/* ==================================================
                 STATISTICS
@@ -722,7 +995,9 @@ export default function EmployeesPage() {
                   type="text"
                   value={search}
                   onChange={e =>
-                    setSearch(e.target.value)
+                    setSearch(
+                      e.target.value
+                    )
                   }
                   placeholder="Søk etter ansatt, e-post eller telefon..."
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
@@ -759,7 +1034,9 @@ export default function EmployeesPage() {
                     data => (
 
                       <EmployeeCard
-                        key={data.employee.id}
+                        key={
+                          data.employee.id
+                        }
                         data={data}
                         expanded={
                           expandedEmployee ===
@@ -799,9 +1076,7 @@ export default function EmployeesPage() {
       </div>
 
     </main>
-
   );
-
 }
 
 
@@ -847,11 +1122,16 @@ function StatCard({
 
 }
 
+
 // ====================================================
 // WORKLOAD BAR
 // ====================================================
 
-function WorkloadBar({ taskCount }: { taskCount: number }) {
+function WorkloadBar({
+  taskCount,
+}: {
+  taskCount: number;
+}) {
 
   const maxTasks = 8;
 
@@ -902,6 +1182,7 @@ function WorkloadBar({ taskCount }: { taskCount: number }) {
 
 }
 
+
 // ====================================================
 // EMPLOYEE CARD
 // ====================================================
@@ -937,7 +1218,6 @@ function EmployeeCard({
 
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-
       {/* ==================================================
           EMPLOYEE HEADER
       ================================================== */}
@@ -945,17 +1225,16 @@ function EmployeeCard({
       <button
         type="button"
         onClick={onToggle}
-        className="group w-full cursor-pointer p-5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
+        className="group w-full cursor-pointer p-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50 sm:p-5"
       >
 
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
 
+          {/* AVATAR + INFORMATION */}
 
-          {/* AVATAR */}
+          <div className="flex min-w-0 shrink-0 items-center gap-4">
 
-          <div className="flex shrink-0 items-center gap-4">
-
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
 
               {employee.name
                 .charAt(0)
@@ -966,27 +1245,27 @@ function EmployeeCard({
 
             <div className="min-w-0">
 
-                <p className="font-semibold text-slate-900 dark:text-white">
+              <p className="truncate font-semibold text-slate-900 dark:text-white">
 
-                    {employee.name}
+                {employee.name}
 
-                </p>
+              </p>
+
+              <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
+
+                {employee.email}
+
+              </p>
+
+              {employee.phone_number && (
 
                 <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
 
-                    {employee.email}
+                  {employee.phone_number}
 
                 </p>
 
-                {employee.phone_number && (
-
-                    <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-
-                    {employee.phone_number}
-
-                    </p>
-
-                )}
+              )}
 
             </div>
 
@@ -997,90 +1276,115 @@ function EmployeeCard({
 
           <div className="hidden flex-1 lg:block" />
 
-{/* ==================================================
-    WORKLOAD / TASK SUMMARY
-================================================== */}
 
-<div className="flex shrink-0 items-center gap-5">
+          {/* ==================================================
+              WORKLOAD / TASK SUMMARY
+          ================================================== */}
 
-  {/* WORKLOAD */}
+          <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:shrink-0 lg:justify-start lg:gap-5">
 
-  <div className="hidden sm:block">
+            {/* WORKLOAD */}
 
-    <WorkloadBar
-      taskCount={currentTasks.length}
-    />
+            <div className="hidden sm:block">
 
-  </div>
+              <WorkloadBar
+                taskCount={
+                  currentTasks.length
+                }
+              />
 
-
-  {/* ACTIVE TASKS */}
-
-  <div className="min-w-[64px] text-center">
-
-    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-
-      Aktive
-
-    </p>
-
-    <p className="mt-1 text-2xl font-bold leading-none text-slate-900 dark:text-white">
-
-      {currentTasks.length}
-
-    </p>
-
-  </div>
+            </div>
 
 
-  {/* HIGH PRIORITY */}
+            {/* ACTIVE TASKS */}
 
-  {highPriorityTasks > 0 && (
+            <div className="min-w-[56px] text-center">
 
-    <div className="hidden min-w-[70px] border-l border-slate-200 pl-5 text-center sm:block dark:border-slate-800">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
 
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
+                Aktive
 
-        Høy prioritet
+              </p>
 
-      </p>
+              <p className="mt-1 text-2xl font-bold leading-none text-slate-900 dark:text-white">
 
-      <p className="mt-1 text-lg font-bold leading-none text-red-600 dark:text-red-400">
+                {currentTasks.length}
 
-        {highPriorityTasks}
+              </p>
 
-      </p>
-
-    </div>
-
-  )}
+            </div>
 
 
-  {/* COMPLETED */}
+            {/* HIGH PRIORITY */}
 
-  <div className="hidden min-w-[64px] border-l border-slate-200 pl-5 text-center md:block dark:border-slate-800">
+            {highPriorityTasks > 0 && (
 
-    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="hidden min-w-[70px] border-l border-slate-200 pl-5 text-center sm:block dark:border-slate-800">
 
-      Ferdige
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
 
-    </p>
+                  Høy prioritet
 
-    <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+                </p>
 
-      {completedTasks.length}
+                <p className="mt-1 text-lg font-bold leading-none text-red-600 dark:text-red-400">
 
-    </p>
+                  {highPriorityTasks}
 
-  </div>
+                </p>
 
-</div>
+              </div>
+
+            )}
+
+
+            {/* COMPLETED */}
+
+            <div className="hidden min-w-[64px] border-l border-slate-200 pl-5 text-center md:block dark:border-slate-800">
+
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+
+                Ferdige
+
+              </p>
+
+              <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+
+                {completedTasks.length}
+
+              </p>
+
+            </div>
+
+
+            {/* MOBILE COMPLETED */}
+
+            <div className="text-center sm:hidden">
+
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+
+                Ferdige
+
+              </p>
+
+              <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+
+                {completedTasks.length}
+
+              </p>
+
+            </div>
+
+          </div>
+
 
           {/* ARROW */}
 
-          <div className="text-slate-400 transition group-hover:text-blue-600 dark:text-slate-500 dark:group-hover:text-blue-400">
+          <div className="shrink-0 self-end text-slate-400 transition group-hover:text-blue-600 dark:text-slate-500 dark:group-hover:text-blue-400 lg:self-auto">
 
-            {expanded ? "▲" : "▼"}
+            {expanded
+              ? "▲"
+              : "▼"}
 
           </div>
 
@@ -1097,38 +1401,43 @@ function EmployeeCard({
 
         <div className="border-t border-slate-200 dark:border-slate-800">
 
-
           {/* ==================================================
               EMPLOYEE INFORMATION
           ================================================== */}
 
-          <div className="border-b border-slate-200 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-950/40">
+          <div className="border-b border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-950/40 sm:p-5">
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-                <InfoItem
-                    label="Navn"
-                    value={employee.name}
-                />
+              <InfoItem
+                label="Navn"
+                value={
+                  employee.name
+                }
+              />
+
+              <InfoItem
+                label="E-post"
+                value={
+                  employee.email
+                }
+              />
+
+              {employee.phone_number && (
 
                 <InfoItem
-                    label="E-post"
-                    value={employee.email}
+                  label="Telefon"
+                  value={
+                    employee.phone_number
+                  }
                 />
 
-                {employee.phone_number && (
+              )}
 
-                    <InfoItem
-                    label="Telefon"
-                    value={employee.phone_number}
-                    />
-
-                )}
-
-                <InfoItem
-                    label="Rolle"
-                    value="Ansatt"
-                />
+              <InfoItem
+                label="Rolle"
+                value="Ansatt"
+              />
 
             </div>
 
@@ -1139,11 +1448,11 @@ function EmployeeCard({
               CURRENT TASKS
           ================================================== */}
 
-          <div className="p-5">
+          <div className="p-4 sm:p-5">
 
             <div className="mb-4 flex items-center justify-between gap-4">
 
-              <div>
+              <div className="min-w-0">
 
                 <h3 className="font-semibold text-slate-900 dark:text-white">
 
@@ -1160,7 +1469,7 @@ function EmployeeCard({
               </div>
 
 
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+              <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
 
                 {currentTasks.length}
 
@@ -1198,7 +1507,9 @@ function EmployeeCard({
                       key={task.id}
                       task={task}
                       onOpen={() =>
-                        onOpenTask(task.id)
+                        onOpenTask(
+                          task.id
+                        )
                       }
                     />
 
@@ -1218,15 +1529,15 @@ function EmployeeCard({
 
           {completedTasks.length > 0 && (
 
-            <div className="border-t border-slate-200 p-5 dark:border-slate-800">
+            <div className="border-t border-slate-200 p-4 dark:border-slate-800 sm:p-5">
 
               <details>
 
                 <summary className="cursor-pointer list-none">
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
 
-                    <div>
+                    <div className="min-w-0">
 
                       <h3 className="font-semibold text-slate-900 dark:text-white">
 
@@ -1243,7 +1554,7 @@ function EmployeeCard({
                     </div>
 
 
-                    <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-950/40 dark:text-green-400">
+                    <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-950/40 dark:text-green-400">
 
                       {completedTasks.length}
 
@@ -1263,7 +1574,9 @@ function EmployeeCard({
                         key={task.id}
                         task={task}
                         onOpen={() =>
-                          onOpenTask(task.id)
+                          onOpenTask(
+                            task.id
+                          )
                         }
                       />
 
@@ -1341,11 +1654,10 @@ function TaskRow({
     <button
       type="button"
       onClick={onOpen}
-      className="group w-full cursor-pointer rounded-lg border border-slate-200 p-4 text-left transition hover:border-blue-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-blue-800 dark:hover:bg-slate-800/50"
+      className="group w-full cursor-pointer rounded-lg border border-slate-200 p-3.5 text-left transition hover:border-blue-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-blue-800 dark:hover:bg-slate-800/50 sm:p-4"
     >
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-
 
         {/* ID */}
 
@@ -1374,12 +1686,16 @@ function TaskRow({
 
 
             <PriorityBadge
-              priority={task.priority}
+              priority={
+                task.priority
+              }
             />
 
 
             <StatusBadge
-              status={task.status}
+              status={
+                task.status
+              }
             />
 
           </div>
@@ -1396,7 +1712,10 @@ function TaskRow({
 
             <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
 
-              Frist: {formatDate(task.due_date)}
+              Frist:{" "}
+              {formatDate(
+                task.due_date
+              )}
 
             </p>
 
@@ -1407,7 +1726,7 @@ function TaskRow({
 
         {/* OPEN */}
 
-        <span className="shrink-0 text-sm font-semibold text-blue-600 group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-300">
+        <span className="shrink-0 self-start text-sm font-semibold text-blue-600 group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-300 sm:self-auto">
 
           Åpne →
 
@@ -1450,7 +1769,9 @@ function PriorityBadge({
   }
 
 
-  if (priority === "medium") {
+  if (
+    priority === "medium"
+  ) {
 
     return (
 
@@ -1524,7 +1845,9 @@ function StatusBadge({
   }
 
 
-  if (status === "cancelled") {
+  if (
+    status === "cancelled"
+  ) {
 
     return (
 
