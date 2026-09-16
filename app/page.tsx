@@ -256,7 +256,7 @@ const handleSubmit = async (
 
 
   setStatusMessage(
-    "Oppretter støttesak..."
+    "Oppretter sak..."
   );
 
 
