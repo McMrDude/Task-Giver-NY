@@ -860,11 +860,6 @@ export default function CompletedTasksPage() {
 
               </div>
 
-
-              {/* NOTIFICATIONS */}
-
-              <NotificationBell />
-
             </div>
 
           </header>
