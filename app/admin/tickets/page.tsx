@@ -477,7 +477,7 @@ export default function AdminTicketsPage() {
           MOBILE HEADER
       ================================================== */}
 
-      <header className="sticky top-0 z-50 lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-50 lg:hidden">
         <div className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
           <div className="flex h-16 items-center justify-between px-4 sm:px-5">
 
@@ -867,7 +867,7 @@ export default function AdminTicketsPage() {
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 w-full flex-1 lg:ml-64">
+        <section className="min-w-0 w-full flex-1 pt-16 lg:ml-64 lg:pt-0">
 
           {/* ==================================================
               HEADER
