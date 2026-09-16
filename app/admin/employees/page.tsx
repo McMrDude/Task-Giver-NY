@@ -553,40 +553,35 @@ export default function EmployeesPage() {
 
         {/* MOBILE MENU */}
 
-        {mobileMenuOpen && (
-          <>
-            {/* BACKDROP */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:hidden">
 
-            <button
-              type="button"
-              aria-label="Lukk meny"
-              onClick={() =>
-                setMobileMenuOpen(false)
-              }
-              className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px]"
-            />
+          <div className="p-4">
 
+            {/* ==================================================
+                NAVIGATION
+            ================================================== */}
 
-            {/* MENU PANEL */}
+            <div>
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Navigasjon
+              </p>
 
-            <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
-
-              <nav className="p-3">
+              <div className="space-y-1">
 
                 {/* DASHBOARD */}
 
                 <button
                   type="button"
                   onClick={() =>
-                    navigateMobile("/admin")
+                    navigateMobile(
+                      "/admin"
+                    )
                   }
-                  className="flex w-full cursor-pointer items-center rounded-lg px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
                 >
-
                   Dashboard
-
                 </button>
-
 
                 {/* ALL TICKETS */}
 
@@ -597,13 +592,10 @@ export default function EmployeesPage() {
                       "/admin/tickets"
                     )
                   }
-                  className="flex w-full cursor-pointer items-center rounded-lg px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
                 >
-
                   Alle saker
-
                 </button>
-
 
                 {/* EMPLOYEES */}
 
@@ -614,74 +606,81 @@ export default function EmployeesPage() {
                       "/admin/employees"
                     )
                   }
-                  className="flex w-full cursor-pointer items-center rounded-lg bg-blue-50 px-3 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                  className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
                 >
-
                   Ansatte
-
                 </button>
 
-              </nav>
+              </div>
+            </div>
 
+            {/* ==================================================
+                ACCOUNT
+            ================================================== */}
 
-              {/* MOBILE ACCOUNT */}
+            <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
 
-              <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Konto
+              </p>
 
-                <div className="mb-3 flex items-center gap-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+
+                <div className="flex min-w-0 items-center gap-3">
 
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
-
                     {user?.name
                       ?.charAt(0)
                       .toUpperCase()}
-
                   </div>
 
                   <div className="min-w-0">
 
                     <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
-
                       {user?.name}
-
                     </p>
 
                     <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-
-                      Administrator
-
+                      {user?.email}
                     </p>
 
                   </div>
-
                 </div>
+              </div>
 
+              {/* LOGOUT */}
 
-                <div className="mb-3">
+              <button
+                type="button"
+                onClick={logout}
+                disabled={loggingOut}
+                className="mt-3 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                {loggingOut
+                  ? "Logger ut..."
+                  : "Logg ut"}
+              </button>
+            </div>
 
-                  <ThemeToggle />
+            {/* ==================================================
+                APPEARANCE
+            ================================================== */}
 
-                </div>
+            <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
 
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Utseende
+              </p>
 
-                <button
-                  type="button"
-                  onClick={logout}
-                  disabled={loggingOut}
-                  className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-
-                  {loggingOut
-                    ? "Logger ut..."
-                    : "Logg ut"}
-
-                </button>
-
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900">
+                <ThemeToggle />
               </div>
 
             </div>
-          </>
-        )}
+
+          </div>
+        </div>
+      )}
 
       </header>
 
@@ -730,10 +729,6 @@ export default function EmployeesPage() {
           {/* NAVIGATION */}
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-
-            <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Navigasjon
-            </p>
 
             {/* DASHBOARD */}
 
