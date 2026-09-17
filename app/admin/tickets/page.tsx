@@ -1120,7 +1120,7 @@ export default function AdminTicketsPage() {
 
                 <div className="hidden border-b border-slate-200 bg-slate-50/80 px-4 py-3 xl:block dark:border-slate-800 dark:bg-slate-950/40">
 
-                    <div className="grid grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] items-stretch text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <div className="grid grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_200px_100px] items-stretch text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
 
                     {/* COLOR */}
                     <div />
@@ -1299,27 +1299,33 @@ function TicketRow({
   // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
   // ==================================================
 
-  useEffect(() => {
+    useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        desktopAssignmentRef.current || mobileAssignmentRef.current
-      ) {
+        const target = event.target as Node;
+
+        const clickedDesktop =
+        desktopAssignmentRef.current?.contains(target);
+
+        const clickedMobile =
+        mobileAssignmentRef.current?.contains(target);
+
+        if (!clickedDesktop && !clickedMobile) {
         setAssignmentOpen(false);
-      }
+        }
     }
 
     document.addEventListener(
-      "mousedown",
-      handleClickOutside
+        "mousedown",
+        handleClickOutside
     );
 
     return () => {
-      document.removeEventListener(
+        document.removeEventListener(
         "mousedown",
         handleClickOutside
-      );
+        );
     };
-  }, []);
+    }, []);
 
 
   // ==================================================
@@ -1338,48 +1344,6 @@ function TicketRow({
     };
   }, []);
 
-  // ==================================================
-  // UPDATE DROPDOWN POSITION
-  // ==================================================
-
-  useEffect(() => {
-    if (!assignmentOpen) {
-      return;
-    }
-
-    function handlePositionUpdate() {
-        const ref =
-            window.innerWidth >= 1280
-                ? desktopAssignmentRef
-                : mobileAssignmentRef;
-
-        updateAssignmentMenuPosition(ref);
-    }
-
-    window.addEventListener(
-      "resize",
-      handlePositionUpdate
-    );
-
-    window.addEventListener(
-      "scroll",
-      handlePositionUpdate,
-      true
-    );
-
-    return () => {
-      window.removeEventListener(
-        "resize",
-        handlePositionUpdate
-      );
-
-      window.removeEventListener(
-        "scroll",
-        handlePositionUpdate,
-        true
-      );
-    };
-  }, [assignmentOpen]);
 
   function updateAssignmentMenuPosition(
     ref: React.RefObject<HTMLDivElement | null>
@@ -1510,7 +1474,7 @@ function TicketRow({
           DESKTOP
       ================================================== */}
 
-      <div className="hidden xl:grid xl:grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] xl:items-stretch xl:px-4 xl:py-0">
+      <div className="hidden xl:grid xl:grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_200px_100px] xl:items-stretch xl:px-4 xl:py-0">
 
         {/* ==================================================
             PRIORITY COLOR STRIPE
@@ -1808,7 +1772,7 @@ function TicketRow({
           <button
             type="button"
             onClick={onOpen}
-            className="min-w-[100px] whitespace-nowrap w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
+            className="w-full min-w-[100px] cursor-pointer whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
           >
             Åpne sak →
           </button>
