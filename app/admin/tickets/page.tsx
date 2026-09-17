@@ -1270,8 +1270,6 @@ function TicketRow({
 
   const [assignmentOpen, setAssignmentOpen] =
     useState(false);
-  const [assignmentTicketId, setAssignmentTicketId] = 
-    useState<number | null>(null);
 
   const [assignmentMenuPosition, setAssignmentMenuPosition] =
     useState<{
@@ -1617,21 +1615,16 @@ function TicketRow({
             type="button"
             disabled={assigning}
             onClick={() => {
-                if (
-                    assignmentOpen &&
-                    assignmentTicketId === ticket.id
-                ) {
-                    setAssignmentOpen(false);
-                    setAssignmentTicketId(null);
-                    return;
-                }
+              if (assignmentOpen) {
+                setAssignmentOpen(false);
+                return;
+              }
 
-                updateAssignmentMenuPosition(
-                    mobileAssignmentRef
-                );
+              updateAssignmentMenuPosition(
+                desktopAssignmentRef
+              );
 
-                setAssignmentTicketId(ticket.id);
-                setAssignmentOpen(true);
+              setAssignmentOpen(true);
             }}
             className={`flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
               isUnassigned
@@ -1909,21 +1902,16 @@ function TicketRow({
                 type="button"
                 disabled={assigning}
                 onClick={() => {
-                    if (
-                        assignmentOpen &&
-                        assignmentTicketId === ticket.id
-                    ) {
-                        setAssignmentOpen(false);
-                        setAssignmentTicketId(null);
-                        return;
-                    }
+                  if (assignmentOpen) {
+                    setAssignmentOpen(false);
+                    return;
+                  }
 
-                    updateAssignmentMenuPosition(
-                        mobileAssignmentRef
-                    );
+                  updateAssignmentMenuPosition(
+                    mobileAssignmentRef
+                  );
 
-                    setAssignmentTicketId(ticket.id);
-                    setAssignmentOpen(true);
+                  setAssignmentOpen(true);
                 }}
                 className={`flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-left transition ${
                   isUnassigned
