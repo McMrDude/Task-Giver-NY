@@ -1096,67 +1096,120 @@ export default function AdminTicketsPage() {
 
               </div>
 
-              {/* ==================================================
-                  TICKET LIST
-              ================================================== */}
+            {/* ==================================================
+                TICKET TABLE
+            ================================================== */}
 
-              <div>
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
                 {filteredTickets.length === 0 ? (
+                    <div className="p-8 text-center sm:p-12">
+                        <p className="font-medium text-slate-700 dark:text-slate-200">
+                            Ingen saker funnet
+                        </p>
 
-                  <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Prøv å endre søket eller filtrene.
+                        </p>
+                    </div>
+            ) : (
+                <>
+                {/* ==================================================
+                    DESKTOP TABLE HEADER
+                ================================================== */}
 
-                    <p className="font-medium text-slate-700 dark:text-slate-200">
-                      Ingen saker funnet
-                    </p>
+                <div className="hidden border-b border-slate-200 bg-slate-50/80 px-4 py-3 xl:block dark:border-slate-800 dark:bg-slate-950/40">
 
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Prøv å endre søket eller filtrene.
-                    </p>
+                    <div className="grid grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
 
-                  </div>
+                    {/* COLOR */}
+                    <div />
 
-                ) : (
+                    {/* ID */}
+                    <div>ID</div>
 
-                  <div className="space-y-3">
+                    {/* DATE */}
+                    <div>Opprettet</div>
 
-                    {filteredTickets.map(
-                      ticket => (
+                    {/* CATEGORY */}
+                    <div>Kategori</div>
 
-                        <div
-                          key={ticket.id}
-                          className="relative min-w-0 overflow-visible rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
-                        >
+                    {/* DESCRIPTION */}
+                    <div>Beskrivelse</div>
 
-                          <TicketRow
-                            ticket={ticket}
-                            employees={
-                              employees
-                            }
-                            assigning={
-                              assigningTicketId ===
-                              ticket.id
-                            }
-                            onAssign={
-                              assignTicket
-                            }
-                            onOpen={() =>
-                              router.push(
-                                `/tickets/${ticket.id}`
-                              )
-                            }
-                          />
+                    {/* STATUS */}
+                    <div>Status</div>
 
-                        </div>
+                    {/* PRIORITY */}
+                    <div>Prioritet</div>
 
-                      )
-                    )}
+                    {/* ASSIGNMENT */}
+                    <div>Tildelt</div>
 
-                  </div>
+                    {/* ACTION */}
+                    <div>Handling</div>
 
-                )}
+                    </div>
 
-              </div>
+                </div>
+
+                {/* ==================================================
+                    TICKETS
+                ================================================== */}
+
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+
+                    {filteredTickets.map(ticket => (
+                    <div
+                        key={ticket.id}
+                        className="relative min-w-0 overflow-visible bg-white transition-colors hover:bg-slate-50/70 dark:bg-slate-900 dark:hover:bg-slate-800/40"
+                    >
+                        <TicketRow
+                        ticket={ticket}
+                        employees={employees}
+                        assigning={
+                            assigningTicketId === ticket.id
+                        }
+                        onAssign={assignTicket}
+                        onOpen={() =>
+                            router.push(
+                            `/tickets/${ticket.id}`
+                            )
+                        }
+                        />
+                    </div>
+                    ))}
+
+                </div>
+
+                {/* ==================================================
+                    FOOTER
+                ================================================== */}
+
+                <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+
+                    <span>
+                    Viser{" "}
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                        {filteredTickets.length}
+                    </span>{" "}
+                    av{" "}
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                        {tickets.length}
+                    </span>{" "}
+                    saker
+                    </span>
+
+                    <span className="text-slate-400 dark:text-slate-500">
+                    Velg en sak for å se detaljer
+                    </span>
+
+                </div>
+
+                </>
+            )}
+
+            </div>
 
             </section>
 
@@ -1190,8 +1243,7 @@ function TicketRow({
   ) => void;
   onOpen: () => void;
 }) {
-  const isUnassigned =
-    !ticket.receiver_id;
+  const isUnassigned = !ticket.receiver_id;
 
   const [assignmentOpen, setAssignmentOpen] =
     useState(false);
@@ -1207,13 +1259,23 @@ function TicketRow({
     useRef<HTMLDivElement>(null);
 
   // ==================================================
+  // PRIORITY ACCENT
+  // ==================================================
+
+  const priorityAccent =
+    ticket.priority === "høy" ||
+    ticket.priority === "high"
+      ? "bg-red-500"
+      : ticket.priority === "medium"
+      ? "bg-amber-400"
+      : "bg-blue-500";
+
+  // ==================================================
   // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
   // ==================================================
 
   useEffect(() => {
-    function handleClickOutside(
-      event: MouseEvent
-    ) {
+    function handleClickOutside(event: MouseEvent) {
       if (
         assignmentRef.current &&
         !assignmentRef.current.contains(
@@ -1294,11 +1356,6 @@ function TicketRow({
 
     const gap = 8;
 
-    /*
-     * On phones we use a viewport-aware menu.
-     * On larger screens the existing width is kept.
-     */
-
     const isMobile =
       window.innerWidth < 640;
 
@@ -1311,7 +1368,7 @@ function TicketRow({
             viewportPadding * 2,
           360
         )
-      : rect.width;
+      : Math.max(rect.width, 230);
 
     const menuHeight = 300;
 
@@ -1346,16 +1403,6 @@ function TicketRow({
           menuHeight
       )
     );
-
-    /*
-     * Desktop:
-     * Keep the menu aligned with the
-     * assignment button.
-     *
-     * Mobile:
-     * Center the menu inside the viewport
-     * so it can never run off the screen.
-     */
 
     let left;
 
@@ -1406,280 +1453,555 @@ function TicketRow({
     );
   }
 
-  return (
-    <div className="group block w-full min-w-0 text-left">
+  // ==================================================
+  // DESKTOP ROW
+  // ==================================================
 
-      <div className="min-w-0 p-4 sm:p-6">
+  return (
+    <div className="relative">
+
+      {/* ==================================================
+          DESKTOP
+      ================================================== */}
+
+      <div className="hidden xl:grid xl:grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] xl:items-center xl:gap-3 xl:px-4 xl:py-3.5">
 
         {/* ==================================================
-            TOP ROW
+            PRIORITY COLOR STRIPE
         ================================================== */}
 
-        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+        <div
+          className={`h-10 w-1.5 rounded-full ${priorityAccent}`}
+          title={`Prioritet: ${ticket.priority}`}
+        />
 
-          {/* LEFT: ID + CATEGORY */}
+        {/* ==================================================
+            ID
+        ================================================== */}
 
-          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 sm:gap-3">
+        <div>
+          <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+            #{ticket.id}
+          </span>
+        </div>
 
-            {/* TICKET ID */}
+        {/* ==================================================
+            CREATED
+        ================================================== */}
 
-            <span className="font-mono text-base font-bold text-slate-900 dark:text-white sm:text-lg">
-              #{ticket.id}
-            </span>
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+            {formatDate(ticket.created_at)}
+          </p>
 
-            {/* CATEGORY */}
+          <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">
+            {formatTime(ticket.created_at)}
+          </p>
+        </div>
 
-            <span className="max-w-[calc(100vw-8rem)] truncate rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 sm:max-w-none">
-              {ticket.category}
-            </span>
+        {/* ==================================================
+            CATEGORY
+        ================================================== */}
 
-            {/* SUBCATEGORY */}
+        <div className="min-w-0">
 
-            {ticket.subcategory && (
-              <span className="hidden rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600 sm:inline-block dark:bg-slate-800 dark:text-slate-300">
-                {ticket.subcategory}
-              </span>
-            )}
+          <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+            {ticket.category}
+          </p>
 
-          </div>
-
-          {/* PRIORITY */}
-
-          <PriorityBadge
-            priority={ticket.priority}
-          />
+          {ticket.subcategory && (
+            <p className="mt-0.5 truncate text-xs text-slate-400 dark:text-slate-500">
+              {ticket.subcategory}
+            </p>
+          )}
 
         </div>
 
         {/* ==================================================
-            TITLE / DESCRIPTION
+            DESCRIPTION
         ================================================== */}
 
-        <div className="mt-3 min-w-0 sm:mt-4">
+        <div className="min-w-0">
 
-          <p className="line-clamp-2 break-words text-base font-semibold leading-6 text-slate-900 dark:text-white sm:text-lg">
+          <p className="line-clamp-2 text-sm leading-5 text-slate-700 dark:text-slate-200">
             {ticket.content}
           </p>
 
+          {ticket.sender && (
+            <p className="mt-1 truncate text-[11px] text-slate-400 dark:text-slate-500">
+              Fra {ticket.sender.name}
+            </p>
+          )}
+
         </div>
 
         {/* ==================================================
-            ASSIGNMENT + STATUS
+            STATUS
         ================================================== */}
 
-        <div className="mt-4 flex min-w-0 flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <StatusBadge
+            status={ticket.status}
+          />
+        </div>
+
+        {/* ==================================================
+            PRIORITY
+        ================================================== */}
+
+        <div>
+          <PriorityBadge
+            priority={ticket.priority}
+          />
+        </div>
+
+        {/* ==================================================
+            ASSIGNMENT
+        ================================================== */}
+
+        <div
+          ref={assignmentRef}
+          className="relative min-w-0"
+        >
+
+          <button
+            type="button"
+            disabled={assigning}
+            onClick={() => {
+              if (assignmentOpen) {
+                setAssignmentOpen(false);
+                return;
+              }
+
+              updateAssignmentMenuPosition();
+              setAssignmentOpen(true);
+            }}
+            className={`flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
+              isUnassigned
+                ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
+                : "border-slate-200 bg-slate-50 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800"
+            } ${
+              assigning
+                ? "cursor-wait opacity-70"
+                : ""
+            }`}
+          >
+
+            {/* AVATAR */}
+
+            <div
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                isUnassigned
+                  ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
+                  : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
+              }`}
+            >
+              {isUnassigned
+                ? "+"
+                : ticket.receiver?.name
+                    ?.charAt(0)
+                    .toUpperCase()}
+            </div>
+
+            {/* NAME */}
+
+            <span
+              className={`min-w-0 flex-1 truncate text-xs font-medium ${
+                isUnassigned
+                  ? "text-amber-800 dark:text-amber-300"
+                  : "text-slate-700 dark:text-slate-200"
+              }`}
+            >
+              {assigning
+                ? "Oppdaterer..."
+                : isUnassigned
+                ? "Ikke tildelt"
+                : ticket.receiver?.name}
+            </span>
+
+            {/* CHEVRON */}
+
+            <span
+              className={`shrink-0 text-[10px] text-slate-400 transition-transform dark:text-slate-500 ${
+                assignmentOpen
+                  ? "rotate-180"
+                  : ""
+              }`}
+            >
+              ▼
+            </span>
+
+          </button>
 
           {/* ==================================================
               ASSIGNMENT DROPDOWN
           ================================================== */}
 
-          <div
-            ref={assignmentRef}
-            className="relative min-w-0 w-full sm:w-auto"
-          >
-
-            <button
-              type="button"
-              disabled={assigning}
-              onClick={() => {
-                if (assignmentOpen) {
-                  setAssignmentOpen(false);
-                  return;
-                }
-
-                updateAssignmentMenuPosition();
-
-                setAssignmentOpen(true);
-              }}
-              className={`flex min-h-12 w-full min-w-0 items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition sm:min-w-[230px] ${
-                isUnassigned
-                  ? "border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
-                  : "border-slate-200 bg-slate-50 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800"
-              } ${
-                assigning
-                  ? "cursor-wait opacity-70"
-                  : "cursor-pointer"
-              }`}
-            >
-
-              {/* AVATAR */}
-
+          {assignmentOpen &&
+            assignmentMenuPosition && (
               <div
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  isUnassigned
-                    ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
-                    : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
-                }`}
+                style={{
+                  position: "fixed",
+                  top:
+                    assignmentMenuPosition.top,
+                  left:
+                    assignmentMenuPosition.left,
+                  width:
+                    assignmentMenuPosition.width,
+                }}
+                className="z-[100] max-h-[min(300px,60dvh)] overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
               >
-                {isUnassigned
-                  ? "+"
-                  : ticket.receiver?.name
-                      ?.charAt(0)
-                      .toUpperCase()}
+
+                <div className="border-b border-slate-100 px-3 py-2.5 dark:border-slate-800">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    Tildel ansvarlig
+                  </p>
+                </div>
+
+                {/* UNASSIGNED */}
+
+                <button
+                  type="button"
+                  disabled={assigning}
+                  onClick={() =>
+                    handleAssign(null)
+                  }
+                  className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                    isUnassigned
+                      ? "bg-amber-50 dark:bg-amber-950/30"
+                      : ""
+                  }`}
+                >
+
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                    +
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      Ikke tildelt
+                    </p>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Ingen ansvarlig valgt
+                    </p>
+                  </div>
+
+                  {isUnassigned && (
+                    <span className="text-xs font-bold text-amber-600">
+                      ✓
+                    </span>
+                  )}
+
+                </button>
+
+                {/* EMPLOYEES */}
+
+                {employees.map(employee => {
+                  const isSelected =
+                    String(employee.id) ===
+                    String(ticket.receiver_id);
+
+                  return (
+                    <button
+                      key={employee.id}
+                      type="button"
+                      disabled={assigning}
+                      onClick={() =>
+                        handleAssign(
+                          employee.id
+                        )
+                      }
+                      className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                        isSelected
+                          ? "bg-blue-50 dark:bg-blue-950/30"
+                          : ""
+                      }`}
+                    >
+
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                        {employee.name
+                          ?.charAt(0)
+                          .toUpperCase()}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+                          {employee.name}
+                        </p>
+
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                          {employee.email}
+                        </p>
+                      </div>
+
+                      {isSelected && (
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                          ✓
+                        </span>
+                      )}
+
+                    </button>
+                  );
+                })}
+
+              </div>
+            )}
+
+        </div>
+
+        {/* ==================================================
+            ACTION
+        ================================================== */}
+
+        <div>
+          <button
+            type="button"
+            onClick={onOpen}
+            className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
+          >
+            Åpne sak →
+          </button>
+        </div>
+
+      </div>
+
+
+      {/* ==================================================
+          MOBILE / TABLET
+      ================================================== */}
+
+      <div className="xl:hidden">
+
+        <div className="relative p-4 sm:p-5">
+
+          {/* PRIORITY STRIPE */}
+
+          <div
+            className={`absolute inset-y-4 left-0 w-1 rounded-r-full sm:inset-y-5 ${priorityAccent}`}
+          />
+
+          {/* ==================================================
+              TOP
+          ================================================== */}
+
+          <div className="flex min-w-0 items-start justify-between gap-3 pl-3">
+
+            <div className="min-w-0">
+
+              <div className="flex flex-wrap items-center gap-2">
+
+                <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+                  #{ticket.id}
+                </span>
+
+                <span className="truncate rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  {ticket.category}
+                </span>
+
               </div>
 
-              {/* ASSIGNMENT TEXT */}
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                Opprettet {formatDate(ticket.created_at)}
+              </p>
 
-              <div className="min-w-0 flex-1">
+            </div>
 
-                <p
-                  className={`text-xs font-semibold uppercase tracking-wide ${
+            <PriorityBadge
+              priority={ticket.priority}
+            />
+
+          </div>
+
+          {/* ==================================================
+              DESCRIPTION
+          ================================================== */}
+
+          <div className="mt-4 pl-3">
+
+            <p className="line-clamp-3 text-sm font-semibold leading-5 text-slate-800 dark:text-slate-100">
+              {ticket.content}
+            </p>
+
+            {ticket.subcategory && (
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                {ticket.subcategory}
+              </p>
+            )}
+
+          </div>
+
+          {/* ==================================================
+              STATUS + ASSIGNMENT
+          ================================================== */}
+
+          <div className="mt-4 flex flex-col gap-3 pl-3 sm:flex-row sm:items-center">
+
+            <div className="shrink-0">
+              <StatusBadge
+                status={ticket.status}
+              />
+            </div>
+
+            <div
+              ref={assignmentRef}
+              className="relative min-w-0 flex-1"
+            >
+
+              <button
+                type="button"
+                disabled={assigning}
+                onClick={() => {
+                  if (assignmentOpen) {
+                    setAssignmentOpen(false);
+                    return;
+                  }
+
+                  updateAssignmentMenuPosition();
+                  setAssignmentOpen(true);
+                }}
+                className={`flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-left transition ${
+                  isUnassigned
+                    ? "border-amber-200 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/20"
+                    : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+                }`}
+              >
+
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                     isUnassigned
-                      ? "text-amber-700 dark:text-amber-400"
-                      : "text-slate-500 dark:text-slate-400"
+                      ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
+                      : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
                   }`}
                 >
                   {isUnassigned
-                    ? "Ikke tildelt"
-                    : "Ansvarlig"}
-                </p>
+                    ? "+"
+                    : ticket.receiver?.name
+                        ?.charAt(0)
+                        .toUpperCase()}
+                </div>
 
-                <p
-                  className={`truncate text-sm font-semibold ${
-                    isUnassigned
-                      ? "text-amber-900 dark:text-amber-300"
-                      : "text-slate-800 dark:text-slate-200"
-                  }`}
-                >
-                  {assigning
-                    ? "Oppdaterer..."
-                    : isUnassigned
-                    ? "Mangler ansvarlig"
-                    : ticket.receiver?.name}
-                </p>
+                <div className="min-w-0 flex-1">
 
-              </div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                    Tildelt
+                  </p>
 
-              {/* CHEVRON */}
-
-              <span
-                className={`shrink-0 text-xs text-slate-400 transition-transform dark:text-slate-500 ${
-                  assignmentOpen
-                    ? "rotate-180"
-                    : ""
-                }`}
-              >
-                ▼
-              </span>
-
-            </button>
-
-            {/* ==================================================
-                DROPDOWN MENU
-            ================================================== */}
-
-            {assignmentOpen &&
-              assignmentMenuPosition && (
-                <div
-                  style={{
-                    position: "fixed",
-                    top:
-                      assignmentMenuPosition.top,
-                    left:
-                      assignmentMenuPosition.left,
-                    width:
-                      assignmentMenuPosition.width,
-                  }}
-                  className="z-[100] max-h-[min(300px,60dvh)] overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-                >
-
-                  {/* DROPDOWN HEADER */}
-
-                  <div className="border-b border-slate-100 px-3 py-2 dark:border-slate-800">
-
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                      Tildel ansvarlig
-                    </p>
-
-                  </div>
-
-                  {/* UNASSIGNED */}
-
-                  <button
-                    type="button"
-                    disabled={assigning}
-                    onClick={() =>
-                      handleAssign(null)
-                    }
-                    className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                  <p
+                    className={`truncate text-xs font-semibold ${
                       isUnassigned
-                        ? "bg-amber-50 dark:bg-amber-950/30"
-                        : ""
+                        ? "text-amber-800 dark:text-amber-300"
+                        : "text-slate-700 dark:text-slate-200"
                     }`}
                   >
+                    {assigning
+                      ? "Oppdaterer..."
+                      : isUnassigned
+                      ? "Ikke tildelt"
+                      : ticket.receiver?.name}
+                  </p>
 
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-                      +
+                </div>
+
+                <span
+                  className={`text-[10px] text-slate-400 transition-transform ${
+                    assignmentOpen
+                      ? "rotate-180"
+                      : ""
+                  }`}
+                >
+                  ▼
+                </span>
+
+              </button>
+
+              {/* MOBILE DROPDOWN */}
+
+              {assignmentOpen &&
+                assignmentMenuPosition && (
+                  <div
+                    style={{
+                      position: "fixed",
+                      top:
+                        assignmentMenuPosition.top,
+                      left:
+                        assignmentMenuPosition.left,
+                      width:
+                        assignmentMenuPosition.width,
+                    }}
+                    className="z-[100] max-h-[min(300px,60dvh)] overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+                  >
+
+                    <div className="border-b border-slate-100 px-3 py-2.5 dark:border-slate-800">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                        Tildel ansvarlig
+                      </p>
                     </div>
 
-                    <div className="min-w-0 flex-1">
+                    <button
+                      type="button"
+                      disabled={assigning}
+                      onClick={() =>
+                        handleAssign(null)
+                      }
+                      className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                        isUnassigned
+                          ? "bg-amber-50 dark:bg-amber-950/30"
+                          : ""
+                      }`}
+                    >
 
-                      <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                        Ikke tildelt
-                      </p>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                        +
+                      </div>
 
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Ingen ansvarlig valgt
-                      </p>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                          Ikke tildelt
+                        </p>
 
-                    </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Ingen ansvarlig valgt
+                        </p>
+                      </div>
 
-                    {isUnassigned && (
-                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                        ✓
-                      </span>
-                    )}
+                      {isUnassigned && (
+                        <span className="font-bold text-amber-600">
+                          ✓
+                        </span>
+                      )}
 
-                  </button>
+                    </button>
 
-                  {/* EMPLOYEES */}
-
-                  {employees.map(
-                    employee => {
-
+                    {employees.map(employee => {
                       const isSelected =
-                        String(
-                          employee.id
-                        ) ===
-                        String(
-                          ticket.receiver_id
-                        );
+                        String(employee.id) ===
+                        String(ticket.receiver_id);
 
                       return (
                         <button
-                          key={
-                            employee.id
-                          }
+                          key={employee.id}
                           type="button"
-                          disabled={
-                            assigning
-                          }
+                          disabled={assigning}
                           onClick={() =>
                             handleAssign(
                               employee.id
                             )
                           }
-                          className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                          className={`flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${
                             isSelected
                               ? "bg-blue-50 dark:bg-blue-950/30"
                               : ""
                           }`}
                         >
 
-                          {/* EMPLOYEE AVATAR */}
-
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
                             {employee.name
-                              ?.charAt(
-                                0
-                              )
+                              ?.charAt(0)
                               .toUpperCase()}
                           </div>
 
-                          {/* EMPLOYEE NAME */}
-
                           <div className="min-w-0 flex-1">
-
                             <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
                               {employee.name}
                             </p>
@@ -1687,86 +2009,58 @@ function TicketRow({
                             <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                               {employee.email}
                             </p>
-
                           </div>
 
-                          {/* CHECKMARK */}
-
                           {isSelected && (
-                            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                            <span className="font-bold text-blue-600 dark:text-blue-400">
                               ✓
                             </span>
                           )}
 
                         </button>
                       );
-                    }
-                  )}
+                    })}
 
-                </div>
-              )}
+                  </div>
+                )}
+
+            </div>
 
           </div>
 
           {/* ==================================================
-              STATUS
+              BOTTOM
           ================================================== */}
 
-          <div className="flex items-center gap-2 sm:shrink-0">
+          <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 pl-3 dark:border-slate-800">
 
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-              Status
-            </span>
+            <div className="min-w-0">
 
-            <StatusBadge
-              status={ticket.status}
-            />
+              {ticket.sender && (
+                <p className="truncate text-xs text-slate-400 dark:text-slate-500">
+                  Fra{" "}
+                  <span className="font-medium text-slate-600 dark:text-slate-300">
+                    {ticket.sender.name}
+                  </span>
+                </p>
+              )}
 
-          </div>
+            </div>
 
-        </div>
-
-        {/* ==================================================
-            METADATA
-        ================================================== */}
-
-        <div className="mt-4 flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
-
-          <div className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
-
-            <span>
-              Opprettet{" "}
-              <span className="font-medium text-slate-600 dark:text-slate-300">
-                {formatDate(
-                  ticket.created_at
-                )}
-              </span>
-            </span>
-
-            {ticket.sender && (
-              <span className="max-w-full truncate">
-                Fra{" "}
-                <span className="font-medium text-slate-600 dark:text-slate-300">
-                  {ticket.sender.name}
-                </span>
-              </span>
-            )}
+            <button
+              type="button"
+              onClick={onOpen}
+              className="shrink-0 cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-blue-400 dark:hover:border-blue-800 dark:hover:bg-blue-950/30"
+            >
+              Åpne sak →
+            </button>
 
           </div>
-
-          {/* OPEN */}
-
-          <button
-            type="button"
-            onClick={onOpen}
-            className="min-h-10 shrink-0 self-start cursor-pointer font-semibold text-blue-600 transition hover:translate-x-0.5 dark:text-blue-400 sm:self-auto"
-          >
-            Åpne sak →
-          </button>
 
         </div>
 
       </div>
+
     </div>
   );
 }
@@ -1785,7 +2079,7 @@ function PriorityBadge({
     priority === "high"
   ) {
     return (
-      <span className="shrink-0 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Høy
       </span>
     );
@@ -1793,14 +2087,14 @@ function PriorityBadge({
 
   if (priority === "medium") {
     return (
-      <span className="shrink-0 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
         Medium
       </span>
     );
   }
 
   return (
-    <span className="shrink-0 rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+    <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
       Lav
     </span>
   );
@@ -1820,7 +2114,7 @@ function StatusBadge({
     status === "pågår"
   ) {
     return (
-      <span className="inline-flex shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
       </span>
     );
@@ -1831,7 +2125,7 @@ function StatusBadge({
     status === "finished"
   ) {
     return (
-      <span className="inline-flex shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-3 py-1 text-[11px] font-bold text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
       </span>
     );
@@ -1839,14 +2133,14 @@ function StatusBadge({
 
   if (status === "cancelled") {
     return (
-      <span className="inline-flex shrink-0 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Avbrutt
       </span>
     );
   }
 
   return (
-    <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+    <span className="inline-flex shrink-0 items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Ny
     </span>
   );
@@ -1865,6 +2159,16 @@ function formatDate(value: string) {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+    }
+  );
+}
+
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString(
+    "nb-NO",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
     }
   );
 }
