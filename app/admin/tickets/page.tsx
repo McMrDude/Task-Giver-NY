@@ -1270,6 +1270,8 @@ function TicketRow({
 
   const [assignmentOpen, setAssignmentOpen] =
     useState(false);
+  const [assignmentTicketId, setAssignmentTicketId] = 
+    useState<number | null>(null);
 
   const [assignmentMenuPosition, setAssignmentMenuPosition] =
     useState<{
@@ -1615,16 +1617,21 @@ function TicketRow({
             type="button"
             disabled={assigning}
             onClick={() => {
-              if (assignmentOpen) {
-                setAssignmentOpen(false);
-                return;
-              }
+                if (
+                    assignmentOpen &&
+                    assignmentTicketId === ticket.id
+                ) {
+                    setAssignmentOpen(false);
+                    setAssignmentTicketId(null);
+                    return;
+                }
 
-              updateAssignmentMenuPosition(
-                desktopAssignmentRef
-              );
+                updateAssignmentMenuPosition(
+                    mobileAssignmentRef
+                );
 
-              setAssignmentOpen(true);
+                setAssignmentTicketId(ticket.id);
+                setAssignmentOpen(true);
             }}
             className={`flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
               isUnassigned
@@ -1808,7 +1815,7 @@ function TicketRow({
           <button
             type="button"
             onClick={onOpen}
-            className="whitespace-nowrap w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
+            className="min-w-[100px] whitespace-nowrap w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
           >
             Åpne sak →
           </button>
@@ -1902,16 +1909,21 @@ function TicketRow({
                 type="button"
                 disabled={assigning}
                 onClick={() => {
-                  if (assignmentOpen) {
-                    setAssignmentOpen(false);
-                    return;
-                  }
+                    if (
+                        assignmentOpen &&
+                        assignmentTicketId === ticket.id
+                    ) {
+                        setAssignmentOpen(false);
+                        setAssignmentTicketId(null);
+                        return;
+                    }
 
-                  updateAssignmentMenuPosition(
-                    mobileAssignmentRef
-                  );
+                    updateAssignmentMenuPosition(
+                        mobileAssignmentRef
+                    );
 
-                  setAssignmentOpen(true);
+                    setAssignmentTicketId(ticket.id);
+                    setAssignmentOpen(true);
                 }}
                 className={`flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-left transition ${
                   isUnassigned
