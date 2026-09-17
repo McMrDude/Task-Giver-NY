@@ -1120,34 +1120,57 @@ export default function AdminTicketsPage() {
 
                 <div className="hidden border-b border-slate-200 bg-slate-50/80 px-4 py-3 xl:block dark:border-slate-800 dark:bg-slate-950/40">
 
-                    <div className="grid grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <div className="grid grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] items-stretch text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
 
                     {/* COLOR */}
                     <div />
 
                     {/* ID */}
-                    <div>ID</div>
+                    <div className="flex items-center px-3">
+                        ID
+                    </div>
 
                     {/* DATE */}
-                    <div>Opprettet</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Opprettet
+                    </div>
 
                     {/* CATEGORY */}
-                    <div>Kategori</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Kategori
+                    </div>
 
                     {/* DESCRIPTION */}
-                    <div>Beskrivelse</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Beskrivelse
+                    </div>
 
                     {/* STATUS */}
-                    <div>Status</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Status
+                    </div>
 
                     {/* PRIORITY */}
-                    <div>Prioritet</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Prioritet
+                    </div>
 
                     {/* ASSIGNMENT */}
-                    <div>Tildelt</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Tildelt
+                    </div>
 
                     {/* ACTION */}
-                    <div>Handling</div>
+                    <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
+                    >
+                        Handling
+                    </div>
 
                     </div>
 
@@ -1255,9 +1278,11 @@ function TicketRow({
       width: number;
     } | null>(null);
 
-  const assignmentRef =
+  const desktopAssignmentRef =
     useRef<HTMLDivElement>(null);
 
+  const mobileAssignmentRef =
+    useRef<HTMLDivElement>(null);
   // ==================================================
   // PRIORITY ACCENT
   // ==================================================
@@ -1277,10 +1302,7 @@ function TicketRow({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        assignmentRef.current &&
-        !assignmentRef.current.contains(
-          event.target as Node
-        )
+        desktopAssignmentRef.current || mobileAssignmentRef.current
       ) {
         setAssignmentOpen(false);
       }
@@ -1309,7 +1331,12 @@ function TicketRow({
     }
 
     function handlePositionUpdate() {
-      updateAssignmentMenuPosition();
+        const ref =
+            window.innerWidth >= 1280
+                ? desktopAssignmentRef
+                : mobileAssignmentRef;
+
+        updateAssignmentMenuPosition(ref);
     }
 
     window.addEventListener(
@@ -1337,13 +1364,15 @@ function TicketRow({
     };
   }, [assignmentOpen]);
 
-  function updateAssignmentMenuPosition() {
-    if (!assignmentRef.current) {
+  function updateAssignmentMenuPosition(
+    ref: React.RefObject<HTMLDivElement | null>
+  ) {
+    if (!ref.current) {
       return;
     }
 
     const button =
-      assignmentRef.current.querySelector(
+      ref.current.querySelector(
         "button"
       );
 
@@ -1464,22 +1493,23 @@ function TicketRow({
           DESKTOP
       ================================================== */}
 
-      <div className="hidden xl:grid xl:grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] xl:items-center xl:gap-3 xl:px-4 xl:py-3.5">
+      <div className="hidden xl:grid xl:grid-cols-[8px_58px_105px_minmax(150px,1fr)_minmax(200px,1.5fr)_95px_85px_170px_100px] xl:items-stretch xl:px-4 xl:py-0">
 
         {/* ==================================================
             PRIORITY COLOR STRIPE
         ================================================== */}
 
         <div
-          className={`h-10 w-1.5 rounded-full ${priorityAccent}`}
-          title={`Prioritet: ${ticket.priority}`}
+            className={`my-3.5 h-10 w-1.5 self-center rounded-full ${priorityAccent}`}
+            title={`Prioritet: ${ticket.priority}`}
+
         />
 
         {/* ==================================================
             ID
         ================================================== */}
 
-        <div>
+        <div className="flex items-center px-3">
           <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
             #{ticket.id}
           </span>
@@ -1489,7 +1519,7 @@ function TicketRow({
             CREATED
         ================================================== */}
 
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-col justify-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
           <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
             {formatDate(ticket.created_at)}
           </p>
@@ -1503,7 +1533,7 @@ function TicketRow({
             CATEGORY
         ================================================== */}
 
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-col justify-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
 
           <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
             {ticket.category}
@@ -1521,7 +1551,7 @@ function TicketRow({
             DESCRIPTION
         ================================================== */}
 
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-col justify-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
 
           <p className="line-clamp-2 text-sm leading-5 text-slate-700 dark:text-slate-200">
             {ticket.content}
@@ -1539,7 +1569,7 @@ function TicketRow({
             STATUS
         ================================================== */}
 
-        <div>
+        <div className="flex items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
           <StatusBadge
             status={ticket.status}
           />
@@ -1549,7 +1579,7 @@ function TicketRow({
             PRIORITY
         ================================================== */}
 
-        <div>
+        <div className="flex items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
           <PriorityBadge
             priority={ticket.priority}
           />
@@ -1560,8 +1590,8 @@ function TicketRow({
         ================================================== */}
 
         <div
-          ref={assignmentRef}
-          className="relative min-w-0"
+          ref={desktopAssignmentRef}
+          className="relative flex min-w-0 items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800"
         >
 
           <button
@@ -1573,7 +1603,10 @@ function TicketRow({
                 return;
               }
 
-              updateAssignmentMenuPosition();
+              updateAssignmentMenuPosition(
+                desktopAssignmentRef
+              );
+
               setAssignmentOpen(true);
             }}
             className={`flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
@@ -1754,7 +1787,7 @@ function TicketRow({
             ACTION
         ================================================== */}
 
-        <div>
+        <div className="flex items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
           <button
             type="button"
             onClick={onOpen}
@@ -1844,7 +1877,7 @@ function TicketRow({
             </div>
 
             <div
-              ref={assignmentRef}
+              ref={mobileAssignmentRef}
               className="relative min-w-0 flex-1"
             >
 
@@ -1857,7 +1890,10 @@ function TicketRow({
                     return;
                   }
 
-                  updateAssignmentMenuPosition();
+                  updateAssignmentMenuPosition(
+                    mobileAssignmentRef
+                  );
+
                   setAssignmentOpen(true);
                 }}
                 className={`flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-left transition ${
