@@ -801,7 +801,7 @@ async function sendMessage() {
       user?.role === "admin"
     ) {
 
-      router.push("/admin");
+      router.push("/admin/tickets");
 
       return;
 
@@ -1106,7 +1106,7 @@ async function sendMessage() {
                 ←
 
                 {user?.role === "admin"
-                  ? "Tilbake til admin"
+                  ? "Tilbake til saker"
                   : "Tilbake til mine saker"}
               </button>
 
