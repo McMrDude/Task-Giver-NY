@@ -22,6 +22,7 @@ type Ticket = {
   sender_id: string;
   receiver_id: string | null;
 
+  title: string,
   content: string;
   category: string;
   subcategory: string;
@@ -1145,7 +1146,7 @@ export default function AdminTicketsPage() {
                     {/* DESCRIPTION */}
                     <div className="flex items-center border-l border-slate-200 px-3 dark:border-slate-800"
                     >
-                        Beskrivelse
+                        Tittel
                     </div>
 
                     {/* STATUS */}
@@ -1535,7 +1536,7 @@ function TicketRow({
         <div className="flex min-w-0 flex-col justify-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
 
           <p className="line-clamp-2 text-sm leading-5 text-slate-700 dark:text-slate-200">
-            {ticket.content}
+            {ticket.title}
           </p>
 
           {ticket.sender && (
