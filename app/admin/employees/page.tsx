@@ -23,6 +23,7 @@ type Ticket = {
   sender_id: string;
   receiver_id: string | null;
 
+  title: string
   content: string;
   category: string;
   subcategory: string;
@@ -1724,7 +1725,7 @@ function TaskRow({
 
           <p className="line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-200">
 
-            {task.content}
+            {task.title}
 
           </p>
 
