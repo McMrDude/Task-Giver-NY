@@ -612,7 +612,7 @@ export default function AdminDashboard() {
             SIDEBAR
         ================================================== */}
 
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
 
@@ -749,7 +749,7 @@ export default function AdminDashboard() {
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 w-full flex-1 pt-16 lg:pt-0">
+        <section className="min-w-0 flex-1 pt-16 lg:ml-64 lg:pt-0">
 
           {/* ==================================================
               HEADER
