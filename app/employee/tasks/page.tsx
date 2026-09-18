@@ -1104,7 +1104,7 @@ function EmployeeTicketCard({
 
           {/* TITLE */}
 
-          <p className="whitespace-pre-wrap break-words text-3xl leading-6 text-slate-800 dark:text-slate-200">
+          <p className="whitespace-pre-wrap break-words text-2xl leading-6 text-slate-800 dark:text-slate-200">
             {ticket.title}
           </p>
 
