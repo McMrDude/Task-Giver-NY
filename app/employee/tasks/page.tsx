@@ -28,6 +28,7 @@ type Ticket = {
   sender_id: string | number | null;
   receiver_id: string | number | null;
 
+  title: string,
   content: string;
   category: string;
   subcategory: string | null;
@@ -1103,8 +1104,8 @@ function EmployeeTicketCard({
 
           {/* DESCRIPTION */}
 
-          <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-800 dark:text-slate-200">
-            {ticket.content}
+          <p className="whitespace-pre-wrap break-words text-xl leading-6 text-slate-800 dark:text-slate-200">
+            {ticket.title}
           </p>
 
           {/* META */}
