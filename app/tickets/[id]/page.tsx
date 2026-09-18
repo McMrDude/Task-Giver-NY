@@ -812,7 +812,7 @@ async function sendMessage() {
       user?.role === "employee"
     ) {
 
-      router.push("/employee");
+      router.push("/employee/tasks");
 
       return;
 

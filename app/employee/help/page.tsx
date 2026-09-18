@@ -27,6 +27,26 @@ export default function HelpPage() {
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
+    useEffect(() => {
+    if (!mobileMenuOpen) {
+        document.body.style.overflow = "";
+        return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+        document.body.style.overflow = "";
+    };
+    }, [mobileMenuOpen]);
+
+    function navigateMobile(path: string) {
+    setMobileMenuOpen(false);
+    router.push(path);
+    }
+
   // ==================================================
   // LOAD USER
   // ==================================================
@@ -65,15 +85,20 @@ export default function HelpPage() {
   // ==================================================
 
   async function logout() {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-    } catch (error) {
-      console.error(error);
+    if (loggingOut) {
+        return;
     }
 
-    router.push("/login");
+    setLoggingOut(true);
+    setMobileMenuOpen(false);
+
+    try {
+        await fetch("/api/auth/logout", {
+            method: "POST",
+        });
+    } finally {
+        router.push("/login");
+    }
   }
 
   // ==================================================
@@ -234,101 +259,279 @@ export default function HelpPage() {
             MOBILE
         ================================================== */}
 
-        <div className="w-full lg:hidden">
+        <header className="fixed inset-x-0 top-0 z-50 lg:hidden">
 
-          <header className="sticky top-0 z-50 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <div className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
 
-            <div className="flex items-center justify-between px-5 py-4">
+                <div className="flex h-16 items-center justify-between px-4 sm:px-5">
 
-              <div className="flex items-center gap-3">
+                    {/* BRAND */}
 
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-                  IT
+                    <div className="flex min-w-0 items-center gap-3">
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+                            IT
+                        </div>
+
+                        <div className="min-w-0">
+
+                            <p className="truncate text-s, font-bold text-slate-900 dark:text-white">
+                                IT Support
+                            </p>
+
+                            <p className="truncate text-xs text-slate-500 dark:text-stale-400">
+                                Ansattportal
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    {/* RIGHT SIDE */}
+
+                    <div className="flex shring-0 items-center gap-1.5 sm:gap-2">
+
+                        {/* NOTIFICATIONS */}
+
+                        <div className="flex h-10 w-10 items-center justify-center">
+                            <NotificationBell />
+                        </div>
+
+                        {/* LOGOUT */}
+
+                        <button
+                            type="button"
+                            onClick={logout}
+                            disabled={loggingOut}
+                            aria-label="Logg ut"
+                            title="Logg ut"
+                            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hober:bg-slate-800"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 3h4a2 2 00 1 2 2v14a2 2 0 0 1-2 2h-4"
+                                />
+
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M10 1715-5-5-5"
+                                />
+
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 12H3"
+                                />
+                            </svg>
+
+                            <span className="hidden sm:inline">
+                                {loggingOut ? "Logger ut..." : "Logg ut"}
+                            </span>
+                        </button>
+
+                        {/* HAMBURGER */}
+
+                        <button
+                            type="button"
+                            arial-label={mobileMenuOpen ? "Lukk meny" : "Åpne meny"}
+                            aria-expanded={mobileMenuOpen}
+                            onClick={() =>
+                                setMobileMenuOpen((open) => !open)
+                            }
+                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.97] dark:border-slate700 dark:bg-slate-900 dark:text-slate200 dark:hover:bg-slate-800"
+                        >
+                            {mobileMenuOpen ? (
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M6 6112 12M18 6L6 18"
+                                    />
+                                </svg>
+                            ) : (
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M4 6h16M4 12h16M4 18h16"
+                                    />
+                                </svg>
+                            )}
+                        </button>
+
+                    </div>
+
                 </div>
-
-                <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">
-                    IT Support
-                  </p>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Ansattportal
-                  </p>
-                </div>
-
-              </div>
-
-              <button
-                onClick={() =>
-                  setMobileMenuOpen(
-                    !mobileMenuOpen
-                  )
-                }
-                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                aria-label="Åpne meny"
-              >
-                ☰
-              </button>
 
             </div>
 
-            {mobileMenuOpen && (
-              <div className="space-y-2 border-t border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+        </header>
 
-                <button
-                  onClick={() =>
-                    router.push("/employee")
-                  }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  ▦ Oversikt
-                </button>
+        {/* ==================================================
+            MOBILE MENU BACKDROP
+        ================================================== */}
 
-                <button
-                  onClick={() =>
-                    router.push("/employee/tasks")
-                  }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  📋 Mine tildelte saker
-                </button>
+        {mobileMenuOpen && (
+            <button
+                type="button"
+                aria-label="Lukk meny"
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 top-16 z-40 bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
+            />
+        )}
 
-                <button
-                  onClick={() =>
-                    router.push("/completed-tasks")
-                  }
-                  className="w-full rounded-lg px-4 py-3 text-left text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  ✓ Fullførte saker
-                </button>
+        {/* ==================================================
+            MOBILE MENU
+        ================================================== */}
 
-                <button
-                  onClick={() =>
-                    setMobileMenuOpen(false)
-                  }
-                  className="w-full rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                >
-                  ❓ Hjelp
-                </button>
+        {mobileMenuOpen && (
+            <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:hidden">
 
-                <ThemeToggle />
+                <div className="p-4">
 
-              </div>
-            )}
+                    {/* NAVIGATION */}
 
-          </header>
+                    <div>
 
-        </div>
+                        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            Navigasjon
+                        </p>
+
+                        <div className="space-y-1">
+
+                            <button
+                                type="button"
+                                onClick={() => navigateMobile("/employee")}
+                                className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                            >
+                                Oversikt
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => navigateMobile("/employee/tasks")}
+                                className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                            >
+                                Mine tildelte saker
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => navigateMobile("/completed-tasks")}
+                                className="flex min-h-11 w-full cursor-pointer items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                            >
+                                Fullførte saker
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex min-h-11 w-full cursor-pointer items-center rounded-xl bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                            >
+                                Hjelp
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    {/* ACCOUNT */}
+
+                    <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+
+                        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            Konto
+                        </p>
+
+                        {user && (
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+
+                                <div className="flex min-w-0 items-center gap-3">
+
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                                        {user.name.charAt(0).toUpperCase()}
+                                    </div>
+
+                                    <div className="min-w-0">
+
+                                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                                            {user.name}
+                                        </p>
+
+                                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                                            {user.email}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={logout}
+                            disabled={loggingOut}
+                            className="mt-3 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
+                            {loggingOut ? "Logger ut..." : "Logg ut"}
+                        </button>
+
+                    </div>
+
+                    {/* APPEARANCE */}
+
+                    <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+
+                        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            Utseende
+                        </p>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900">
+                            <ThemeToggle />
+                        </div>
+
+                    </div>
+                    
+                </div>
+
+            </div>
+        )}
 
         {/* ==================================================
             MAIN
         ================================================== */}
 
-        <section className="min-w-0 flex-1 lg:ml-64">
+        <section className="min-w-0 w-full flex-1 pt-16 lg:ml-64 lg:w-[calc(100%-16rem)] lg:pt-0">
 
           {/* HEADER */}
 
-          <header className="border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:px-8">
+          <header className="hidden border-b border-slate-200 bg-white px-6 py-6 dark:border-slate-800 dark:bg-slate-900 lg:block lg:px-8">
 
             <div className="flex items-start justify-between gap-4">
 
