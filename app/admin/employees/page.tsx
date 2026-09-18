@@ -1670,96 +1670,233 @@ function TaskRow({
   task: Ticket;
   onOpen: () => void;
 }) {
+  const priorityAccent =
+    task.priority === "høy" ||
+    task.priority === "high"
+      ? "bg-red-500"
+      : task.priority === "medium"
+      ? "bg-amber-400"
+      : "bg-blue-500";
 
   return (
-
     <button
       type="button"
       onClick={onOpen}
-      className="group w-full cursor-pointer rounded-lg border border-slate-200 p-3.5 text-left transition hover:border-blue-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-blue-800 dark:hover:bg-slate-800/50 sm:p-4"
+      className="group relative w-full cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white text-left transition hover:bg-slate-50/70 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50"
     >
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* ==================================================
+          DESKTOP / TABLET
+      ================================================== */}
+
+      <div className="hidden sm:grid sm:grid-cols-[8px_58px_minmax(140px,0.8fr)_minmax(220px,1.5fr)_100px_90px_110px] sm:items-stretch">
+
+        {/* PRIORITY COLOR STRIPE */}
+
+        <div
+          className={`my-3.5 h-10 w-1.5 self-center rounded-full ${priorityAccent}`}
+          title={`Prioritet: ${task.priority}`}
+        />
+
 
         {/* ID */}
 
-        <div className="shrink-0">
+        <div className="flex items-center px-3">
 
-          <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500">
-
+          <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
             #{task.id}
-
           </span>
 
         </div>
 
 
-        {/* MAIN */}
+        {/* CATEGORY */}
 
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-col justify-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
 
-          <div className="mb-1 flex flex-wrap items-center gap-2">
-
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
-              {task.category}
-
-            </span>
-
-
-            <PriorityBadge
-              priority={
-                task.priority
-              }
-            />
-
-
-            <StatusBadge
-              status={
-                task.status
-              }
-            />
-
-          </div>
-
-
-          <p className="line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-200">
-
-            {task.title}
-
+          <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+            {task.category}
           </p>
 
-
-          {task.due_date && (
-
-            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-
-              Frist:{" "}
-              {formatDate(
-                task.due_date
-              )}
-
+          {task.subcategory && (
+            <p className="mt-0.5 truncate text-xs text-slate-400 dark:text-slate-500">
+              {task.subcategory}
             </p>
-
           )}
+
+        </div>
+
+
+        {/* DESCRIPTION */}
+
+        <div className="flex min-w-0 flex-col justify-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
+
+          <p className="line-clamp-2 text-sm leading-5 text-slate-700 dark:text-slate-200">
+            {task.title}
+          </p>
+
+          {task.sender && (
+            <p className="mt-1 truncate text-[11px] text-slate-400 dark:text-slate-500">
+              Fra {task.sender.name}
+            </p>
+          )}
+
+        </div>
+
+
+        {/* STATUS */}
+
+        <div className="flex items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
+
+          <StatusBadge status={task.status} />
+
+        </div>
+
+
+        {/* PRIORITY */}
+
+        <div className="flex items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
+
+          <PriorityBadge priority={task.priority} />
 
         </div>
 
 
         {/* OPEN */}
 
-        <span className="shrink-0 self-start text-sm font-semibold text-blue-600 group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-300 sm:self-auto">
+        <div className="flex items-center border-l border-slate-100 px-3 py-3.5 dark:border-slate-800">
 
-          Åpne →
+          <span className="w-full whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-700 transition group-hover:border-blue-300 group-hover:bg-blue-50 group-hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:group-hover:border-blue-800 dark:group-hover:bg-blue-950/30 dark:group-hover:text-blue-400">
+            Åpne sak →
+          </span>
 
-        </span>
+        </div>
+
+      </div>
+
+
+      {/* ==================================================
+          MOBILE
+      ================================================== */}
+
+      <div className="sm:hidden">
+
+        <div className="relative p-4">
+
+          {/* PRIORITY STRIPE */}
+
+          <div
+            className={`absolute inset-y-4 left-0 w-1 rounded-r-full ${priorityAccent}`}
+          />
+
+
+          {/* TOP */}
+
+          <div className="flex min-w-0 items-start justify-between gap-3 pl-3">
+
+            <div className="min-w-0">
+
+              <div className="flex flex-wrap items-center gap-2">
+
+                {/* ID */}
+
+                <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+                  #{task.id}
+                </span>
+
+
+                {/* CATEGORY */}
+
+                <span className="truncate rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  {task.category}
+                </span>
+
+              </div>
+
+
+              {/* CREATED */}
+
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                Opprettet {formatDate(task.created_at)}
+              </p>
+
+            </div>
+
+
+            {/* PRIORITY */}
+
+            <PriorityBadge priority={task.priority} />
+
+          </div>
+
+
+          {/* DESCRIPTION */}
+
+          <div className="mt-4 pl-3">
+
+            <p className="line-clamp-3 text-sm font-semibold leading-5 text-slate-800 dark:text-slate-100">
+              {task.title}
+            </p>
+
+            {task.subcategory && (
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                {task.subcategory}
+              </p>
+            )}
+
+          </div>
+
+
+          {/* STATUS */}
+
+          <div className="mt-4 flex items-center gap-3 pl-3">
+
+            <StatusBadge status={task.status} />
+
+          </div>
+
+
+          {/* BOTTOM */}
+
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pl-3 pt-3 dark:border-slate-800">
+
+            <div className="min-w-0">
+
+              {task.sender && (
+                <p className="truncate text-xs text-slate-400 dark:text-slate-500">
+
+                  Fra{" "}
+
+                  <span className="font-medium text-slate-600 dark:text-slate-300">
+                    {task.sender.name}
+                  </span>
+
+                </p>
+              )}
+
+              {task.due_date && (
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+                  Frist: {formatDate(task.due_date)}
+                </p>
+              )}
+
+            </div>
+
+
+            {/* OPEN */}
+
+            <span className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-blue-600 transition group-hover:border-blue-300 group-hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-blue-400 dark:group-hover:border-blue-800 dark:group-hover:bg-blue-950/30">
+              Åpne sak →
+            </span>
+
+          </div>
+
+        </div>
 
       </div>
 
     </button>
-
   );
-
 }
 
 
@@ -1772,52 +1909,30 @@ function PriorityBadge({
 }: {
   priority: string;
 }) {
-
   if (
     priority === "høy" ||
     priority === "high"
   ) {
-
     return (
-
-      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
+      <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Høy
-
       </span>
-
     );
-
   }
 
-
-  if (
-    priority === "medium"
-  ) {
-
+  if (priority === "medium") {
     return (
-
-      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
-
+      <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
         Medium
-
       </span>
-
     );
-
   }
-
 
   return (
-
-    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
+    <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
       Lav
-
     </span>
-
   );
-
 }
 
 
@@ -1830,70 +1945,41 @@ function StatusBadge({
 }: {
   status: string;
 }) {
-
   if (
     status === "started" ||
     status === "pågår"
   ) {
-
     return (
-
-      <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
-
+      <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
         Pågår
-
       </span>
-
     );
-
   }
-
 
   if (
     status === "completed" ||
     status === "finished"
   ) {
-
     return (
-
-      <span className="inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-950/50 dark:text-green-400">
-
+      <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-3 py-1 text-[11px] font-bold text-green-700 dark:bg-green-950/50 dark:text-green-400">
         Ferdig
-
       </span>
-
     );
-
   }
 
-
-  if (
-    status === "cancelled"
-  ) {
-
+  if (status === "cancelled") {
     return (
-
-      <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400">
-
+      <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-700 dark:bg-red-950/50 dark:text-red-400">
         Avbrutt
-
       </span>
-
     );
-
   }
-
 
   return (
-
-    <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-
+    <span className="inline-flex shrink-0 items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Ny
-
     </span>
-
   );
-
 }
 
 
@@ -1902,10 +1988,7 @@ function StatusBadge({
 // ====================================================
 
 function formatDate(value: string) {
-
-  return new Date(
-    value
-  ).toLocaleDateString(
+  return new Date(value).toLocaleDateString(
     "nb-NO",
     {
       day: "2-digit",
@@ -1913,5 +1996,4 @@ function formatDate(value: string) {
       year: "numeric",
     }
   );
-
 }
