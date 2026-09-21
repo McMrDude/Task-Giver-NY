@@ -2112,7 +2112,7 @@ function PriorityBadge({
   }
 
   return (
-    <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
+    <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-3 py-1 text-[11px] font-bold text-green-700 dark:bg-green-950/50 dark:text-green-400">
       Lav
     </span>
   );
