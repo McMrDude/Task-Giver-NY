@@ -2157,6 +2157,17 @@ function StatusBadge({
     );
   }
 
+  if (
+    status === "not_started"
+  ) {
+    return (
+        <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+            Ikke startet
+        </span>
+    )
+  }
+
+
   return (
     <span className="inline-flex shrink-0 items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
       Ny
