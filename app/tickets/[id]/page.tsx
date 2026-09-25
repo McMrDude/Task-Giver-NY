@@ -2048,7 +2048,7 @@ async function sendMessage() {
 
   <div className="border-t border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-950/50 sm:p-5">
 
-    <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3">
+    <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:gap-3">
 
       {/* TEXT INPUT */}
 
