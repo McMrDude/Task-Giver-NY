@@ -128,6 +128,8 @@ export default function TicketDetailPage() {
   const messagesContainerRef =
     useRef<HTMLDivElement | null>(null);
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
   // ==================================================
   // LOAD
   // ==================================================
@@ -829,17 +831,18 @@ async function sendMessage() {
   // ==================================================
 
   async function logout() {
+    try {
+      setLoggingOut(true);
 
-    await fetch(
-      "/api/auth/logout",
-      {
+      await fetch("/api/auth/logout", {
         method: "POST",
-      }
-    );
+      });
 
-
-    router.push("/login");
-
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setLoggingOut(false);
+    }
   }
 
 
@@ -966,118 +969,233 @@ async function sendMessage() {
             DESKTOP SIDEBAR
             Hidden completely below lg
         =================================================== */}
-        <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex">
 
           {/* LOGO */}
-          <div className="flex h-20 shrink-0 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
-              IT
-            </div>
+          <div className="border-b border-slate-200 p-5 dark:border-slate-800">
 
-            <div>
-              <p className="font-bold text-slate-900 dark:text-white">
-                IT Support
-              </p>
+            <div className="flex items-center gap-3">
 
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Støttesystem
-              </p>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">
+                IT
+              </div>
+
+              <div>
+
+                <p className="font-bold text-slate-900 dark:text-white">
+                  IT Support
+                </p>
+
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Administrasjon
+                </p>
+
+              </div>
+
             </div>
 
           </div>
 
 
           {/* NAVIGATION */}
-          <nav className="flex-1 space-y-1 overflow-y-auto p-4">
 
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="flex w-full items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-            >
-              <span>⌂</span>
-              Oversikt
-            </button>
+          <nav className="flex-1 space-y-1 overflow-y-auto p-3">
 
+            {user?.role=="admin"}
 
-            <button
-              type="button"
-              onClick={() => router.push("/my-tickets")}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-              <span>📋</span>
-              Mine saker
-            </button>
+              {/* DASHBOARD */}
+
+              <button
+                onClick={() =>
+                  router.push("/admin")
+                }
+                className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+              >
+                Dashboard
+              </button>
 
 
-            <button
-              type="button"
-              onClick={() => router.push("/help")}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-              <span>❓</span>
-              Hjelp
-            </button>
+              {/* ADMIN SECTION */}
+
+              <div className="px-3 pb-2 pt-6">
+
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Admin
+                </p>
+
+              </div>
+
+
+              {/* ALL TICKETS */}
+
+              <button
+                onClick={() =>
+                  router.push("/admin/tickets")
+                }
+                className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                Alle saker
+              </button>
+
+
+              {/* EMPLOYEES */}
+
+              <button
+                onClick={() =>
+                  router.push("/admin/employees")
+                }
+                className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                Ansatte
+              </button>
+
+
+            {user?.role=="employee"}
+
+              {/* OVERVIEW */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    "/employee"
+                  )
+                }
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+              >
+                <span>▦</span>
+                Oversikt
+              </button>
+
+              {/* ASSIGNED TICKETS */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    "/employee/tasks"
+                  )
+                }
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <span>📋</span>
+                Mine tildelte saker
+              </button>
+
+              {/* COMPLETED TICKETS */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    "/completed-tasks"
+                  )
+                }
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <span>✓</span>
+                Fullførte saker
+              </button>
+
+              {/* HELP */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    "/employee/help"
+                  )
+                }
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <span>❓</span>
+                Hjelp
+              </button>
+
+            {user?.role=="user"}
+
+              {/* Oversikt */}
+
+              <button
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+              >
+                <span>⌂</span>
+                Oversikt
+              </button>
+
+
+              <button
+                onClick={() => {
+                  router.push("/my-tickets");
+                }}
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <span>📋</span>
+                Mine saker
+              </button>
+
+
+              {/* Hjelp */}
+
+              <button
+                onClick={() => {
+                  router.push("/help");
+                }}
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <span>❓</span>
+                Hjelp
+              </button>
 
           </nav>
 
 
           {/* THEME */}
+
           <div className="border-t border-slate-200 p-3 dark:border-slate-800">
             <ThemeToggle />
           </div>
 
 
           {/* ACCOUNT */}
-          <div className="border-t border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
 
-            {user ? (
-              <>
+          <div className="border-t border-slate-200 p-4 dark:border-slate-800">
 
-                <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
+            <div className="mb-3 flex items-center gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
-                    {user.name?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                {user?.name
+                  ?.charAt(0)
+                  .toUpperCase()}
+              </div>
 
-                  <div className="min-w-0 flex-1">
+              <div className="min-w-0">
 
-                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
-                      {user.name}
-                    </p>
+                <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                  {user?.name}
+                </p>
 
-                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                      {user.role=="admin" ? "Admin"  : user.email}
-                    </p>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                  {user?.role=="admin" ? "Administrator" : user?.email}
+                </p>
 
-                  </div>
+              </div>
 
-                </div>
+            </div>
 
 
-                <button
-                  type="button"
-                  onClick={logout}
-                  disabled={updating}
-                  className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  {updating ? "Logger ut..." : "Logg ut"}
-                </button>
+            {/* LOGOUT */}
 
-              </>
-
-            ) : (
-
-              <button
-                type="button"
-                onClick={() => router.push("/login")}
-                className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-              >
-                Logg inn
-              </button>
-
-            )}
+            <button
+              onClick={logout}
+              disabled={loggingOut}
+              className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              {loggingOut
+                ? "Logger ut..."
+                : "Logg ut"}
+            </button>
 
           </div>
 
@@ -1101,7 +1219,7 @@ async function sendMessage() {
               <button
                 type="button"
                 onClick={goBack}
-                className="mb-4 hidden items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
+                className="mb-4 hidden cursor-pointer items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 lg:inline-flex"
               >
                 ←
 
