@@ -1048,7 +1048,7 @@ async function sendMessage() {
                     </p>
 
                     <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                      {user.email}
+                      {user.role=="admin" ? "Admin"  : user.email}
                     </p>
 
                   </div>
