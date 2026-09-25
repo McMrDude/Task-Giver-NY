@@ -1000,160 +1000,172 @@ async function sendMessage() {
 
           {/* NAVIGATION */}
 
-          <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+          <nav className="flex-1 space-y-1 overflow-y-auto p-3">       
 
-            {user?.role=="admin"} && (
+            {user?.role === "admin" && (
 
-              {/* DASHBOARD */}
+              <section>
 
-              <button
-                onClick={() =>
-                  router.push("/admin")
-                }
-                className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-              >
-                Dashboard
-              </button>
+                {/* DASHBOARD */}
 
-
-              {/* ADMIN SECTION */}
-
-              <div className="px-3 pb-2 pt-6">
-
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  Admin
-                </p>
-
-              </div>
+                <button
+                  onClick={() =>
+                    router.push("/admin")
+                  }
+                  className="w-full cursor-pointer rounded-lg bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+                  Dashboard
+                </button>
 
 
-              {/* ALL TICKETS */}
+                {/* ADMIN SECTION */}
 
-              <button
-                onClick={() =>
-                  router.push("/admin/tickets")
-                }
-                className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                Alle saker
-              </button>
+                <div className="px-3 pb-2 pt-6">
+
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Admin
+                  </p>
+
+                </div>
 
 
-              {/* EMPLOYEES */}
+                {/* ALL TICKETS */}
 
-              <button
-                onClick={() =>
-                  router.push("/admin/employees")
-                }
-                className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                Ansatte
-              </button>
+                <button
+                  onClick={() =>
+                    router.push("/admin/tickets")
+                  }
+                  className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  Alle saker
+                </button>
+
+
+                {/* EMPLOYEES */}
+
+                <button
+                  onClick={() =>
+                    router.push("/admin/employees")
+                  }
+                  className="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  Ansatte
+                </button>
+
+              </section>
             
-            )
+            )}
 
 
-            {user?.role=="employee"} && (
+            {user?.role=="employee" && (
 
-              {/* OVERVIEW */}
+              <section>
 
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    "/employee"
-                  )
-                }
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-              >
-                <span>▦</span>
-                Oversikt
-              </button>
+                {/* OVERVIEW */}
 
-              {/* ASSIGNED TICKETS */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      "/employee"
+                    )
+                  }
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+                  <span>▦</span>
+                  Oversikt
+                </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    "/employee/tasks"
-                  )
-                }
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                <span>📋</span>
-                Mine tildelte saker
-              </button>
+                {/* ASSIGNED TICKETS */}
 
-              {/* COMPLETED TICKETS */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      "/employee/tasks"
+                    )
+                  }
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  <span>📋</span>
+                  Mine tildelte saker
+                </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    "/completed-tasks"
-                  )
-                }
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                <span>✓</span>
-                Fullførte saker
-              </button>
+                {/* COMPLETED TICKETS */}
 
-              {/* HELP */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      "/completed-tasks"
+                    )
+                  }
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  <span>✓</span>
+                  Fullførte saker
+                </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    "/employee/help"
-                  )
-                }
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                <span>❓</span>
-                Hjelp
-              </button>
+                {/* HELP */}
 
-            )
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      "/employee/help"
+                    )
+                  }
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  <span>❓</span>
+                  Hjelp
+                </button>
 
+              </section>
 
-            {user?.role=="user"} && (
-
-              {/* Oversikt */}
-
-              <button
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-              >
-                <span>⌂</span>
-                Oversikt
-              </button>
+            )}
 
 
-              <button
-                onClick={() => {
-                  router.push("/my-tickets");
-                }}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                <span>📋</span>
-                Mine saker
-              </button>
+            {user?.role=="user" && (
+
+              <section>
+
+                {/* Oversikt */}
+
+                <button
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                >
+                  <span>⌂</span>
+                  Oversikt
+                </button>
 
 
-              {/* Hjelp */}
+                <button
+                  onClick={() => {
+                    router.push("/my-tickets");
+                  }}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  <span>📋</span>
+                  Mine saker
+                </button>
 
-              <button
-                onClick={() => {
-                  router.push("/help");
-                }}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
-              >
-                <span>❓</span>
-                Hjelp
-              </button>
 
-            )
+                {/* Hjelp */}
+
+                <button
+                  onClick={() => {
+                    router.push("/help");
+                  }}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                  <span>❓</span>
+                  Hjelp
+                </button>
+
+              </section>
+
+            )}
 
           </nav>
 
