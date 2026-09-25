@@ -1002,7 +1002,7 @@ async function sendMessage() {
 
           <nav className="flex-1 space-y-1 overflow-y-auto p-3">
 
-            {user?.role=="admin"}
+            {user?.role=="admin"} && (
 
               {/* DASHBOARD */}
 
@@ -1049,9 +1049,11 @@ async function sendMessage() {
               >
                 Ansatte
               </button>
+            
+            )
 
 
-            {user?.role=="employee"}
+            {user?.role=="employee"} && (
 
               {/* OVERVIEW */}
 
@@ -1113,7 +1115,10 @@ async function sendMessage() {
                 Hjelp
               </button>
 
-            {user?.role=="user"}
+            )
+
+
+            {user?.role=="user"} && (
 
               {/* Oversikt */}
 
@@ -1147,6 +1152,8 @@ async function sendMessage() {
                 <span>❓</span>
                 Hjelp
               </button>
+
+            )
 
           </nav>
 
