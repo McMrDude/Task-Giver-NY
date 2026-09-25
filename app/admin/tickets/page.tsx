@@ -1294,7 +1294,7 @@ function TicketRow({
       ? "bg-red-500"
       : ticket.priority === "medium"
       ? "bg-amber-400"
-      : "bg-blue-500";
+      : "bg-green-100";
 
   // ==================================================
   // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
