@@ -94,11 +94,7 @@ export async function GET() {
     await supabase
       .from("notifications")
       .delete()
-      .eq("user_id", userId)
       .lt("created_at", expirationDate.toISOString())
-      .order("created_at", {
-        ascending: false,
-      });
 
 
 
