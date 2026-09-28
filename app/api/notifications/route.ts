@@ -91,7 +91,7 @@ export async function GET() {
         ascending: false,
       });
 
-    const {} = await supabase
+    await supabase
       .from("notifications")
       .delete()
       .eq("user_id", userId)
