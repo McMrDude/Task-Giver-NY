@@ -1470,7 +1470,7 @@ function EmployeeCard({
               CURRENT TASKS
           ================================================== */}
 
-          <div className="p-4 sm:p-5">
+          <div className="bg-blue-100 p-4 sm:p-5">
 
             <div className="mb-4 flex items-center justify-between gap-4">
 
