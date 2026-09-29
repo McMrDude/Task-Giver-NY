@@ -1256,7 +1256,7 @@ function EmployeeCard({
 
           <div className="flex min-w-0 shrink-0 items-center gap-4">
 
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700 dark:bg-blue-950/10 dark:text-blue-400">
 
               {employee.name
                 .charAt(0)
