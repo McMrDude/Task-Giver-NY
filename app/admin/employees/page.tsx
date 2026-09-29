@@ -1322,13 +1322,13 @@ function EmployeeCard({
 
             <div className="min-w-[56px] text-center">
 
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <p className={`text-[11px] font-semibold uppercase tracking-wider ${currentTasks.length > 0 ? "text-blue-500 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"}`}>
 
                 Aktive
 
               </p>
 
-              <p className="mt-1 text-2xl font-bold leading-none text-slate-900 dark:text-white">
+              <p className={`mt-1 text-2xl font-bold leading-none ${currentTasks.length > 0 ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-white"}`}>
 
                 {currentTasks.length}
 
@@ -1339,17 +1339,17 @@ function EmployeeCard({
 
             {/* HIGH PRIORITY */}
 
-            {highPriorityTasks > 0 && (
+            {/* {highPriorityTasks > 0 && ( */}
 
               <div className="hidden min-w-[70px] border-l border-slate-200 pl-5 text-center sm:block dark:border-slate-800">
 
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
+                <p className={`text-[11px] font-semibold uppercase tracking-wider ${highPriorityTasks > 0 ? "text-red-500 dark:text-red-400" : "text-slate-400 dark:text-slate-500"}`}>
 
                   Høy prioritet
 
                 </p>
 
-                <p className="mt-1 text-lg font-bold leading-none text-red-600 dark:text-red-400">
+                <p className={`mt-1 text-lg font-bold leading-none ${highPriorityTasks > 0 ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-white"}`}>
 
                   {highPriorityTasks}
 
@@ -1357,20 +1357,20 @@ function EmployeeCard({
 
               </div>
 
-            )}
+            {/* )} */}
 
 
             {/* COMPLETED */}
 
             <div className="hidden min-w-[64px] border-l border-slate-200 pl-5 text-center md:block dark:border-slate-800">
 
-              <p className={`text-[11px] font-semibold uppercase tracking-wider ${completedTasks.length <= 0 ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
+              <p className={`text-[11px] font-semibold uppercase tracking-wider ${completedTasks.length >= 0 ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
 
                 Ferdige
 
               </p>
 
-              <p className={`mt-1 text-lg font-bold leading-none text-emerald-500 ${completedTasks.length <= 0 ? "text-emerald-500" : "text-slate-400 dark:text-slate-500"}`}>
+              <p className={`mt-1 text-lg font-bold leading-none text-emerald-500 ${completedTasks.length >= 0 ? "text-emerald-500" : "text-slate-900 dark:text-white"}`}>
 
                 {completedTasks.length}
 
@@ -1383,13 +1383,13 @@ function EmployeeCard({
 
             <div className="text-center sm:hidden">
 
-              <p className={`text-[11px] font-semibold uppercase tracking-wider ${completedTasks.length <= 0 ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
+              <p className={`text-[11px] font-semibold uppercase tracking-wider ${completedTasks.length >= 0 ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
 
                 Ferdige
 
               </p>
 
-              <p className={`mt-1 text-lg font-bold leading-none ${completedTasks.length <= 0 ? "text-emerald-500" : "text-slate-400 dark:text-slate-500"}`}>
+              <p className={`mt-1 text-lg font-bold leading-none ${completedTasks.length >= 0 ? "text-emerald-500" : "text-slate-900 dark:text-white"}`}>
 
                 {completedTasks.length}
 
