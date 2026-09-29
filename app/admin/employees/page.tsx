@@ -1247,7 +1247,7 @@ function EmployeeCard({
       <button
         type="button"
         onClick={onToggle}
-        className="group w-full cursor-pointer p-4 text-left transition bg-blue-50 hover:bg-blue-20 dark:bg-blue-100 dark:hover:bg-blue-800/20 sm:p-5"
+        className="group w-full cursor-pointer p-4 text-left transition bg-blue-50 hover:bg-blue-90 dark:bg-blue-800/25 dark:hover:bg-blue-800/50 sm:p-5"
       >
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
