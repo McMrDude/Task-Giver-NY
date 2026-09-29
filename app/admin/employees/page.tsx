@@ -1364,13 +1364,13 @@ function EmployeeCard({
 
             <div className="hidden min-w-[64px] border-l border-slate-200 pl-5 text-center md:block dark:border-slate-800">
 
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <p className={`text-[11px] font-semibold uppercase tracking-wider ${completedTasks.length <= 0 ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
 
                 Ferdige
 
               </p>
 
-              <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+              <p className={`mt-1 text-lg font-bold leading-none text-emerald-500 ${completedTasks.length <= 0 ? "text-emerald-500" : "text-slate-400 dark:text-slate-500"}`}>
 
                 {completedTasks.length}
 
@@ -1383,13 +1383,13 @@ function EmployeeCard({
 
             <div className="text-center sm:hidden">
 
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <p className={`text-[11px] font-semibold uppercase tracking-wider ${completedTasks.length <= 0 ? "text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
 
                 Ferdige
 
               </p>
 
-              <p className="mt-1 text-lg font-bold leading-none text-emerald-500">
+              <p className={`mt-1 text-lg font-bold leading-none ${completedTasks.length <= 0 ? "text-emerald-500" : "text-slate-400 dark:text-slate-500"}`}>
 
                 {completedTasks.length}
 

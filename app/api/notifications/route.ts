@@ -91,10 +91,12 @@ export async function GET() {
         ascending: false,
       });
 
-    await supabase
+// SLETTER NOTIFICATIONS SOM ER ELDRE EN EXPIRATION DATOEN //
+
+/*     await supabase
       .from("notifications")
       .delete()
-      .lt("created_at", expirationDate.toISOString())
+      .lt("created_at", expirationDate.toISOString()) */
 
 
 
