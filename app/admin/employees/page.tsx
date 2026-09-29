@@ -1238,7 +1238,7 @@ function EmployeeCard({
 
   return (
 
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-blue-30 shadow-sm dark:border-slate-800 dark:bg-blue-60">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
       {/* ==================================================
           EMPLOYEE HEADER
@@ -1247,7 +1247,7 @@ function EmployeeCard({
       <button
         type="button"
         onClick={onToggle}
-        className="group w-full cursor-pointer p-4 text-left transition hover:bg-blue-10 dark:hover:bg-slate-800/10 sm:p-5"
+        className="group w-full cursor-pointer p-4 text-left transition bg-blue-50 hover:bg-blue-20 dark:bg-blue-100 dark:hover:bg-blue-800/20 sm:p-5"
       >
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
