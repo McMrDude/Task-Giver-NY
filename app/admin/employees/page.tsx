@@ -1238,7 +1238,7 @@ function EmployeeCard({
 
   return (
 
-    <div className="overflow-hidden rounded-xl border border-blue-30 bg-white shadow-sm dark:border-slate-800 dark:bg-blue-60">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-blue-30 shadow-sm dark:border-slate-800 dark:bg-blue-60">
 
       {/* ==================================================
           EMPLOYEE HEADER
